@@ -1,6 +1,6 @@
 import React from "react";
 
-const SearchBar = ({ value, onChange, placeholder = "Search..." }) => {
+const SearchBar = ({ value, onChange, placeholder = "Search Restaurants" }) => {
   return (
     <div className="input-group mb-3">
       <input
