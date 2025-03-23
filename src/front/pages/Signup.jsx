@@ -9,6 +9,9 @@ import { Link, useNavigate } from "react-router-dom";
      const handleSubmit = async (event) => {
          event.preventDefault();
  
+         const userName = event.target.userNameInput.value;
+         const firstName = event.target.firstNameInput.value;
+         const lastName = event.target.lastNameInput.value;
          const email = event.target.emailInput.value;
          const password = event.target.passwordInput.value;
          const confirmPassword = event.target.confirmPasswordInput.value;
@@ -18,12 +21,15 @@ import { Link, useNavigate } from "react-router-dom";
              return
          }
  
-         const response = await fetch(process.env.BACKEND_URL + "/api/signup", {
+         const response = await fetch(process.env.BACKEND_URL + "/api/user", {
              method: "POST",
              headers: { "Content-Type": "application/json" },
              body: JSON.stringify({
-                 email: email.toLowerCase(),
-                 password: password
+                username: userName,
+                email: email.toLowerCase(),
+                password: password,
+                first_name: firstName,
+                last_name: lastName
              })
  
          });
@@ -44,6 +50,9 @@ import { Link, useNavigate } from "react-router-dom";
          <div className="authDiv">
              <h2> Sign Up </h2>
              <form onSubmit={handleSubmit}>
+                 <input type="username" name="usernameInput" placeholder="choose a username" required />
+                 <input type="firstName" name="nameInput" placeholder="enter your Name" required />
+                 <input type="lastName" name="lastNameInput" placeholder="enter your Last Name" required />
                  <input type="email" name="emailInput" placeholder="enter email" required />
                  <input type="password" name="passwordInput" placeholder="enter password" required />
                  <input type="password" name="confirmPasswordInput" placeholder="confirm password" required />

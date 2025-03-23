@@ -1,19 +1,29 @@
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import SearchBar from "./SearchBar";
+import "../Navbar.css"; 
 
 export const Navbar = () => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const userProfilePhoto = "https://loremflickr.com/320/240"; 
 
-	return (
-		<nav className="navbar navbar-light bg-light">
-			<div className="container">
-				<Link to="/">
-					<span className="navbar-brand mb-0 h1">React Boilerplate</span>
-				</Link>
-				<div className="ml-auto">
-					<Link to="/demo">
-						<button className="btn btn-primary">Check the Context in action</button>
-					</Link>
-				</div>
-			</div>
-		</nav>
-	);
+  return (
+    <div className="navbar">
+      <h1 className="navbar-title">Bite Finder</h1>
+
+      <div className="navbar-search">
+        <SearchBar
+          value={searchQuery}
+          onChange={setSearchQuery}
+          placeholder="Search restaurants..."
+        />
+      </div>
+
+      <img
+        src={userProfilePhoto}
+        alt="Profile"
+        className="profile-photo"
+      />
+    </div>
+  );
 };
