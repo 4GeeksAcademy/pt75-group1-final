@@ -2,7 +2,7 @@ import React from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Testimonial from "../components/Testimonial"; 
-import user-placeholder.png from "../assets/img/user-placeholder.png";
+import userPlaceholder from "../assets/img/user-placeholder.png";
 
 
 const About = () => {
@@ -66,7 +66,7 @@ const About = () => {
   <div className="row justify-content-center">
     <div className="col-md-4 text-center mb-5">
       <img
-        src={user-placeholder.png}
+        src={userPlaceholder}
         className="rounded-circle shadow-sm mb-3"
         alt="Noah"
         style={{ width: "150px", height: "150px", objectFit: "cover" }}
@@ -76,7 +76,7 @@ const About = () => {
     </div>
     <div className="col-md-4 text-center mb-5">
       <img
-        src={user-placeholder.png}
+        src={userPlaceholder}
         className="rounded-circle shadow-sm mb-3"
         alt="Alex"
         style={{ width: "150px", height: "150px", objectFit: "cover" }}
@@ -86,7 +86,7 @@ const About = () => {
     </div>
     <div className="col-md-4 text-center mb-5">
       <img
-        src={user-placeholder.png}
+        src={userPlaceholder}
         className="rounded-circle shadow-sm mb-3"
         alt="Jordan"
         style={{ width: "150px", height: "150px", objectFit: "cover" }}

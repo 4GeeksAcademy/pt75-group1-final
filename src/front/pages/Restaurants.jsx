@@ -42,7 +42,11 @@ const Restaurants = () => {
                 alt="Restaurant"
               />
               <div className="card-body">
-                <h5 className="card-title">Sample Restaurant</h5>
+                <h5 className="card-title">
+                  <Link to="/restaurant/123" className="text-decoration-none text-dark">
+                    Sample Restaurant
+                  </Link>
+                </h5>
                 <p className="card-text">
                   📍 0.5 miles • 🍔 Burgers • ⭐ 4.5 (120 reviews)
                 </p>
@@ -50,7 +54,7 @@ const Restaurants = () => {
                   <button className="btn btn-sm btn-dark">Contact</button>
                   <button className="btn btn-sm btn-outline-dark">Reviews</button>
                   <Link to="/restaurant/123" className="btn btn-sm btn-outline-secondary">Gallery</Link>
-                  </div>
+                </div>
               </div>
             </div>
           </div>
