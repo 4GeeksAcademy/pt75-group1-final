@@ -2,6 +2,7 @@ import React from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { Link } from "react-router-dom";
+import { restaurantData } from "./restaurantData";
 
 const Restaurants = () => {
   return (
@@ -32,36 +33,37 @@ const Restaurants = () => {
 
       {/* Gallery of Restaurants */}
       <section className="container py-5">
-        <div className="row g-4">
-          {/* 🔥 Repeat this card for each restaurant */}
-          <div className="col-md-4">
+      <div className="row g-4">
+        {Object.entries(restaurantData).map(([id, restaurant]) => (
+          <div key={id} className="col-md-4">
             <div className="card h-100 shadow-sm">
               <img
-                src="https://via.placeholder.com/400x200"
+                src={restaurant.images[0]}
                 className="card-img-top"
-                alt="Restaurant"
+                alt={restaurant.name}
+                style={{ height: "200px", objectFit: "cover" }}
               />
               <div className="card-body">
                 <h5 className="card-title">
-                  <Link to="/restaurant/r1" className="text-decoration-none text-dark">
-                    COTE Miami
+                  <Link to={`/restaurant/${id}`} className="text-decoration-none text-dark">
+                    {restaurant.name}
                   </Link>
                 </h5>
                 <p className="card-text">
-                  📍 0.5 miles • 🍔 Burgers • ⭐ 4.5 (120 reviews)
+                  {restaurant.location} • {restaurant.cuisine} • ⭐ {restaurant.rating}
                 </p>
                 <div className="d-flex justify-content-between">
                   <button className="btn btn-sm btn-dark">Contact</button>
                   <button className="btn btn-sm btn-outline-dark">Reviews</button>
-                    <Link to="/restaurant/r1" className="btn btn-sm btn-outline-secondary">
-                      Gallery
-                    </Link>
+                  <Link to={`/restaurant/${id}`} className="btn btn-sm btn-outline-secondary">
+                    Gallery
+                  </Link>
                 </div>
               </div>
             </div>
           </div>
-          {/* 🔁 Add more cards later when API is connected */}
-        </div>
+        ))}
+      </div>
       </section>
 
       <Footer />

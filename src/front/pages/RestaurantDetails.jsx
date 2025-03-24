@@ -9,6 +9,8 @@ const RestaurantDetails = () => {
   const { id } = useParams();
   const restaurant = restaurantData[id];
   const [showGallery, setShowGallery] = React.useState(false);
+  const [showHours, setShowHours] = React.useState(false);
+  const [activeImage, setActiveImage] = React.useState(null);
 
   if (!restaurant) {
     return <div className="text-center mt-5">Restaurant not found.</div>;
@@ -39,24 +41,36 @@ const RestaurantDetails = () => {
                     backgroundImage: `url(${img})`,
                     backgroundSize: "cover",
                     backgroundPosition: "center",
+                    transition: "transform 0.3s ease-in-out",
+                    cursor: "zoom-in",
                   }}
+                  onClick={() => setActiveImage(img)}
                 ></div>
               </div>
             ))}
           </Slider>
 
           {/* Overlay content */}
-          <div className="container position-absolute top-50 start-50 translate-middle text-center">
+          <div
+            className="position-absolute bottom-0 start-0 text-white p-4"
+            style={{ zIndex: 1, background: "linear-gradient(to top, rgba(0,0,0,0.7), transparent)" }}
+          >
             <h1 className="fw-bold">{restaurant.name}</h1>
             <p className="mb-1">
               💲{restaurant.price} • {restaurant.cuisine} • ⭐ {restaurant.rating}
             </p>
             <p className="mb-3">{restaurant.openNow ? "🟢 Open Now" : "🔴 Closed"}</p>
-            <div className="d-flex justify-content-center gap-3">
-              <button className="btn btn-light btn-sm">See Hours</button>
-              <button className="btn btn-outline-light btn-sm">View All Photos</button>
+            <div className="d-flex gap-3">
+            <button className="btn btn-light btn-sm" onClick={() => setShowHours(true)}>
+              See Hours
+            </button>
+
+              <button className="btn btn-outline-light btn-sm" onClick={() => setShowGallery(true)}>
+                View All Photos
+              </button>
             </div>
           </div>
+
         </div>
       </section>
 
@@ -103,6 +117,7 @@ const RestaurantDetails = () => {
           ))}
         </ul>
       </section>
+
       {/* Gallery Section */}
       <section className="container py-5">
         <div className="d-flex justify-content-between align-items-center mb-4">
@@ -119,7 +134,8 @@ const RestaurantDetails = () => {
               src={restaurant.images[0]}
               alt="Main Gallery"
               className="img-fluid rounded shadow-sm w-100"
-              style={{ height: "380px", objectFit: "cover" }}
+              style={{ height: "380px", objectFit: "cover", cursor: "pointer" }}
+              onClick={() => setActiveImage(restaurant.images[0])}
             />
           </div>
 
@@ -133,9 +149,8 @@ const RestaurantDetails = () => {
                     alt={`Thumbnail ${idx + 1}`}
                     className="img-fluid rounded shadow-sm w-100"
                     style={{ height: "180px", objectFit: "cover", cursor: "pointer" }}
-                    onClick={() => setShowGallery(true)}
+                    onClick={() => setActiveImage(img)}
                   />
-
                 </div>
               ))}
             </div>
@@ -143,6 +158,7 @@ const RestaurantDetails = () => {
         </div>
       </section>
 
+      {/* Gallery Lightbox */}
       {showGallery && (
         <div
           className="position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-75 d-flex justify-content-center align-items-center"
@@ -164,7 +180,8 @@ const RestaurantDetails = () => {
                     src={img}
                     alt={`Gallery ${idx + 1}`}
                     className="img-fluid rounded"
-                    style={{ objectFit: "cover", width: "100%", height: "250px" }}
+                    style={{ objectFit: "cover", width: "100%", height: "250px", cursor: "pointer" }}
+                    onClick={() => setActiveImage(img)}
                   />
                 </div>
               ))}
@@ -173,6 +190,50 @@ const RestaurantDetails = () => {
         </div>
       )}
 
+      {/* Fullscreen Image Modal */}
+      {activeImage && (
+        <div
+          className="position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-75 d-flex justify-content-center align-items-center"
+          style={{ zIndex: 1060 }}
+          onClick={() => setActiveImage(null)}
+        >
+          <img
+            src={activeImage}
+            alt="Full Preview"
+            className="img-fluid rounded shadow"
+            style={{ maxHeight: "90%", maxWidth: "90%", objectFit: "contain" }}
+          />
+        </div>
+      )}
+      {showHours && (
+        <div
+          className="modal fade show d-block"
+          tabIndex="-1"
+          role="dialog"
+          style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+          onClick={() => setShowHours(false)}
+        >
+          <div
+            className="modal-dialog modal-dialog-centered"
+            role="document"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Hours for {restaurant.name}</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setShowHours(false)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <p>{restaurant.hours}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       <Footer />
     </div>
   );
