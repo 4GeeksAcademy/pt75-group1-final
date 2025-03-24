@@ -11,3 +11,21 @@
   object-fit: cover; 
   border-radius: 10px; 
 }
+
+/* Ensure dots stay inside and are visible */
+.restaurant-slider .slick-dots {
+  position: absolute;
+  bottom: 20px;
+  width: 100%;
+}
+
+.restaurant-slider .slick-dots li button:before {
+  font-size: 12px;
+  color: white;
+  opacity: 0.75;
+}
+
+.restaurant-slider .slick-dots li.slick-active button:before {
+  color: white;
+  opacity: 1;
+}

@@ -1,11 +1,9 @@
-import { createBrowserRouter, RouterProvider, Route } from "react-router-dom";
+import { createBrowserRouter } from "react-router-dom";
 import Home from "./pages/Home"; 
 import Restaurants from "./pages/Restaurants";
 import RestaurantDetails from "./pages/RestaurantDetails";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
-
-
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -28,10 +26,3 @@ export const router = createBrowserRouter([
     element: <Contact />,
   },
 ]);
-
-
-
-
-export default function App() {
-  return <RouterProvider router={router} />;
-}

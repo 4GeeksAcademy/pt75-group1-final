@@ -43,8 +43,8 @@ const Restaurants = () => {
               />
               <div className="card-body">
                 <h5 className="card-title">
-                  <Link to="/restaurant/123" className="text-decoration-none text-dark">
-                    Sample Restaurant
+                  <Link to="/restaurant/r1" className="text-decoration-none text-dark">
+                    COTE Miami
                   </Link>
                 </h5>
                 <p className="card-text">
@@ -53,7 +53,9 @@ const Restaurants = () => {
                 <div className="d-flex justify-content-between">
                   <button className="btn btn-sm btn-dark">Contact</button>
                   <button className="btn btn-sm btn-outline-dark">Reviews</button>
-                  <Link to="/restaurant/123" className="btn btn-sm btn-outline-secondary">Gallery</Link>
+                    <Link to="/restaurant/r1" className="btn btn-sm btn-outline-secondary">
+                      Gallery
+                    </Link>
                 </div>
               </div>
             </div>
