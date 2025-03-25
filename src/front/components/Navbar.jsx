@@ -1,11 +1,19 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import SearchBar from "./SearchBar";
+import useGlobalReducer from "../hooks/useGlobalReducer";
 import "../Navbar.css"; 
 
 export const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const userProfilePhoto = "https://loremflickr.com/320/240"; 
+ 
+  const handleLogout = () => {
+    dispatch({ type: "LOGOUT" });
+    localStorage.removeItem("user");
+    navigate("/login");
+  };
+  
 
   return (
     <div className="navbar">
