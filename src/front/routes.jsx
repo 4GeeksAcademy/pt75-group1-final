@@ -4,6 +4,8 @@ import Restaurants from "./pages/Restaurants";
 import RestaurantDetails from "./pages/RestaurantDetails";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
+import WriteReview from "./pages/WriteReview";
+import ReviewForm from "./pages/ReviewForm";
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -24,5 +26,13 @@ export const router = createBrowserRouter([
   {
     path: "/contact",
     element: <Contact />,
+  },
+  {
+    path: "/write-review",
+    element: <WriteReview />,
+  },  
+  {
+    path: "/write-review/:id",
+    element: <ReviewForm />,
   },
 ]);

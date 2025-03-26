@@ -29,3 +29,105 @@
   color: white;
   opacity: 1;
 }
+
+/*makes the button have square edges*/
+.btn {
+  border-radius: 0 !important;
+}
+
+.hover-float {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-float:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* Feature image size */
+.feature-img {
+  height: 200px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+/* Override default Bootstrap link color */
+.card a {
+  color: black !important;
+  text-decoration: none;
+}
+
+.card a:hover {
+  text-decoration: underline;
+}
+
+.cta-box {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.cta-box:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+}
+
+.award-hover:hover {
+  transform: scale(1.08);
+  z-index: 2;
+}
+
+/* 🔷 Wrap the navbar and give it a unique shape */
+.navbar-wrapper {
+  position: relative;
+  z-index: 10;
+}
+
+/* 🔷 Decorative curve under the navbar */
+.navbar-curve {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  background: #f8f9fa; /* same as navbar bg */
+  border-bottom-left-radius: 50% 20px;
+  border-bottom-right-radius: 50% 20px;
+  z-index: -1;
+  box-shadow: 0 8px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* 🧼 Slight enhancement to navbar */
+.navbar {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* 🟦 Make the Join button pop more */
+.navbar .btn-primary {
+  border-radius: 0;
+  font-weight: bold;
+  padding: 0.5rem 1.25rem;
+}
+
+.hero-section {
+  padding-top: 90px; /* adjust depending on navbar height */
+}
+
+
+/*--------------*/
+
+
+.navbar-wrapper {
+  position: relative;
+}
+
+.navbar-curve {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  background: #f8f9fa;
+  clip-path: ellipse(70% 100% at 50% 0%);
+  z-index: -1;
+}

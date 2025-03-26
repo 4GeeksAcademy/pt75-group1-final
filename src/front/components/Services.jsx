@@ -32,32 +32,48 @@ const services = [
 
 const Services = () => {
   return (
-    <section className="container my-5">
-      <div className="row">
-        <div className="col-md-6">
-          <h2 className="fw-bold">Discover Your Next Favorite Restaurant with BiteFinder's Comprehensive Services</h2>
+    <section className="bg-white py-5 border-bottom">
+      <div className="container">
+        <div className="row mb-5 gy-4 text-center text-md-start">
+          <div className="col-md-6">
+            <h2 className="fw-bold fs-3">
+              Discover Your Next Favorite Restaurant with BiteFinder's Comprehensive Services
+            </h2>
+          </div>
+          <div className="col-md-6">
+            <p className="text-muted fs-6">
+              BiteFinder connects food lovers with the best dining experiences. Easily search for restaurants based on your preferences,
+              read authentic reviews, and make reservations in just a few clicks. Join our community to share your culinary adventures
+              and discover hidden gems.
+            </p>
+          </div>
         </div>
-        <div className="col-md-6">
-          <p className="text-muted">
-            BiteFinder connects food lovers with the best dining experiences. Easily search for restaurants based on your preferences, 
-            read authentic reviews, and make reservations in just a few clicks. Join our community to share your culinary adventures 
-            and discover hidden gems.
-          </p>
-        </div>
-      </div>
-      <div className="row row-cols-1 row-cols-md-3 g-4 mt-4">
-        {services.map((service) => (
-          <div key={service.id} className="col d-flex align-items-stretch">
-            <div className="card shadow-sm p-3 border-0">
-              <img src={service.image} alt={service.alt} className="card-img-top service-img img-fluid" />
-              <div className="card-body">
-                <h5 className="fw-bold">{service.title}</h5>
-                <p>{service.description}</p>
-                <a href="#" className="text-primary fw-bold">{service.linkText} ➝</a>
+
+        <div className="row row-cols-1 row-cols-md-3 g-4">
+          {services.map((service) => (
+            <div key={service.id} className="col d-flex align-items-stretch">
+              <div className="card p-3 shadow-sm border-0 transition hover-float text-start">
+                <img
+                  src={service.image}
+                  alt={service.alt}
+                  className="img-fluid w-100"
+                  style={{
+                    height: "180px",
+                    objectFit: "cover",
+                    borderRadius: "8px",
+                  }}
+                />
+                <div className="card-body px-0 pt-3">
+                  <h6 className="fw-bold fs-6">{service.title}</h6>
+                  <p className="fs-6">{service.description}</p>
+                  <a href="#" className="fw-bold text-dark">
+                    {service.linkText} →
+                  </a>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </section>
   );

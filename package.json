@@ -65,6 +65,8 @@
 		"react-dom": "^18.2.0",
 		"react-router-dom": "^6.18.0",
 		"react-slick": "^0.30.3",
-		"slick-carousel": "^1.8.1"
+		"react-toastify": "^11.0.5",
+		"slick-carousel": "^1.8.1",
+		"uuid": "^11.1.0"
 	}
 }

@@ -1,13 +1,44 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { restaurantData } from "./restaurantData";
 
 const Restaurants = () => {
+  const location = useLocation();
+  const [alert, setAlert] = useState(location.state?.message || null);
+  const reviewId = location.state?.reviewId || null;
+
+  useEffect(() => {
+    if (location.state) {
+      // Prevent alert from showing again on refresh
+      window.history.replaceState({}, document.title);
+    }
+  }, []);
+
   return (
     <div>
       <Navbar />
+
+      {/* Success Alert */}
+      {alert && (
+        <div className="alert alert-success alert-dismissible fade show m-0 rounded-0 text-center" role="alert">
+          {alert}
+          {reviewId && (
+            <>
+              {" "}
+              <Link to="#" className="alert-link">
+                View
+              </Link>
+            </>
+          )}
+          <button
+            type="button"
+            className="btn-close"
+            onClick={() => setAlert(null)}
+          ></button>
+        </div>
+      )}
 
       {/* Hero Search Header */}
       <section className="py-5 bg-light">
@@ -33,37 +64,37 @@ const Restaurants = () => {
 
       {/* Gallery of Restaurants */}
       <section className="container py-5">
-      <div className="row g-4">
-        {Object.entries(restaurantData).map(([id, restaurant]) => (
-          <div key={id} className="col-md-4">
-            <div className="card h-100 shadow-sm">
-              <img
-                src={restaurant.images[0]}
-                className="card-img-top"
-                alt={restaurant.name}
-                style={{ height: "200px", objectFit: "cover" }}
-              />
-              <div className="card-body">
-                <h5 className="card-title">
-                  <Link to={`/restaurant/${id}`} className="text-decoration-none text-dark">
-                    {restaurant.name}
-                  </Link>
-                </h5>
-                <p className="card-text">
-                  {restaurant.location} • {restaurant.cuisine} • ⭐ {restaurant.rating}
-                </p>
-                <div className="d-flex justify-content-between">
-                  <button className="btn btn-sm btn-dark">Contact</button>
-                  <button className="btn btn-sm btn-outline-dark">Reviews</button>
-                  <Link to={`/restaurant/${id}`} className="btn btn-sm btn-outline-secondary">
-                    Gallery
-                  </Link>
+        <div className="row g-4">
+          {Object.entries(restaurantData).map(([id, restaurant]) => (
+            <div key={id} className="col-md-4">
+              <div className="card h-100 shadow-sm">
+                <img
+                  src={restaurant.images[0]}
+                  className="card-img-top"
+                  alt={restaurant.name}
+                  style={{ height: "200px", objectFit: "cover" }}
+                />
+                <div className="card-body">
+                  <h5 className="card-title">
+                    <Link to={`/restaurant/${id}`} className="text-decoration-none text-dark">
+                      {restaurant.name}
+                    </Link>
+                  </h5>
+                  <p className="card-text">
+                    {restaurant.location} • {restaurant.cuisine} • ⭐ {restaurant.rating}
+                  </p>
+                  <div className="d-flex justify-content-between">
+                    <button className="btn btn-sm btn-dark">Contact</button>
+                    <button className="btn btn-sm btn-outline-dark">Reviews</button>
+                    <Link to={`/restaurant/${id}`} className="btn btn-sm btn-outline-secondary">
+                      Gallery
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
       </section>
 
       <Footer />

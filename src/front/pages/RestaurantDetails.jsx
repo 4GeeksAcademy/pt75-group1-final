@@ -1,20 +1,46 @@
 import React from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import Slider from "react-slick";
 import { restaurantData } from "./restaurantData";
+import useGlobalReducer from "../hooks/useGlobalReducer";
+import ReviewModal from "../components/ReviewModal";
+
 
 const RestaurantDetails = () => {
   const { id } = useParams();
+
+  const location = useLocation();
+  const { store } = useGlobalReducer(); // ✅ Move this ABOVE the useEffect
+
+  React.useEffect(() => {
+    if (location.state?.reviewId) {
+      const review = store.reviews.find((r) => r.id === location.state.reviewId);
+      if (review) {
+        setSelectedReview(review);
+        setShowReviewModal(true);
+      }
+    }
+  }, [location.state, store.reviews]);
+
   const restaurant = restaurantData[id];
   const [showGallery, setShowGallery] = React.useState(false);
   const [showHours, setShowHours] = React.useState(false);
   const [activeImage, setActiveImage] = React.useState(null);
+  const [activeReview, setActiveReview] = React.useState(null);
+  const [showReviewModal, setShowReviewModal] = React.useState(false);
+  const [selectedReview, setSelectedReview] = React.useState(null);
+  const [showAllReviews, setShowAllReviews] = React.useState(false);
+
+
+  const restaurantReviews = store.reviews.filter((r) => r.restaurantId === id);
 
   if (!restaurant) {
     return <div className="text-center mt-5">Restaurant not found.</div>;
   }
+
+
 
   return (
     <div>
@@ -50,6 +76,7 @@ const RestaurantDetails = () => {
             ))}
           </Slider>
 
+
           {/* Overlay content */}
           <div
             className="position-absolute bottom-0 start-0 text-white p-4"
@@ -61,16 +88,15 @@ const RestaurantDetails = () => {
             </p>
             <p className="mb-3">{restaurant.openNow ? "🟢 Open Now" : "🔴 Closed"}</p>
             <div className="d-flex gap-3">
-            <button className="btn btn-light btn-sm" onClick={() => setShowHours(true)}>
-              See Hours
-            </button>
+              <button className="btn btn-light btn-sm" onClick={() => setShowHours(true)}>
+                See Hours
+              </button>
 
               <button className="btn btn-outline-light btn-sm" onClick={() => setShowGallery(true)}>
                 View All Photos
               </button>
             </div>
           </div>
-
         </div>
       </section>
 
@@ -158,7 +184,70 @@ const RestaurantDetails = () => {
         </div>
       </section>
 
-      {/* Gallery Lightbox */}
+      {/* 📝 User Reviews Section */}
+      <section className="container py-5">
+        <h3 className="fw-bold mb-4">User Reviews</h3>
+
+        {restaurantReviews.length === 0 ? (
+          <p className="text-muted">No reviews yet. Be the first to leave one!</p>
+        ) : (
+          <div className="list-group">
+            {restaurantReviews.slice(0, showAllReviews ? restaurantReviews.length : 3).map((r, index) => {
+              const isLong = r.review.length > 200;
+              const [expanded, setExpanded] = React.useState(false);
+              const preview = isLong && !expanded ? r.review.slice(0, 200) + "..." : r.review;
+
+              return (
+                    <div
+                      key={index}
+                      className="list-group-item mb-3 shadow-sm border rounded p-3"
+                      style={{ cursor: "pointer" }}
+                      onClick={() => setSelectedReview(r)}
+                    >
+                  <div className="mb-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <i
+                        key={star}
+                        className={`fa-star me-1 ${
+                          r.rating >= star ? "fas text-warning" : "far text-muted"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <p className="mb-2">{preview}</p>
+                  {isLong && (
+                    <button
+                      onClick={() => setExpanded(!expanded)}
+                      className="btn btn-link btn-sm p-0"
+                    >
+                      {expanded ? "Show less" : "Read more"}
+                    </button>
+                  )}
+                  <div>
+                    <small className="text-muted">
+                      Posted on {new Date(r.date).toLocaleDateString()}
+                    </small>
+                  </div>
+                </div>
+              );
+            })}
+
+            {restaurantReviews.length > 3 && !showAllReviews && (
+              <div className="text-center mt-3">
+                <button
+                  className="btn btn-outline-dark btn-sm"
+                  onClick={() => setShowAllReviews(true)}
+                  >
+                  Show more reviews
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </section>
+
+
+      {/* Modals */}
       {showGallery && (
         <div
           className="position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-75 d-flex justify-content-center align-items-center"
@@ -190,7 +279,6 @@ const RestaurantDetails = () => {
         </div>
       )}
 
-      {/* Fullscreen Image Modal */}
       {activeImage && (
         <div
           className="position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-75 d-flex justify-content-center align-items-center"
@@ -205,6 +293,7 @@ const RestaurantDetails = () => {
           />
         </div>
       )}
+
       {showHours && (
         <div
           className="modal fade show d-block"
@@ -234,6 +323,12 @@ const RestaurantDetails = () => {
           </div>
         </div>
       )}
+        {selectedReview && (
+          <ReviewModal
+            review={selectedReview}
+            onClose={() => setSelectedReview(null)}
+          />
+        )}
       <Footer />
     </div>
   );

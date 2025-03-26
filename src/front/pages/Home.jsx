@@ -5,19 +5,20 @@ import Features from "../components/Features"; // ✅ Now using a separate Featu
 import Services from "../components/Services"
 import CTA from "../components/CTA";
 import Testimonial from "../components/Testimonial";
+import AwardsSection from "../components/AwardsSection";
 import Footer from "../components/Footer";
-
 
 const Home = () => {
   return (
     <div>
-      <Navbar /> 
-      <Hero /> {/* ✅ This replaces the inline header section */}
-      <Features /> {/* ✅ This replaces the inline feature section */}
-	  <Services />
-	  <CTA />
-	  <Testimonial />
-	  <Footer />
+      <Navbar />
+      <Hero />
+      <Features />
+      <Services />
+      <CTA />
+      <Testimonial />
+      <AwardsSection />
+      <Footer />
     </div>
   );
 };
