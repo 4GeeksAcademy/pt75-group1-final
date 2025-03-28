@@ -38,7 +38,7 @@
 		"eslint-plugin-react-hooks": "^4.6.0",
 		"eslint-plugin-react-refresh": "^0.4.3",
 		"postcss": "^8.5.3",
-		"tailwindcss": "^4.0.14",
+		"tailwindcss": "^4.0.17",
 		"vite": "^4.4.8"
 	},
 	"babel": {
@@ -59,9 +59,11 @@
 	"dependencies": {
 		"@relume_io/relume-tailwind": "^1.3.0",
 		"@relume_io/relume-ui": "^1.3.1",
+		"aos": "^2.3.4",
 		"bootstrap": "^5.3.3",
 		"prop-types": "^15.8.1",
 		"react": "^18.2.0",
+		"react-bootstrap": "^2.10.9",
 		"react-dom": "^18.2.0",
 		"react-router-dom": "^6.18.0",
 		"react-slick": "^0.30.3",

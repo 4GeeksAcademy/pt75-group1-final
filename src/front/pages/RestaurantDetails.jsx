@@ -6,6 +6,7 @@ import Slider from "react-slick";
 import { restaurantData } from "./restaurantData";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 import ReviewModal from "../components/ReviewModal";
+import PageWrapper from "../components/PageWrapper";
 
 
 const RestaurantDetails = () => {
@@ -45,6 +46,7 @@ const RestaurantDetails = () => {
   return (
     <div>
       <Navbar />
+      <PageWrapper>
       <p className="text-center mt-3">Viewing restaurant ID: {id}</p>
 
       {/* Header Slideshow */}
@@ -329,6 +331,7 @@ const RestaurantDetails = () => {
             onClose={() => setSelectedReview(null)}
           />
         )}
+        </PageWrapper>
       <Footer />
     </div>
   );

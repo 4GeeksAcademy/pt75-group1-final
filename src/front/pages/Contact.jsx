@@ -1,11 +1,15 @@
 import React from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import PageWrapper from "../components/PageWrapper";
 
 const Contact = () => {
   return (
     <div>
       <Navbar />
+
+      <PageWrapper>
+
       <section className="container py-5">
         <h1 className="fw-bold mb-4 text-center">Contact Us</h1>
         <div className="row">
@@ -37,6 +41,7 @@ const Contact = () => {
           </div>
         </div>
       </section>
+      </PageWrapper>
       <Footer />
     </div>
   );

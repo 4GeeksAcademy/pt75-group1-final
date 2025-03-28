@@ -6,6 +6,8 @@ import useGlobalReducer from "../hooks/useGlobalReducer";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import PageWrapper from "../components/PageWrapper";
+
 
 const restaurantMap = {
   r1: "COTE Miami",
@@ -73,7 +75,7 @@ const ReviewForm = () => {
   return (
     <>
       <Navbar />
-
+      <PageWrapper>
       <div className="container py-5" style={{ maxWidth: "600px" }}>
         <h1 className="mb-4 fw-bold">Write a Review</h1>
         <p>
@@ -119,6 +121,7 @@ const ReviewForm = () => {
         </form>
       </div>
 
+      </PageWrapper>
       <Footer />
     </>
   );

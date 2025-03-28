@@ -3,6 +3,8 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { Link, useLocation } from "react-router-dom";
 import { restaurantData } from "./restaurantData";
+import PageWrapper from "../components/PageWrapper";
+
 
 const Restaurants = () => {
   const location = useLocation();
@@ -19,6 +21,7 @@ const Restaurants = () => {
   return (
     <div>
       <Navbar />
+      <PageWrapper>
 
       {/* Success Alert */}
       {alert && (
@@ -96,7 +99,7 @@ const Restaurants = () => {
           ))}
         </div>
       </section>
-
+      </PageWrapper>
       <Footer />
     </div>
   );
