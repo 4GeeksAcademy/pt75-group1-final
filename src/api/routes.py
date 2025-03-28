@@ -233,14 +233,17 @@ def get_location_id(city):
 
     try:
         data = response.json()
+        print("API Response:", data)  # Debugging: Print full response
     except ValueError:
+        print("Failed to parse JSON response")
         return None  # Return None if response is not JSON
 
-    print("API Response:", data)  # Debugging: Print full response to see its structure
-
-    if "results" in data and isinstance(data["results"], list):
-        for item in data["results"]:
-            if isinstance(item, dict) and item.get("result_type") == "geos":  # Ensure item is a dict
+    # Check if we have results and data is correctly structured
+    if "results" in data and "data" in data["results"]:
+        # Loop through the data array
+        for item in data["results"]["data"]:
+            if item.get("result_type") == "geos":
+                # Return the first location_id we find
                 return item["result_object"]["location_id"]
     
     return None  # Return None if no location found
@@ -258,6 +261,7 @@ def search_restaurants():
         return jsonify({"error": "City name is required"}), 400
 
     location_id = get_location_id(city)
+    print(f"Found location_id: {location_id}")  # Add this debug line
 
     if not location_id:
         return jsonify({"error": "City not found"}), 404
