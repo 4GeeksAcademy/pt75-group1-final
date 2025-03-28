@@ -1,106 +1,105 @@
 .profile-container {
-    padding: 2rem;
-    color: white;
-    background-color: #5C2E00;
-    min-height: 100vh;
-    font-family: 'Segoe UI', sans-serif;
-  }
-  
-  .profile-header {
-    text-align: center;
-    margin-bottom: 1.5rem;
-  }
-  
-  .edit-profile-btn {
-    background-color: #FFA726;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
-    margin-top: 0.5rem;
-    cursor: pointer;
-  }
-  
-  .profile-main {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 2rem;
-    margin-bottom: 2rem;
-  }
-  
-  .profile-picture img {
-    border-radius: 50%;
-    width: 120px;
-    height: 120px;
-    border: 4px solid #FFA726;
-  }
-  
-  .description-box {
-    background-color: #FFA726;
-    padding: 1rem;
-    border-radius: 10px;
-    width: 300px;
-    text-align: center;
-  }
-  
-  .profile-stats {
-    display: flex;
-    justify-content: center;
-    gap: 1.5rem;
-    margin: 2rem 0;
-  }
-  
-  .stat-card {
-    background-color: #D2691E;
-    padding: 1rem;
-    border-radius: 8px;
-    font-weight: bold;
-  }
-  
-  .section-title {
-    text-align: center;
-    margin-top: 2rem;
-    margin-bottom: 1rem;
-    font-size: 1.8rem;
-  }
-  
-  .reviews-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 1.5rem;
-    padding: 0 2rem;
-  }
-  
-  .review-card {
-    background-color: #6B3F00;
-    padding: 1rem;
-    border-radius: 10px;
-    text-align: center;
-  }
-  
-  .review-card img {
-    width: 100%;
-    border-radius: 6px;
-  }
-  
-  .favorites-row {
-    display: flex;
-    justify-content: center;
-    gap: 2rem;
-    margin-top: 1rem;
-    margin-bottom: 3rem;
-  }
-  
-  .favorite-card {
-    background-color: #6B3F00;
-    padding: 1rem;
-    border-radius: 10px;
-    width: 280px;
-    text-align: center;
-  }
-  
-  .favorite-card img {
-    width: 100%;
-    border-radius: 6px;
-  }
-  
+  padding: 2rem;
+  color: #333;
+  background-color: #fff;
+  min-height: 100vh;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.profile-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.edit-profile-btn {
+  background-color: #ffa726;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  margin-top: 0.5rem;
+  cursor: pointer;
+}
+
+.profile-main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.profile-picture img {
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  border: 4px solid #ffa726;
+}
+
+.description-box {
+  background-color: #ffa726;
+  padding: 1rem;
+  border-radius: 10px;
+  width: 300px;
+  text-align: center;
+}
+
+.profile-stats {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.stat-card {
+  background-color: #d2691e;
+  padding: 1rem;
+  border-radius: 8px;
+  font-weight: bold;
+}
+
+.section-title {
+  text-align: center;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  font-size: 1.8rem;
+}
+
+.reviews-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.5rem;
+  padding: 0 2rem;
+}
+
+.review-card {
+  background-color: #f0f0f0;
+  padding: 1rem;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.review-card img {
+  width: 100%;
+  border-radius: 6px;
+}
+
+.favorites-row {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 1rem;
+  margin-bottom: 3rem;
+}
+
+.favorite-card {
+  background-color: #f0f0f0;
+  padding: 1rem;
+  border-radius: 10px;
+  width: 280px;
+  text-align: center;
+}
+
+.favorite-card img {
+  width: 100%;
+  border-radius: 6px;
+}

@@ -31,7 +31,6 @@ from datetime import datetime, timezone
 from api.models import db, User, Restaurant, Favorite, Reservation
 
 
-
 api = Blueprint('api', __name__)
 CORS(api)
 
@@ -209,6 +208,3 @@ def delete_reservation(reservation_id):
     db.session.delete(reservation)
     db.session.commit()
     return '', 204
-
-
-
