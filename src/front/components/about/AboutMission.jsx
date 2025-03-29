@@ -8,7 +8,7 @@ const AboutMission = () => {
         <Row className="align-items-center">
           <Col md={6}>
             <h2 className="fw-bold mb-4">
-              Connecting Food Lovers with <br /> Unforgettable Dining Experiences
+              Connecting Food Lovers with Unforgettable Dining Experiences
             </h2>
           </Col>
           <Col md={6}>

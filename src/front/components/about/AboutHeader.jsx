@@ -13,8 +13,15 @@ const AboutHeader = () => {
               Connecting food lovers with unforgettable dining experiences through reviews and community engagement.
             </p>
             <div className="mt-4">
-              <Button variant="light" className="me-2 rounded-0">Learn More</Button>
-              <Button variant="outline-light" className="rounded-0">Sign Up</Button>
+            <Button
+              as="a"
+              href="#timeline"
+              className="rounded-0 px-4 py-2 fw-bold"
+              style={{ backgroundColor: "white", color: "black", border: "1px solid black" }}
+            >
+              Learn More
+            </Button>
+              <Button variant="dark" className="rounded-0">Sign Up</Button>
             </div>
           </Col>
           <Col md={6} className="text-center mt-4 mt-md-0">
