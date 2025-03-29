@@ -213,3 +213,71 @@ def delete_reservation(reservation_id):
 
 
 
+
+
+def get_location_id(city):
+    """
+    Fetches location_id for a given city using the /typeahead endpoint.
+    """
+    url = "https://restaurants222.p.rapidapi.com/typeahead"
+    payload = f"q={city}&language=en_US"
+    
+    headers = {
+        "x-rapidapi-key": RAPIDAPI_KEY,
+        "x-rapidapi-host": RAPIDAPI_HOST,
+        "Content-Type": "application/x-www-form-urlencoded"
+    }
+
+    response = requests.post(url, data=payload, headers=headers)
+
+    try:
+        data = response.json()
+        print("API Response:", data)  # Debugging: Print full response
+    except ValueError:
+        print("Failed to parse JSON response")
+        return None  # Return None if response is not JSON
+
+    # Check if we have results and data is correctly structured
+    if "results" in data and "data" in data["results"]:
+        # Loop through the data array
+        for item in data["results"]["data"]:
+            if item.get("result_type") == "geos":
+                # Return the first location_id we find
+                return item["result_object"]["location_id"]
+    
+    return None  # Return None if no location found
+
+
+@api.route('/search-restaurants', methods=['POST'])
+def search_restaurants():
+    """
+    Searches for restaurants based on user-provided city name.
+    """
+    data = request.get_json()
+    city = data.get("city", "").strip()
+
+    if not city:
+        return jsonify({"error": "City name is required"}), 400
+
+    location_id = get_location_id(city)
+    print(f"Found location_id: {location_id}")  # Add this debug line
+
+    if not location_id:
+        return jsonify({"error": "City not found"}), 404
+
+    # Fetch restaurants using the location_id
+    url = "https://restaurants222.p.rapidapi.com/search"
+    payload = f"location_id={location_id}&language=en_US&currency=USD"
+
+    headers = {
+        "x-rapidapi-key": RAPIDAPI_KEY,
+        "x-rapidapi-host": RAPIDAPI_HOST,
+        "Content-Type": "application/x-www-form-urlencoded"
+    }
+
+    response = requests.post(url, data=payload, headers=headers)
+
+    if response.status_code == 200:
+        return jsonify(response.json()), 200
+    else:
+        return jsonify({"error": "Failed to fetch restaurants"}), response.status_code
