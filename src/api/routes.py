@@ -29,6 +29,8 @@ from flask import Flask, Blueprint, jsonify, request, abort
 from flask_cors import CORS
 from datetime import datetime, timezone
 from api.models import db, User, Restaurant, Favorite, Reservation
+import requests
+
 
 
 api = Blueprint('api', __name__)
@@ -208,3 +210,6 @@ def delete_reservation(reservation_id):
     db.session.delete(reservation)
     db.session.commit()
     return '', 204
+
+
+
