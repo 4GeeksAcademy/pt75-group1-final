@@ -1,78 +1,123 @@
-
 body {
   margin: 0;
   padding: 0;
-  background-color: #8b5a2b; 
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; 
-  color: #fff; 
+  background-color: #f8f9fa;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  color: #000;
+}
+
+/* Navbar Styling */
+.navbar-wrapper {
+  position: relative;
+  z-index: 10;
 }
 
 .navbar {
-  display: contents;
-  align-items: center;
-  justify-content: space-between;
-  background-color: #8b5a2b; 
-  padding: 1rem 2rem;
-  position: relative; 
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  background-color: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
-.navbar-title {
-  flex: 1;
-  text-align: center;
-  font-size: 5rem; 
-  font-weight: bold; 
-  font-family: "Freckle Face", cursive; 
-  margin-top: 2rem;
-  /* color: #FFC107; */
-}
-
-.nav-links {
-  display: flex;
-  gap: 1.5rem;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  justify-content: center; 
-  align-items: center;
-}
-
-.nav-links .nav-link {
-  text-decoration: none;
-  color: #fff;
+/* Navbar Brand */
+.navbar-brand {
   font-size: 1.5rem;
+  font-weight: bold;
+  color: #007bff;
 }
 
-.nav-links .nav-link:hover {
+.navbar-brand:hover {
+  color: #0056b3;
+  text-decoration: none;
+}
+
+/* Navbar Links */
+.nav-link {
+  color: #000;
+  font-size: 1.25rem;
+  margin: 0 1rem;
+}
+
+.nav-link:hover {
+  color: #007bff;
   text-decoration: underline;
-  color: #ffd700; 
 }
 
-.profile-photo {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  object-fit: cover; 
-  margin-left: 1rem;
-  
+/* Join Button */
+.navbar .btn-primary {
+  border-radius: 0;
+  font-weight: bold;
+  padding: 0.5rem 1.25rem;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+
+/* Navbar Curve */
+.navbar-curve {
   position: absolute;
-  top: 10px;
-  right: 10px;
-   
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  background: #f8f9fa;
+  border-bottom-left-radius: 50% 20px;
+  border-bottom-right-radius: 50% 20px;
+  z-index: -1;
+  box-shadow: 0 8px 10px rgba(0, 0, 0, 0.05);
 }
 
-.navbar-search {
-  margin-left: 40rem; 
-  margin-right: 40rem; 
-  margin-top: 2rem; 
-  flex: 1; 
+/* Search Bar */
+.search-bar {
   display: flex;
+  width: 100%;
+  max-width: 400px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  overflow: hidden;
+  background: white;
+  height: 40px;
+}
+
+.search-bar input {
+  flex: 1;
+  padding: 8px 12px;
+  font-size: 16px;
+  border: none;
+  outline: none;
+}
+
+.search-bar button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  width: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Profile Photo */
+.profile-photo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-left: 1rem;
+}
+
+/* Navbar Collapse */
+.navbar-collapse {
   justify-content: center;
 }
 
+.ms-auto {
+  margin-left: auto;
+}
 
-.navbar-search input {
-  width: 1px; 
-  padding: 0.5rem;
-  border-radius: 5px;
-  border: none;
+/* Dropdown */
+.nav-item.dropdown .dropdown-menu {
+  border-radius: 0;
 }

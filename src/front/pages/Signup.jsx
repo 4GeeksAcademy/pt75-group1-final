@@ -21,7 +21,7 @@ import { Link, useNavigate } from "react-router-dom";
              return
          }
  
-         const response = await fetch(process.env.BACKEND_URL + "/api/user", {
+         const response = await fetch(import.meta.env.VITE_BACKEND_URL + "/api/user", {
              method: "POST",
              headers: { "Content-Type": "application/json" },
              body: JSON.stringify({
@@ -29,9 +29,10 @@ import { Link, useNavigate } from "react-router-dom";
                 email: email.toLowerCase(),
                 password: password,
                 first_name: firstName,
-                last_name: lastName
+                last_name: lastName,
+                is_active: true,
              })
- 
+                            
          });
  
          if (!response.ok) {
@@ -50,8 +51,8 @@ import { Link, useNavigate } from "react-router-dom";
          <div className="authDiv">
              <h2> Sign Up </h2>
              <form onSubmit={handleSubmit}>
-                 <input type="username" name="usernameInput" placeholder="choose a username" required />
-                 <input type="firstName" name="nameInput" placeholder="enter your Name" required />
+                 <input type="username" name="userNameInput" placeholder="choose a username" required />
+                 <input type="firstName" name="firstNameInput" placeholder="enter your Name" required />
                  <input type="lastName" name="lastNameInput" placeholder="enter your Last Name" required />
                  <input type="email" name="emailInput" placeholder="enter email" required />
                  <input type="password" name="passwordInput" placeholder="enter password" required />

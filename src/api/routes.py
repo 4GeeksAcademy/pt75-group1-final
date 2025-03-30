@@ -60,7 +60,7 @@ def create_user():
         password=data['password'],
         first_name=data['first_name'],
         last_name=data['last_name'],
-        is_active=data['is_active']
+        is_active=data['is_active' ]
     )
     db.session.add(new_user)
     db.session.commit()
