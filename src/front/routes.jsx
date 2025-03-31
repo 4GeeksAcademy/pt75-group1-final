@@ -1,5 +1,5 @@
 import { createBrowserRouter } from "react-router-dom";
-import Home from "./pages/Home"; 
+import Home from "./pages/Home";
 import Restaurants from "./pages/Restaurants";
 import RestaurantDetails from "./pages/RestaurantDetails";
 import About from "./pages/About";
@@ -30,7 +30,7 @@ export const router = createBrowserRouter([
   {
     path: "/write-review",
     element: <WriteReview />,
-  },  
+  },
   {
     path: "/write-review/:id",
     element: <ReviewForm />,
@@ -38,6 +38,3 @@ export const router = createBrowserRouter([
 ]);
 
 
-      </Route>
-    )
-);
