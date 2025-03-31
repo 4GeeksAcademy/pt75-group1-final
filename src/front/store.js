@@ -1,38 +1,40 @@
-export const initialStore=()=>{
-  return{
+export const initialStore = () => {
+  return {
     message: null,
-    todos: [
-      {
-        id: 1,
-        title: "Make the bed",
-        background: null,
-      },
-      {
-        id: 2,
-        title: "Do my homework",
-        background: null,
-      }
-    ]
-  }
-}
+    reviews: [],
+    loggedInUser: null,
+    showLoginModal: false,   // ✅ NEW
+    showSignUpModal: false,  // ✅ NEW
+  };
+};
 
 export default function storeReducer(store, action = {}) {
-  switch(action.type){
-    case 'set_hello':
-      return {
-        ...store,
-        message: action.payload
-      };
-      
-    case 'add_task':
+  switch (action.type) {
+    case "set_hello":
+      return { ...store, message: action.payload };
 
-      const { id,  color } = action.payload
+    case "ADD_REVIEW":
+      return { ...store, reviews: [...store.reviews, action.payload] };
 
-      return {
-        ...store,
-        todos: store.todos.map((todo) => (todo.id === id ? { ...todo, background: color } : todo))
-      };
+    case "LOGIN":
+      return { ...store, loggedInUser: action.payload };
+
+    case "LOGOUT":
+      return { ...store, loggedInUser: null };
+
+    case "SHOW_LOGIN_MODAL":
+      return { ...store, showLoginModal: true };
+
+    case "HIDE_LOGIN_MODAL":
+      return { ...store, showLoginModal: false };
+
+    case "SHOW_SIGNUP_MODAL":
+      return { ...store, showSignUpModal: true };
+
+    case "HIDE_SIGNUP_MODAL":
+      return { ...store, showSignUpModal: false };
+
     default:
-      throw Error('Unknown action.');
-  }    
+      throw Error("Unknown action.");
+  }
 }

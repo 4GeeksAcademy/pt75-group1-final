@@ -1,0 +1,80 @@
+.
+├── 4geeks.ico
+├── database.sh
+├── dist
+│   └── index.html
+├── Dockerfile.render
+├── docs
+│   ├── assets
+│   │   ├── db_config.gif
+│   │   ├── debugging.gif
+│   │   ├── debugging_icon.png
+│   │   ├── diagram.png
+│   │   ├── env-file.png
+│   │   ├── env_variables.gif
+│   │   ├── greeting.py
+│   │   ├── preview.png
+│   │   ├── reset_migrations.bash
+│   │   └── rigo-baby.jpg
+│   ├── CHANGE_LOG.md
+│   └── HELP.md
+├── file_structure.txt
+├── index.html
+├── learn.json
+├── migrations
+│   ├── alembic.ini
+│   ├── env.py
+│   ├── README
+│   ├── script.py.mako
+│   └── versions
+│       └── 0763d677d453_.py
+├── package.json
+├── package-lock.json
+├── Pipfile
+├── Pipfile.lock
+├── Procfile
+├── public
+│   ├── 4geeks.ico
+│   ├── bundle.js
+│   ├── bundle.js.LICENSE.txt
+│   ├── index.html
+│   └── rigo-baby.jpg
+├── pycodestyle.cfg
+├── README.es.md
+├── README.md
+├── render_build.sh
+├── render.yaml
+├── requirements.txt
+├── src
+│   ├── api
+│   │   ├── admin.py
+│   │   ├── commands.py
+│   │   ├── __init__.py
+│   │   ├── models.py
+│   │   ├── routes.py
+│   │   └── utils.py
+│   ├── app.py
+│   ├── front
+│   │   ├── assets
+│   │   │   └── img
+│   │   │       └── rigo-baby.jpg
+│   │   ├── components
+│   │   │   ├── BackendURL.jsx
+│   │   │   ├── Footer.jsx
+│   │   │   ├── Navbar.jsx
+│   │   │   └── ScrollToTop.jsx
+│   │   ├── hooks
+│   │   │   └── useGlobalReducer.jsx
+│   │   ├── index.css
+│   │   ├── main.jsx
+│   │   ├── pages
+│   │   │   ├── Demo.jsx
+│   │   │   ├── Home.jsx
+│   │   │   ├── Layout.jsx
+│   │   │   └── Single.jsx
+│   │   ├── routes.jsx
+│   │   └── store.js
+│   └── wsgi.py
+└── vite.config.js
+
+15 directories, 63 files

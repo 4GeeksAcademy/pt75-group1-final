@@ -1,0 +1,186 @@
+.feature-img {
+  width: 350;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.service-img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+/* Ensure dots stay inside and are visible */
+.restaurant-slider .slick-dots {
+  position: absolute;
+  bottom: 20px;
+  width: 100%;
+}
+
+.restaurant-slider .slick-dots li button:before {
+  font-size: 12px;
+  color: white;
+  opacity: 0.75;
+}
+
+.restaurant-slider .slick-dots li.slick-active button:before {
+  color: white;
+  opacity: 1;
+}
+
+/*makes the button have square edges*/
+.btn {
+  border-radius: 0 !important;
+}
+
+.hover-float {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-float:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* Feature image size */
+.feature-img {
+  height: 200px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+/* Override default Bootstrap link color */
+.card a {
+  color: black !important;
+  text-decoration: none;
+}
+
+.card a:hover {
+  text-decoration: underline;
+}
+
+.cta-box {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.cta-box:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+}
+
+.award-hover:hover {
+  transform: scale(1.08);
+  z-index: 2;
+}
+
+
+/*Slight enhancement to navbar */
+.navbar {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+/*Make the Join button pop more */
+.navbar .btn-primary {
+  border-radius: 0;
+  font-weight: bold;
+  padding: 0.5rem 1.25rem;
+}
+
+.hero-section {
+  padding-top: 90px; /* adjust depending on navbar height */
+}
+
+.navbar-wrapper {
+  position: relative;
+}
+
+/* smooth scrolling */
+html {
+  scroll-behavior: smooth; 
+}
+
+
+
+/* --------------- AUTH --------------- */
+
+/* Soft greyed backdrop */
+.modal-backdrop.show {
+  background-color: #f9f9f9
+}
+
+.btn-dark:hover {
+  background-color: #000000 !important; /* deeper black on hover */
+  opacity: 0.9;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, .3); /* subtle shadow */
+}
+
+
+
+
+/* --------------- SEARCH BAR --------------- */
+
+.search-bar-container {
+  width: 100%;
+  max-width: 720px;
+  padding: 0 1rem;
+}
+
+.search-bar {
+  display: flex;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  overflow: hidden;
+  background: white;
+  height: 48px;
+}
+
+.search-bar input {
+  flex: 1;
+  padding: 12px 16px;
+  font-size: 16px;
+  border: none;
+  height: 100%;
+  outline: none;
+}
+
+.divider {
+  width: 1px;
+  background-color: #ddd;
+  height: 60%;
+  align-self: center;
+}
+
+.search-btn {
+  background-color: #000;
+  color: white;
+  border: none;
+  width: 50px;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal {
+  z-index: 1050;
+}
+
+.modal-backdrop {
+  z-index: 1040;
+}
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5); /* Adjust opacity if needed */
+}
+
