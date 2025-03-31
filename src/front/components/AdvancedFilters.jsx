@@ -1,6 +1,6 @@
 import React from "react";
 
-const AdvancedFilters = ({ selectedFilters = [], onChange, onApply }) => {
+const AdvancedFilters = ({ selectedFilters, onChange, onApply }) => {
   const [showAllCategory, setShowAllCategory] = React.useState(false);
   const [showAllFeatured, setShowAllFeatured] = React.useState(false);
   const [showAllSuggested, setShowAllSuggested] = React.useState(false);
@@ -16,10 +16,13 @@ const AdvancedFilters = ({ selectedFilters = [], onChange, onApply }) => {
   ];
 
   const handleCheckboxChange = (label) => {
-    const updated = selectedFilters.includes(label)
-      ? selectedFilters.filter((item) => item !== label)
-      : [...selectedFilters, label];
-    onChange(updated);
+    const current = selectedFilters.advanced || [];
+    const updated = current.includes(label)
+      ? current.filter((item) => item !== label)
+      : [...current, label];
+
+    // update only the 'advanced' part of selectedFilters
+    onChange({ ...selectedFilters, advanced: updated });
   };
 
   const renderCheckboxes = (options, showAll) => {
@@ -33,7 +36,7 @@ const AdvancedFilters = ({ selectedFilters = [], onChange, onApply }) => {
             type="checkbox"
             id={id}
             name={id}
-            checked={selectedFilters.includes(label)}
+            checked={selectedFilters.advanced?.includes(label) || false}
             onChange={() => handleCheckboxChange(label)}
           />
           <label className="form-check-label" htmlFor={id}>
@@ -46,7 +49,6 @@ const AdvancedFilters = ({ selectedFilters = [], onChange, onApply }) => {
 
   return (
     <div className="advanced-filters bg-white border rounded p-3 w-100" style={{ maxWidth: "900px" }}>
-      {/* Category */}
       <div className="mb-4">
         <h6 className="fw-bold">Category</h6>
         {renderCheckboxes(categoryOptions, showAllCategory)}
@@ -55,7 +57,6 @@ const AdvancedFilters = ({ selectedFilters = [], onChange, onApply }) => {
         </button>
       </div>
 
-      {/* Featured */}
       <div className="mb-4">
         <h6 className="fw-bold">Featured</h6>
         {renderCheckboxes(featuredOptions, showAllFeatured)}
@@ -64,7 +65,6 @@ const AdvancedFilters = ({ selectedFilters = [], onChange, onApply }) => {
         </button>
       </div>
 
-      {/* Suggested */}
       <div className="mb-4">
         <h6 className="fw-bold">Suggested</h6>
         {renderCheckboxes(suggestedOptions, showAllSuggested)}
@@ -73,10 +73,9 @@ const AdvancedFilters = ({ selectedFilters = [], onChange, onApply }) => {
         </button>
       </div>
 
-      {/* Apply Button */}
       <div className="d-flex justify-content-end mt-4">
         <button className="btn btn-dark" onClick={() => onApply(selectedFilters)}>
-          Apply ({selectedFilters.length})
+          Apply ({selectedFilters.advanced.length})
         </button>
       </div>
     </div>

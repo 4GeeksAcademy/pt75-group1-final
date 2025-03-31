@@ -107,20 +107,22 @@ html {
 
 /* --------------- AUTH --------------- */
 
+.signup-modal .modal-dialog {
+  max-width: 850px; /* slightly wider */
+}
+
 /* Soft greyed backdrop */
 .modal-backdrop.show {
-  background-color: #f9f9f9
+  background-color: #f9f9f9;
 }
 
-.btn-dark:hover {
-  background-color: #000000 !important; /* deeper black on hover */
-  opacity: 0.9;
-  transition: all 0.2s ease-in-out;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, .3); /* subtle shadow */
+.signup-modal .modal-content-wrapper {
+  background-color: white;
+  padding: 32px 24px;
+  border-radius: 10px;
+  max-width: 600px;
+  margin: 0 auto; 
 }
-
-
-
 
 /* --------------- SEARCH BAR --------------- */
 
@@ -183,4 +185,16 @@ html {
   height: 100vh;
   background-color: rgba(0, 0, 0, 0.5); /* Adjust opacity if needed */
 }
+
+/* Price hover color */
+.price-option:hover {
+  color: darkgreen;
+  text-decoration: none;
+  background-color: #f1f1f1;
+}
+
+
+
+
+
 
