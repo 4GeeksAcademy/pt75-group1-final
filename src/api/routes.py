@@ -1,14 +1,44 @@
+# """
+# This module takes care of starting the API Server, Loading the DB and Adding the endpoints
+# """
+# from flask import Flask, request, jsonify, url_for, Blueprint
+# from api.models import db, User
+# from api.utils import generate_sitemap, APIException
+# from flask_cors import CORS
+
+# api = Blueprint('api', __name__)
+
+# # Allow CORS requests to this API
+# CORS(api)
+
+
+# @api.route('/hello', methods=['POST', 'GET'])
+# def handle_hello():
+
+#     response_body = {
+#         "message": "Hello! I'm a message that came from the backend, check the network tab on the google inspector and you will see the GET request"
+#     }
+
+#     return jsonify(response_body), 200
+
+"""
+This module takes care of starting the API Server, Loading the DB and Adding the endpoints
+"""
+from flask import Flask, Blueprint, jsonify, request, abort
 from flask import Flask, Blueprint, jsonify, request, abort
 from flask_cors import CORS
 from datetime import datetime, timezone
 from api.models import db, User, Restaurant, Favorite, Reservation
 import requests
-import os
+
+
 
 api = Blueprint('api', __name__)
 CORS(api)
 
 # User
+
+
 @api.route('/users', methods=['GET'])
 def get_users():
     users = User.query.all()
@@ -107,6 +137,8 @@ def create_restaurant():
     return jsonify(new_restaurant.serialize()), 201
 
 # Favorite
+
+
 @api.route('/favorites', methods=['GET'])
 def get_favorites():
     favorites = Favorite.query.all()
@@ -133,6 +165,8 @@ def delete_favorite(favorite_id):
     return '', 204
 
 # Reservation
+
+
 @api.route('/reservations', methods=['GET'])
 def get_reservations():
     reservations = Reservation.query.all()
@@ -178,8 +212,7 @@ def delete_reservation(reservation_id):
     return '', 204
 
 
-RAPIDAPI_KEY = "ee469b4af9msh0f7c43df5bb8cb3p1fad85jsn8c66e8723cef" 
-RAPIDAPI_HOST = "restaurants222.p.rapidapi.com"
+
 
 
 def get_location_id(city):
@@ -227,7 +260,7 @@ def search_restaurants():
         return jsonify({"error": "City name is required"}), 400
 
     location_id = get_location_id(city)
-    print(f"Found location_id: {location_id}")  # Debug line
+    print(f"Found location_id: {location_id}")  # Add this debug line
 
     if not location_id:
         return jsonify({"error": "City not found"}), 404
@@ -243,14 +276,8 @@ def search_restaurants():
     }
 
     response = requests.post(url, data=payload, headers=headers)
-    
-    print(f"Restaurant API Status Code: {response.status_code}")  # Debug line
-    
+
     if response.status_code == 200:
-        response_data = response.json()
-        print(f"Response data keys: {response_data.keys() if isinstance(response_data, dict) else 'Not a dict'}")  # Debug line
-        print(f"Response data sample: {str(response_data)[:500]}...")  # Print first 500 chars
-        return jsonify(response_data), 200
+        return jsonify(response.json()), 200
     else:
-        print(f"Error response: {response.text}")  # Debug line
         return jsonify({"error": "Failed to fetch restaurants"}), response.status_code

@@ -1,8 +1,31 @@
+# from flask_sqlalchemy import SQLAlchemy
+# from sqlalchemy import String, Boolean
+# from sqlalchemy.orm import Mapped, mapped_column
+
+# db = SQLAlchemy()
+
+# class User(db.Model):
+#     id: Mapped[int] = mapped_column(primary_key=True)
+#     email: Mapped[str] = mapped_column(String(120), unique=True, nullable=False)
+#     password: Mapped[str] = mapped_column(nullable=False)
+#     is_active: Mapped[bool] = mapped_column(Boolean(), nullable=False)
+
+
+#     def serialize(self):
+#         return {
+#             "id": self.id,
+#             "email": self.email,
+#             # do not serialize the password, its a security breach
+#         }
+
+
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import String, Boolean
 from datetime import datetime, timezone
+from datetime import datetime, timezone
 
 db = SQLAlchemy()
+
 
 class User(db.Model):
     __tablename__ = "user"
@@ -21,11 +44,13 @@ class User(db.Model):
         return {
             "id": self.id,
             "username": self.username,
+            "username": self.username,
             "email": self.email,
             "first_name": self.first_name,
             "last_name": self.last_name,
             "is_active": self.is_active
         }
+
 
 class Restaurant(db.Model):
     __tablename__ = "restaurant"
@@ -39,12 +64,14 @@ class Restaurant(db.Model):
             "user_id": self.user_id
         }
 
+
 class Favorite(db.Model):
     __tablename__ = "favorites"
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'), nullable=False)
+    restaurant_id = db.Column(db.Integer, db.ForeignKey(
+        'restaurant.id'), nullable=False)
 
     def serialize(self):
         return {
@@ -53,13 +80,16 @@ class Favorite(db.Model):
             "restaurant_id": self.restaurant_id
         }
 
+
 class Reservation(db.Model):
     __tablename__ = "reservation"
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'), nullable=False)
-    time_created = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    restaurant_id = db.Column(db.Integer, db.ForeignKey(
+        'restaurant.id'), nullable=False)
+    time_created = db.Column(
+        db.DateTime, default=lambda: datetime.now(timezone.utc))
     reservation_time = db.Column(db.DateTime, nullable=False)
     is_active = db.Column(db.Boolean, default=True, nullable=False)
 

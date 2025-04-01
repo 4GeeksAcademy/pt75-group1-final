@@ -1,40 +1,54 @@
+const savedUser = JSON.parse(localStorage.getItem("user"));
+
 export const initialStore = () => {
   return {
     message: null,
-    reviews: [],
-    loggedInUser: null,
-    showLoginModal: false,   // ✅ NEW
-    showSignUpModal: false,  // ✅ NEW
+    user: savedUser || null,
+    todos: [
+      {
+        id: 1,
+        title: "Make the bed",
+        background: null,
+      },
+      {
+        id: 2,
+        title: "Do my homework",
+        background: null,
+      }
+    ]
   };
 };
 
 export default function storeReducer(store, action = {}) {
-  switch (action.type) {
-    case "set_hello":
-      return { ...store, message: action.payload };
+  switch(action.type) {
+    case 'set_hello':
+      return {
+        ...store,
+        message: action.payload
+      };
 
-    case "ADD_REVIEW":
-      return { ...store, reviews: [...store.reviews, action.payload] };
+    case 'add_task':
+      const { id, color } = action.payload;
+      return {
+        ...store,
+        todos: store.todos.map((todo) => 
+          todo.id === id ? { ...todo, background: color } : todo
+        )
+      };
 
-    case "LOGIN":
-      return { ...store, loggedInUser: action.payload };
+    case 'LOGIN_SUCCESS':
+      return {
+        ...store,
+        user: action.payload
+      };
 
-    case "LOGOUT":
-      return { ...store, loggedInUser: null };
-
-    case "SHOW_LOGIN_MODAL":
-      return { ...store, showLoginModal: true };
-
-    case "HIDE_LOGIN_MODAL":
-      return { ...store, showLoginModal: false };
-
-    case "SHOW_SIGNUP_MODAL":
-      return { ...store, showSignUpModal: true };
-
-    case "HIDE_SIGNUP_MODAL":
-      return { ...store, showSignUpModal: false };
+    case 'LOGOUT':
+      return {
+        ...store,
+        user: null
+      };
 
     default:
-      throw Error("Unknown action.");
+      throw new Error('Unknown action.');
   }
 }

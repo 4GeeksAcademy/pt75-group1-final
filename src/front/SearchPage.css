@@ -1,0 +1,32 @@
+
+.search-page-container {
+    background-color: #DAA520; 
+    margin: 2rem auto;
+    padding: 2rem;
+    width: 80%;
+    border-radius: 8px;
+    text-align: center;
+  }
+  
+  .search-page-title {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+  
+  .search-page-input {
+    width: 60%;
+    padding: 1rem;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.2rem;
+  }
+  
+  .advanced-search-link {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    text-decoration: underline;
+    color: #fff;
+  }
+  
+  

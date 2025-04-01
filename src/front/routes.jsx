@@ -1,40 +1,43 @@
-import { createBrowserRouter } from "react-router-dom";
-import Home from "./pages/Home";
-import Restaurants from "./pages/Restaurants";
-import RestaurantDetails from "./pages/RestaurantDetails";
-import About from "./pages/About";
-import Contact from "./pages/Contact";
-import WriteReview from "./pages/WriteReview";
-import ReviewForm from "./pages/ReviewForm";
-export const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <Home />,
-  },
-  {
-    path: "/restaurants",
-    element: <Restaurants />,
-  },
-  {
-    path: "/restaurant/:id",
-    element: <RestaurantDetails />,
-  },
-  {
-    path: "/about",
-    element: <About />,
-  },
-  {
-    path: "/contact",
-    element: <Contact />,
-  },
-  {
-    path: "/write-review",
-    element: <WriteReview />,
-  },
-  {
-    path: "/write-review/:id",
-    element: <ReviewForm />,
-  },
-]);
+// Import necessary components and functions from react-router-dom.
 
+import {
+  createBrowserRouter,
+  createRoutesFromElements,
+  Route,
+} from "react-router-dom";
+import { Layout } from "./pages/Layout";
+import { Home } from "./pages/Home";
 
+import { Login } from "./pages/Login";
+import { Signup } from "./pages/Signup";
+import { SearchPage } from "./pages/SearchPage";
+import Profile from "./pages/Profile";
+import PrivateRoute from "./components/PrivateRoute";
+
+//import { Results } from "./pages/Results";
+//import { Discover } from "./pages/Discover";
+//import { Details } from "./pages/Details";
+
+export const router = createBrowserRouter(
+  createRoutesFromElements(
+    // CreateRoutesFromElements function allows you to build route elements declaratively.
+    // Create your routes here, if you want to keep the Navbar and Footer in all views, add your new routes inside the containing Route.
+    // Root, on the contrary, create a sister Route, if you have doubts, try it!
+    // Note: keep in mind that errorElement will be the default page when you don't get a route, customize that page to make your project more attractive.
+    // Note: The child paths of the Layout element replace the Outlet component with the elements contained in the "element" attribute of these child paths.
+
+    // Root Route: All navigation will start from here.
+    <Route path="/" element={<Layout />} errorElement={<h1>Not found!</h1>} >
+
+      {/* Nested Routes: Defines sub-routes within the BaseHome component. */}
+      <Route path="/" element={<Home />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
+      <Route path="/searchpage" element={<SearchPage />} />
+      <Route path="/profile" element={<PrivateRoute>   <Profile /> </PrivateRoute>} />
+      {/* <Route path="/results" element={<Results />} />
+      <Route path="/discover" element={<Discover />} />
+      <Route path="/details" element={<Details />} /> */}
+    </Route>
+  )
+);
