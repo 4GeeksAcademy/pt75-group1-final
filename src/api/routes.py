@@ -215,6 +215,10 @@ def delete_reservation(reservation_id):
 
 
 
+RAPIDAPI_KEY = "ee469b4af9msh0f7c43df5bb8cb3p1fad85jsn8c66e8723cef" 
+RAPIDAPI_HOST = "restaurants222.p.rapidapi.com"
+
+
 def get_location_id(city):
     """
     Fetches location_id for a given city using the /typeahead endpoint.
@@ -260,7 +264,7 @@ def search_restaurants():
         return jsonify({"error": "City name is required"}), 400
 
     location_id = get_location_id(city)
-    print(f"Found location_id: {location_id}")  # Add this debug line
+    print(f"Found location_id: {location_id}")  # Debug line
 
     if not location_id:
         return jsonify({"error": "City not found"}), 404
@@ -276,8 +280,14 @@ def search_restaurants():
     }
 
     response = requests.post(url, data=payload, headers=headers)
-
+    
+    print(f"Restaurant API Status Code: {response.status_code}")  # Debug line
+    
     if response.status_code == 200:
-        return jsonify(response.json()), 200
+        response_data = response.json()
+        print(f"Response data keys: {response_data.keys() if isinstance(response_data, dict) else 'Not a dict'}")  # Debug line
+        print(f"Response data sample: {str(response_data)[:500]}...")  # Print first 500 chars
+        return jsonify(response_data), 200
     else:
+        print(f"Error response: {response.text}")  # Debug line
         return jsonify({"error": "Failed to fetch restaurants"}), response.status_code

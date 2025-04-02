@@ -1,6 +1,10 @@
-import React from "react";
+const SearchBar = ({ value, onChange, onSearch, placeholder = "Search Restaurants" }) => {
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      onSearch();
+    }
+  };
 
-const SearchBar = ({ value, onChange, placeholder = "Search Restaurants" }) => {
   return (
     <div className="input-group mb-3">
       <input
@@ -9,12 +13,13 @@ const SearchBar = ({ value, onChange, placeholder = "Search Restaurants" }) => {
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        onKeyDown={handleKeyDown}
       />
       <div className="input-group-append">
-        <span className="input-group-text">🔍</span>
+        <button className="btn btn-outline-secondary" onClick={onSearch}>
+          🔍
+        </button>
       </div>
     </div>
   );
 };
-
-export default SearchBar;
