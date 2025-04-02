@@ -1,4 +1,4 @@
-const SearchBar = ({ value, onChange, onSearch, placeholder = "Search Restaurants" }) => {
+export const SearchBar = ({ value, onChange, onSearch, placeholder = "Search Restaurants" }) => {
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       onSearch();

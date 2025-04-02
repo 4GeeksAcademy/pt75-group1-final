@@ -1,6 +1,6 @@
 import React from "react";
 import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
+import { Footer } from "../components/Footer";
 import { useParams, useLocation } from "react-router-dom";
 import Slider from "react-slick";
 import { restaurantData } from "./restaurantData";
@@ -9,7 +9,7 @@ import ReviewModal from "../components/ReviewModal";
 import PageWrapper from "../components/PageWrapper";
 
 
-const RestaurantDetails = () => {
+export const RestaurantDetails = () => {
   const { id } = useParams();
 
   const location = useLocation();
@@ -336,5 +336,3 @@ const RestaurantDetails = () => {
     </div>
   );
 };
-
-export default RestaurantDetails;

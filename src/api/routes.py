@@ -1,35 +1,18 @@
-# """
-# This module takes care of starting the API Server, Loading the DB and Adding the endpoints
-# """
-# from flask import Flask, request, jsonify, url_for, Blueprint
-# from api.models import db, User
-# from api.utils import generate_sitemap, APIException
-# from flask_cors import CORS
-
-# api = Blueprint('api', __name__)
-
-# # Allow CORS requests to this API
-# CORS(api)
-
-
-# @api.route('/hello', methods=['POST', 'GET'])
-# def handle_hello():
-
-#     response_body = {
-#         "message": "Hello! I'm a message that came from the backend, check the network tab on the google inspector and you will see the GET request"
-#     }
-
-#     return jsonify(response_body), 200
 
 """
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, Blueprint, jsonify, request, abort
-from flask import Flask, Blueprint, jsonify, request, abort
 from flask_cors import CORS
 from datetime import datetime, timezone
 from api.models import db, User, Restaurant, Favorite, Reservation
 import requests
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+RAPIDAPI_KEY=os.getenv("RAPIDAPI_KEY")
+RAPIDAPI_HOST=os.getenv("RAPIDAPI_HOST")
 
 
 
@@ -210,13 +193,6 @@ def delete_reservation(reservation_id):
     db.session.delete(reservation)
     db.session.commit()
     return '', 204
-
-
-
-
-
-RAPIDAPI_KEY = "ee469b4af9msh0f7c43df5bb8cb3p1fad85jsn8c66e8723cef" 
-RAPIDAPI_HOST = "restaurants222.p.rapidapi.com"
 
 
 def get_location_id(city):

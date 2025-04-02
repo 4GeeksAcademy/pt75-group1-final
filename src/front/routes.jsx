@@ -13,6 +13,12 @@ import { Signup } from "./pages/Signup";
 import { SearchPage } from "./pages/SearchPage";
 import Profile from "./pages/Profile";
 import PrivateRoute from "./components/PrivateRoute";
+import Restaurants from "./pages/Restaurants";
+import { RestaurantDetails } from "./pages/RestaurantDetails";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
+import WriteReview from "./pages/WriteReview";
+import ReviewForm from "./pages/ReviewForm";
 
 //import { Results } from "./pages/Results";
 //import { Discover } from "./pages/Discover";
@@ -34,6 +40,12 @@ export const router = createBrowserRouter(
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/searchpage" element={<SearchPage />} />
+      <Route path="/restaurants" element={<Restaurants />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/contact" element={<Contact />} />
+      <Route path="/reviewform" element={<ReviewForm />} />
+      <Route path="/writereview" element={<WriteReview />} />
+      <Route path="/restaurant/:id" element={<RestaurantDetails />} />
       <Route path="/profile" element={<PrivateRoute>   <Profile /> </PrivateRoute>} />
       {/* <Route path="/results" element={<Results />} />
       <Route path="/discover" element={<Discover />} />
