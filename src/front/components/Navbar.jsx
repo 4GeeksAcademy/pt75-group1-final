@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { SearchBar } from "./SearchBar";
 import useGlobalReducer from "../hooks/useGlobalReducer";
-import "../Navbar.css";
+
 
 const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState("");

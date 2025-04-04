@@ -1,177 +1,178 @@
 body {
-  margin: 0;
-  padding: 0;
-  background-color: #f8f9fa;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  color: #000;
-}
-
-/* Navbar Styling */
-.navbar {
-  padding-top: 1rem;
-  padding-bottom: 1rem;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-  background-color: #fff;
-}
-
-.navbar-wrapper {
-  position: relative;
-  z-index: 10;
-}
-
-/* Navbar Curve */
-.navbar-curve {
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  width: 100%;
-  height: 60px;
-  background: #f8f9fa;
-  border-bottom-left-radius: 50% 20px;
-  border-bottom-right-radius: 50% 20px;
-  z-index: -1;
-  box-shadow: 0 8px 10px rgba(0, 0, 0, 0.05);
-}
-
-/* Navbar Links */
-.nav-link {
-  color: #000;
-  font-size: 1.25rem;
-  margin: 0 1rem;
-}
-
-.nav-link:hover {
-  color: #007bff;
-}
-
-.navbar-brand {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #007bff;
-}
-
-/* Search Bar */
-.search-bar-container {
-  width: 100%;
-  max-width: 720px;
-  padding: 0 1rem;
-}
-
-.search-bar {
-  display: flex;
-  width: 100%;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  overflow: hidden;
-  background: white;
-  height: 48px;
-}
-
-.search-bar input {
-  flex: 1;
-  padding: 12px 16px;
-  font-size: 16px;
-  border: none;
-  height: 100%;
-  outline: none;
-}
-
-.search-btn {
-  background-color: #000;
-  color: white;
-  border: none;
-  width: 50px;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.divider {
-  width: 1px;
-  background-color: #ddd;
-  height: 60%;
-  align-self: center;
-}
-
-/* Profile Photo */
-.profile-photo {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin-left: 1rem;
-}
-
-.dropdown-item:hover {
-  background-color: #f8f9fa;
-  color: #000;
-}
-
-.dropdown-divider {
-  height: 1px;
-  margin: 0.5rem 0;
-  overflow: hidden;
-  background-color: #e9ecef;
-}
-
-/* Join Button */
-.navbar .btn-primary {
-  border-radius: 0;
-  font-weight: bold;
-  padding: 0.5rem 1.25rem;
-}
-
-/* Dropdown User Button */
-.dropdown-toggle::after {
-  display: none;
-}
-
-/* Profile Dropdown */
-.user-dropdown {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.user-dropdown img {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-}
-
-.user-dropdown span {
-  font-size: 1rem;
-  color: #000;
-}
-
-/* Button Styles */
-.btn {
-  border-radius: 0 !important;
-}
-
-.btn-dark:hover {
-  background-color: #000000 !important;
-  opacity: 0.9;
-  transition: all 0.2s ease-in-out;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, .3);
-}
-
-.btn-primary:hover {
-  background-color: #0056b3;
-}
-
-/* Hover and Animation */
-.hover-float {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.hover-float:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
-}
-
-/* Smooth Scrolling */
-html {
-  scroll-behavior: smooth;
-}
+    margin: 0;
+    padding: 0;
+    background-color: #f8f9fa;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    color: #000;
+  }
+  
+  /* Navbar Styling */
+  .navbar {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    background-color: #fff;
+  }
+  
+  .navbar-wrapper {
+    position: relative;
+    z-index: 10;
+  }
+  
+  /* Navbar Curve */
+  .navbar-curve {
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background: #f8f9fa;
+    border-bottom-left-radius: 50% 20px;
+    border-bottom-right-radius: 50% 20px;
+    z-index: -1;
+    box-shadow: 0 8px 10px rgba(0, 0, 0, 0.05);
+  }
+  
+  /* Navbar Links */
+  .nav-link {
+    color: #000;
+    font-size: 1.25rem;
+    margin: 0 1rem;
+  }
+  
+  .nav-link:hover {
+    color: #007bff;
+  }
+  
+  .navbar-brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #007bff;
+  }
+  
+  /* Search Bar */
+  .search-bar-container {
+    width: 100%;
+    max-width: 720px;
+    padding: 0 1rem;
+  }
+  
+  .search-bar {
+    display: flex;
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    overflow: hidden;
+    background: white;
+    height: 48px;
+  }
+  
+  .search-bar input {
+    flex: 1;
+    padding: 12px 16px;
+    font-size: 16px;
+    border: none;
+    height: 100%;
+    outline: none;
+  }
+  
+  .search-btn {
+    background-color: #000;
+    color: white;
+    border: none;
+    width: 50px;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .divider {
+    width: 1px;
+    background-color: #ddd;
+    height: 60%;
+    align-self: center;
+  }
+  
+  /* Profile Photo */
+  .profile-photo {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-left: 1rem;
+  }
+  
+  .dropdown-item:hover {
+    background-color: #f8f9fa;
+    color: #000;
+  }
+  
+  .dropdown-divider {
+    height: 1px;
+    margin: 0.5rem 0;
+    overflow: hidden;
+    background-color: #e9ecef;
+  }
+  
+  /* Join Button */
+  .navbar .btn-primary {
+    border-radius: 0;
+    font-weight: bold;
+    padding: 0.5rem 1.25rem;
+  }
+  
+  /* Dropdown User Button */
+  .dropdown-toggle::after {
+    display: none;
+  }
+  
+  /* Profile Dropdown */
+  .user-dropdown {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .user-dropdown img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+  }
+  
+  .user-dropdown span {
+    font-size: 1rem;
+    color: #000;
+  }
+  
+  /* Button Styles */
+  .btn {
+    border-radius: 0 !important;
+  }
+  
+  .btn-dark:hover {
+    background-color: #000000 !important;
+    opacity: 0.9;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, .3);
+  }
+  
+  .btn-primary:hover {
+    background-color: #0056b3;
+  }
+  
+  /* Hover and Animation */
+  .hover-float {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .hover-float:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+  }
+  
+  /* Smooth Scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+  
