@@ -69,7 +69,7 @@ const Navbar = () => {
                   aria-expanded="false"
                 >
                   <img
-                    src="https://loremflickr.com/320/240"
+                    src="https://picsum.photos/40"
                     alt="Profile"
                     className="rounded-circle me-2"
                     style={{ width: "40px", height: "40px", objectFit: "cover" }}
@@ -90,7 +90,10 @@ const Navbar = () => {
                 </ul>
               </div>
             ) : (
-              <Link to="/signup" className="btn btn-primary">Join</Link>
+              <>
+                <Link to="/login" className="btn btn-outline-dark mx-2">Login</Link>
+                <Link to="/signup" className="btn btn-primary">Join</Link>
+              </>
             )}
           </div>
         </div>

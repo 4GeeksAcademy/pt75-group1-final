@@ -36,11 +36,16 @@ export const Login = () => {
       const data = await response.json();
       console.log("Login success:", data);
 
+      // Save user data to localStorage first to ensure persistence
+      localStorage.setItem("user", JSON.stringify(data));
+
+      // Update global state
       dispatch({
         type: "LOGIN_SUCCESS",
         payload: data,
       });
 
+      // Navigate to the profile page after successful login
       navigate("/profile");
     } catch (err) {
       console.error("Login error:", err);
@@ -78,3 +83,5 @@ export const Login = () => {
     </div>
   );
 };
+
+export default Login;
