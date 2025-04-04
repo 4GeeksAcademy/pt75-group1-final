@@ -10,7 +10,7 @@ import { Footer } from "../components/Footer";
 
 export const Home = () => {
   return (
-    <div>
+      <> 
       {/* <Navbar /> */}
       <Hero />
       <Features />
@@ -19,6 +19,6 @@ export const Home = () => {
       <Testimonial />
       <AwardsSection />
       {/* <Footer /> */}
-    </div>
+      </>
   );
 };

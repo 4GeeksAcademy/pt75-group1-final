@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { SearchBar } from "./SearchBar";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 
-
 const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const { store, dispatch } = useGlobalReducer();
@@ -14,6 +13,10 @@ const Navbar = () => {
     dispatch({ type: "LOGOUT" });
     localStorage.removeItem("user");
     navigate("/login");
+  };
+
+  const handleProfileClick = () => {
+    navigate("/profile");
   };
 
   return (
@@ -52,17 +55,40 @@ const Navbar = () => {
                   placeholder="Search restaurants..."
                 />
               </li>
-              {user && (
-                <li className="nav-item">
-                  <button className="btn btn-outline-dark" onClick={handleLogout}>Logout</button>
-                </li>
-              )}
             </ul>
           </div>
 
-          <div className="ms-auto">
+          <div className="ms-auto d-flex align-items-center">
             {user ? (
-              <img src="https://loremflickr.com/320/240" alt="Profile" className="rounded-circle" style={{ width: "40px", height: "40px" }} />
+              <div className="dropdown">
+                <button
+                  className="btn btn-light dropdown-toggle d-flex align-items-center"
+                  type="button"
+                  id="userDropdown"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                >
+                  <img
+                    src="https://loremflickr.com/320/240"
+                    alt="Profile"
+                    className="rounded-circle me-2"
+                    style={{ width: "40px", height: "40px", objectFit: "cover" }}
+                  />
+                  {user.username}
+                </button>
+                <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                  <li>
+                    <button className="dropdown-item" onClick={handleProfileClick}>
+                      Profile
+                    </button>
+                  </li>
+                  <li>
+                    <button className="dropdown-item" onClick={handleLogout}>
+                      Logout
+                    </button>
+                  </li>
+                </ul>
+              </div>
             ) : (
               <Link to="/signup" className="btn btn-primary">Join</Link>
             )}
