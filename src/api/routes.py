@@ -155,59 +155,90 @@ def delete_reservation(reservation_id):
     db.session.commit()
     return '', 204
 
-# --- RapidAPI Restaurant Search ---
-
 def get_location_id(city):
-    try:
-        url = "https://restaurants222.p.rapidapi.com/typeahead"
-        payload = {"q": city, "language": "en_US"}
-        headers = {
-            "x-rapidapi-key": RAPIDAPI_KEY,
-            "x-rapidapi-host": RAPIDAPI_HOST,
-            "Content-Type": "application/x-www-form-urlencoded"
-        }
+    """
+    Fetches location_id for a given city using the /typeahead endpoint.
+    """
+    url = "https://restaurants222.p.rapidapi.com/typeahead"
+    
+    # Use a dictionary for the payload and let requests handle the encoding
+    payload = {
+        "q": city,
+        "language": "en_US"
+    }
+    
+    headers = {
+        "x-rapidapi-key": RAPIDAPI_KEY,
+        "x-rapidapi-host": RAPIDAPI_HOST,
+        "Content-Type": "application/x-www-form-urlencoded"
+    }
 
-        response = requests.post(url, data=payload, headers=headers)
+    # Use data=payload with a dictionary to ensure proper URL encoding
+    response = requests.post(url, data=payload, headers=headers)
+
+    try:
         data = response.json()
-        if "results" in data and "data" in data["results"]:
-            for item in data["results"]["data"]:
-                if item.get("result_type") == "geos":
-                    return item["result_object"]["location_id"]
-    except Exception as e:
-        print(f"Error in get_location_id: {e}")
+        print("API Response:", data)
+    except ValueError:
+        print("Failed to parse JSON response")
+        return None
+
+    # Check if we have results and data is correctly structured
+    if "results" in data and "data" in data["results"]:
+        for item in data["results"]["data"]:
+            if item.get("result_type") == "geos":
+                return item["result_object"]["location_id"]
+    
     return None
+
 
 @api.route('/search-restaurants', methods=['POST'])
 def search_restaurants():
-    try:
-        data = request.get_json()
-        city = data.get("city", "").strip()
+    """
+    Searches for restaurants based on user-provided city name.
+    """
+    data = request.get_json()
+    city = data.get("city", "").strip()
 
-        if not city or len(city) < 3:
-            return jsonify({"error": "City name must be at least 3 characters"}), 400
+    if not city:
+        return jsonify({"error": "City name is required"}), 400
+    
+    # Make sure city is at least 3 characters (per API error message)
+    if len(city) < 3:
+        return jsonify({"error": "City name must be at least 3 characters"}), 400
 
-        location_id = get_location_id(city)
-        if not location_id:
-            return jsonify({"error": "City not found"}), 404
+    location_id = get_location_id(city)
+    print(f"Found location_id: {location_id}")
 
-        url = "https://restaurants222.p.rapidapi.com/search"
-        payload = {
-            "location_id": location_id,
-            "language": "en_US",
-            "currency": "USD"
-        }
-        headers = {
-            "x-rapidapi-key": RAPIDAPI_KEY,
-            "x-rapidapi-host": RAPIDAPI_HOST,
-            "Content-Type": "application/x-www-form-urlencoded"
-        }
+    if not location_id:
+        return jsonify({"error": "City not found"}), 404
 
-        response = requests.post(url, data=payload, headers=headers)
-        if response.status_code == 200:
-            return jsonify(response.json()), 200
-        else:
-            print("API ERROR:", response.text)
-            return jsonify({"error": "Failed to fetch restaurants"}), response.status_code
-    except Exception as e:
-        print(f"Exception in /search-restaurants: {e}")
-        return jsonify({"error": "Internal server error"}), 500
+    # Fetch restaurants using the location_id
+    url = "https://restaurants222.p.rapidapi.com/search"
+    
+    # Use a dictionary for payload instead of f-string
+    payload = {
+        "location_id": location_id,
+        "language": "en_US",
+        "currency": "USD"
+    }
+
+    headers = {
+        "x-rapidapi-key": RAPIDAPI_KEY,
+        "x-rapidapi-host": RAPIDAPI_HOST,
+        "Content-Type": "application/x-www-form-urlencoded"
+    }
+
+    # Use data=payload with a dictionary to ensure proper URL encoding
+    response = requests.post(url, data=payload, headers=headers)
+    
+    print(f"Restaurant API Status Code: {response.status_code}")
+    
+    if response.status_code == 200:
+        response_data = response.json()
+        print(f"Response data keys: {response_data.keys() if isinstance(response_data, dict) else 'Not a dict'}")
+        print(f"Response data sample: {str(response_data)[:500]}...")
+        return jsonify(response_data), 200
+    else:
+        print(f"Error response: {response.text}")
+        return jsonify({"error": "Failed to fetch restaurants"}), response.status_code
