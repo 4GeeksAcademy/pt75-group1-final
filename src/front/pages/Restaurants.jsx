@@ -29,7 +29,6 @@ const Restaurants = () => {
   });
   const [showPriceOptions, setShowPriceOptions] = useState(false);
   
-  // New state for the restaurant search functionality
   const [cityQuery, setCityQuery] = useState("");
   const [restaurants, setRestaurants] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -37,42 +36,46 @@ const Restaurants = () => {
   const [nameInput, setNameInput] = useState("");
   const [nameSuggestions, setNameSuggestions] = useState([]);
 
-  // This updates your original handleSearch function to use the API
   const handleSearch = async () => {
     if (!cityQuery.trim()) {
       setError("Please enter a city name");
       return;
     }
-
+  
     setLoading(true);
     setError(null);
-
+  
+    const isGitHubCodespace = window.location.hostname.includes('github.dev');
+    const API_URL = isGitHubCodespace 
+      ? import.meta.env.VITE_BACKEND_URL
+      : 'http://localhost:3000';
+  
     try {
-      const response = await fetch("http://127.0.0.1:5000/api/search-restaurants", {
+      const response = await fetch(`${API_URL}/api/search-restaurants`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ city: cityQuery }),
       });
-
+  
       if (!response.ok) {
-        throw new Error("Failed to fetch restaurants");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Failed to fetch restaurants");
       }
-
+  
       const data = await response.json();
       console.log("API response:", data);
       
-      // Update with the new search results
       if (data.results && data.results.data) {
         setRestaurants(data.results.data.slice(0, 10) || []);
       } else {
         setRestaurants([]);
       }
-      setLoading(false);
     } catch (err) {
       console.error("Search error:", err);
       setError(err.message);
+    } finally {
       setLoading(false);
     }
   };
@@ -111,12 +114,10 @@ const Restaurants = () => {
             <div className="d-flex flex-wrap justify-content-center gap-3 w-100" style={{ maxWidth: "900px" }}>
               <div className="search-bar-container flex-grow-1">
                 <div className="search-bar d-flex align-items-center w-100">
-                  {/* REPLACED: City search input for API integration */}
                   <div className="position-relative me-2" style={{ flex: 1 }}>
                     <SearchBar value={cityQuery} onChange={setCityQuery} />
                   </div>
 
-                  {/* Keep the name input with suggestions */}
                   <div className="position-relative me-2" style={{ flex: 1 }}>
                     <input
                       type="text"
@@ -163,7 +164,6 @@ const Restaurants = () => {
                     )}
                   </div>
 
-                  {/* Search button with loading state */}
                   <button 
                     className="btn search-btn" 
                     onClick={handleSearch}
