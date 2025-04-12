@@ -1,9 +1,12 @@
+// Get saved user and favorites from localStorage
 const savedUser = JSON.parse(localStorage.getItem("user"));
+const savedFavorites = JSON.parse(localStorage.getItem("favorites")) || [];
 
 export const initialStore = () => {
   return {
     message: null,
     user: savedUser || null,
+    favorites: savedFavorites,
     todos: [
       {
         id: 1,
@@ -46,6 +49,14 @@ export default function storeReducer(store, action = {}) {
       return {
         ...store,
         user: null
+      };
+      
+    case 'SET_FAVORITES':
+      // Save favorites to localStorage for persistence
+      localStorage.setItem("favorites", JSON.stringify(action.payload));
+      return {
+        ...store,
+        favorites: action.payload
       };
 
     default:
