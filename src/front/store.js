@@ -48,6 +48,13 @@ export default function storeReducer(store, action = {}) {
         user: null
       };
 
+      case 'ADD_REVIEW':
+      return {
+        ...store,
+        reviews: [...(store.reviews || []), action.payload]
+      };
+
+
     default:
       throw new Error('Unknown action.');
   }

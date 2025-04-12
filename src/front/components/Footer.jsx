@@ -2,58 +2,58 @@ import React from "react";
 
 export const Footer = () => {
   return (
-    <footer className="bg-light py-4">
+    <footer className="bg-light py-3">
       <div className="container">
-        <div className="row">
+        <div className="row row-cols-1 row-cols-md-3 g-3">
           {/* Left Section - Logo and Contact Info */}
-          <div className="col-md-4">
-            <h5 className="fw-bold">BiteFinder</h5>
-            <p><strong>Address:</strong> Level 1, 12 Sample St, Sydney NSW 2000</p>
-            <p><strong>Contact:</strong> <a href="mailto:info@bitefinder.com">info@bitefinder.com</a></p>
+          <div className="col">
+            <h5 className="fw-bold mb-2">BiteFinder</h5>
+            <p className="mb-1 small"><strong>Address:</strong> Level 1, 12 Sample St, Sydney NSW 2000</p>
+            <p className="mb-2 small"><strong>Contact:</strong> <a href="mailto:info@bitefinder.com">info@bitefinder.com</a></p>
 
             {/* Social Media Icons */}
-            <div className="d-flex gap-3">
-              <a href="#"><i className="fab fa-facebook fs-4"></i></a>
-              <a href="#"><i className="fab fa-instagram fs-4"></i></a>
-              <a href="#"><i className="fab fa-x-twitter fs-4"></i></a>
-              <a href="#"><i className="fab fa-linkedin fs-4"></i></a>
-              <a href="#"><i className="fab fa-youtube fs-4"></i></a>
+            <div className="d-flex gap-2 mb-3">
+              <a href="#" className="text-dark"><i className="fab fa-facebook"></i></a>
+              <a href="#" className="text-dark"><i className="fab fa-instagram"></i></a>
+              <a href="#" className="text-dark"><i className="fab fa-x-twitter"></i></a>
+              <a href="#" className="text-dark"><i className="fab fa-linkedin"></i></a>
+              <a href="#" className="text-dark"><i className="fab fa-youtube"></i></a>
             </div>
           </div>
 
           {/* Center Section - Quick Links */}
-          <div className="col-md-4">
-            <h6 className="fw-bold">Quick Links</h6>
-            <ul className="list-unstyled">
-              <li><a href="#">About Us</a></li>
-              <li><a href="#">Contact Us</a></li>
-              <li><a href="#">Blog Posts</a></li>
-              <li><a href="#">Help Center</a></li>
-              <li><a href="#">User Reviews</a></li>
+          <div className="col">
+            <h6 className="fw-bold mb-2">Quick Links</h6>
+            <ul className="list-unstyled small mb-0">
+              <li className="mb-1"><a href="#" className="text-decoration-none">About Us</a></li>
+              <li className="mb-1"><a href="#" className="text-decoration-none">Contact Us</a></li>
+              <li className="mb-1"><a href="#" className="text-decoration-none">Blog Posts</a></li>
+              <li className="mb-1"><a href="#" className="text-decoration-none">Help Center</a></li>
+              <li className="mb-1"><a href="#" className="text-decoration-none">User Reviews</a></li>
             </ul>
           </div>
 
           {/* Right Section - More Options */}
-          <div className="col-md-4">
-            <h6 className="fw-bold">More</h6>
-            <ul className="list-unstyled">
-              <li><a href="#">Gift Cards</a></li>
-              <li><a href="#">Careers</a></li>
-              <li><a href="#">Community Forum</a></li>
-              <li><a href="#">Press Releases</a></li>
-              <li><a href="#">Feedback Form</a></li>
+          <div className="col">
+            <h6 className="fw-bold mb-2">More</h6>
+            <ul className="list-unstyled small mb-0">
+              <li className="mb-1"><a href="#" className="text-decoration-none">Gift Cards</a></li>
+              <li className="mb-1"><a href="#" className="text-decoration-none">Careers</a></li>
+              <li className="mb-1"><a href="#" className="text-decoration-none">Community Forum</a></li>
+              <li className="mb-1"><a href="#" className="text-decoration-none">Press Releases</a></li>
+              <li className="mb-1"><a href="#" className="text-decoration-none">Feedback Form</a></li>
             </ul>
           </div>
         </div>
 
-        {/* Bottom Section - Legal Links */}
-        <div className="text-center mt-4">
-          <p className="small">&copy; 2025 BiteFinder. All rights reserved.</p>
-          <ul className="list-inline">
-            <li className="list-inline-item"><a href="#">Privacy Policy</a></li>
-            <li className="list-inline-item"><a href="#">Terms of Service</a></li>
-            <li className="list-inline-item"><a href="#">Cookies Settings</a></li>
-          </ul>
+        {/* Bottom Section - Legal Links (removed border-top) */}
+        <div className="text-center mt-3">
+          <p className="small mb-1">&copy; 2025 BiteFinder. All rights reserved.</p>
+          <div className="small">
+            <a href="#" className="text-decoration-none me-2">Privacy Policy</a>
+            <a href="#" className="text-decoration-none me-2">Terms of Service</a>
+            <a href="#" className="text-decoration-none">Cookies Settings</a>
+          </div>
         </div>
       </div>
     </footer>

@@ -1,10 +1,8 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { SearchBar } from "./SearchBar";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 
 const Navbar = () => {
-  const [searchQuery, setSearchQuery] = useState("");
   const { store, dispatch } = useGlobalReducer();
   const navigate = useNavigate();
   const user = store.user;
@@ -48,12 +46,21 @@ const Navbar = () => {
               <li className="nav-item">
                 <Link className="nav-link" to="/write-review">Write a Review</Link>
               </li>
-              <li className="nav-item">
-                <SearchBar
-                  value={searchQuery}
-                  onChange={setSearchQuery}
-                  placeholder="Search restaurants..."
-                />
+              <li className="nav-item dropdown">
+                <a 
+                  className="nav-link dropdown-toggle" 
+                  href="#" 
+                  id="navbarDropdown" 
+                  role="button" 
+                  data-bs-toggle="dropdown" 
+                  aria-expanded="false"
+                >
+                  More
+                </a>
+                <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
+                  <li><Link className="dropdown-item" to="/about">About Us</Link></li>
+                  <li><Link className="dropdown-item" to="/contact">Contact</Link></li>
+                </ul>
               </li>
             </ul>
           </div>
@@ -90,7 +97,7 @@ const Navbar = () => {
                 </ul>
               </div>
             ) : (
-              <Link to="/signup" className="btn btn-primary">Join</Link>
+              <Link to="/signup" className="btn btn-dark">Join</Link>
             )}
           </div>
         </div>

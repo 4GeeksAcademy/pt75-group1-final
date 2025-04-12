@@ -22,13 +22,13 @@ const Restaurants = () => {
   const [alert, setAlert] = useState(location.state?.message || null);
   const reviewId = location.state?.reviewId || null;
   const [showAdvanced, setShowAdvanced] = useState(false);
- 
+
   const [selectedFilters, setSelectedFilters] = useState({
     price: null,
     advanced: [],
   });
   const [showPriceOptions, setShowPriceOptions] = useState(false);
-  
+
   const [cityQuery, setCityQuery] = useState("");
   const [restaurants, setRestaurants] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -41,15 +41,15 @@ const Restaurants = () => {
       setError("Please enter a city name");
       return;
     }
-  
+
     setLoading(true);
     setError(null);
-  
+
     const isGitHubCodespace = window.location.hostname.includes('github.dev');
-    const API_URL = isGitHubCodespace 
+    const API_URL = isGitHubCodespace
       ? import.meta.env.VITE_BACKEND_URL
       : 'http://localhost:3000';
-  
+
     try {
       const response = await fetch(`${API_URL}/api/search-restaurants`, {
         method: "POST",
@@ -58,15 +58,15 @@ const Restaurants = () => {
         },
         body: JSON.stringify({ city: cityQuery }),
       });
-  
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.error || "Failed to fetch restaurants");
       }
-  
+
       const data = await response.json();
       console.log("API response:", data);
-      
+
       if (data.results && data.results.data) {
         setRestaurants(data.results.data.slice(0, 10) || []);
       } else {
@@ -93,10 +93,14 @@ const Restaurants = () => {
         {alert && (
           <div className="alert alert-success alert-dismissible fade show m-0 rounded-0 text-center" role="alert">
             {alert}
-            {reviewId && (
+            {reviewId && location.state?.restaurantId && (
               <>
                 {" "}
-                <Link to="#" className="alert-link">
+                <Link
+                  to={`/restaurant/${location.state.restaurantId}`}
+                  state={{ reviewId: reviewId }}
+                  className="alert-link"
+                >
                   View
                 </Link>
               </>
@@ -138,7 +142,7 @@ const Restaurants = () => {
                             restaurant.name.toLowerCase().includes(value.toLowerCase())
                           )
                           .map((restaurant) => restaurant.name);
-                          
+
                         console.log("User input:", value);
                         console.log("Matched suggestions:", matches);
 
@@ -164,12 +168,12 @@ const Restaurants = () => {
                     )}
                   </div>
 
-                  <button 
-                    className="btn search-btn" 
+                  <button
+                    className="btn search-btn"
                     onClick={handleSearch}
                     disabled={loading}
                   >
-                    {loading ? 
+                    {loading ?
                       <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> :
                       <i className="fas fa-search"></i>
                     }
@@ -183,7 +187,7 @@ const Restaurants = () => {
                     Advanced {selectedFilters.advanced.length > 0 && `(${selectedFilters.advanced.length})`}
                   </button>
                 </div>
-                
+
                 {/* Error message display */}
                 {error && <div className="mt-2 text-danger">{error}</div>}
               </div>
@@ -315,7 +319,7 @@ const Restaurants = () => {
                   // Apply filters to API results (adapt as needed based on actual API response format)
                   return true; // Modify this based on your API response structure
                 }
-                
+
                 // For static data
                 const [_, restaurant] = item;
                 const { price, advanced } = selectedFilters;
@@ -366,7 +370,7 @@ const Restaurants = () => {
                     </div>
                   );
                 }
-                
+
                 // Handle static data
                 const [id, restaurant] = item;
                 return (
@@ -402,7 +406,6 @@ const Restaurants = () => {
           </div>
         </section>
       </PageWrapper>
-      <Footer />
     </div >
   );
 };
