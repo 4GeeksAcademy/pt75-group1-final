@@ -1,9 +1,28 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Container, Row, Col, Button } from "react-bootstrap";
 import useGlobalReducer from "../../hooks/useGlobalReducer";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 const Timeline = () => {
-  const { dispatch } = useGlobalReducer(); // ✅ Hook moved inside component
+  const { dispatch } = useGlobalReducer();
+
+  // Initialize AOS on component mount
+  useEffect(() => {
+    AOS.init({
+      duration: 1000,
+      once: false,
+      mirror: false,
+      offset: 100 
+    });
+    
+    // Refresh AOS on window resize to handle animations correctly
+    window.addEventListener('resize', AOS.refresh);
+    
+    return () => {
+      window.removeEventListener('resize', AOS.refresh);
+    };
+  }, []);
 
   const timelineData = [
     {
@@ -16,7 +35,7 @@ const Timeline = () => {
     },
     {
       year: "2019",
-      text: "BiteFinder expanded its reach, partnering with over 1,000 restaurants nationwide. Our user base grew exponentially, reflecting the platform’s popularity.",
+      text: "BiteFinder expanded its reach, partnering with over 1,000 restaurants nationwide. Our user base grew exponentially, reflecting the platform's popularity.",
     },
     {
       year: "2021",
@@ -32,7 +51,7 @@ const Timeline = () => {
     <section id="timeline" className="py-5 bg-light">
       <Container>
         {/* Header */}
-        <div className="text-center mb-5" data-aos="fade-up">
+        <div className="text-center mb-5" data-aos="fade-down">
           <p className="text-uppercase small">History</p>
           <h2 className="fw-bold">Key Milestones in BiteFinder's Journey</h2>
           <p className="text-muted w-75 mx-auto">
@@ -40,9 +59,9 @@ const Timeline = () => {
           </p>
           <div className="mt-3">
             <a href="timeline">
-              <Button variant="dark" className="me-2 rounded-0">Learn More</Button>
+              <Button variant="dark" className="me-2">Learn More</Button>
             </a>
-            <Button variant="outline-dark" className="rounded-0">Sign Up</Button>
+            <Button variant="outline-dark">Sign Up</Button>
           </div>
         </div>
 
@@ -63,7 +82,8 @@ const Timeline = () => {
               <Row
                 key={index}
                 className="mb-5 align-items-center position-relative"
-                data-aos="fade-up"
+                data-aos="fade-down"
+                data-aos-delay={index * 150}
                 style={{ zIndex: 1 }}
               >
                 <Col md={6} className={isLeft ? "order-md-2 text-start" : "text-end"}>
@@ -73,7 +93,7 @@ const Timeline = () => {
                   <div className="bg-white p-4 shadow-sm">
                     <p>{item.text}</p>
                     <div className="d-flex gap-2 mb-3">
-                      <Button variant="outline-dark" className="rounded-0">Button</Button>
+                      <Button variant="outline-dark">Button</Button>
                       <Button variant="link" className="text-decoration-none">Button &rarr;</Button>
                     </div>
                     <div
@@ -99,14 +119,13 @@ const Timeline = () => {
           <div>
             <Button
               variant="dark"
-              className="me-2 rounded-0"
+              className="me-2"
               onClick={() => dispatch({ type: "SHOW_LOGIN_MODAL" })}
             >
               Sign In
             </Button>
             <Button
               variant="outline-dark"
-              className="rounded-0"
               onClick={() => dispatch({ type: "SHOW_SIGNUP_MODAL" })}
             >
               Join &rarr;

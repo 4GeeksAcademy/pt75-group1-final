@@ -5,7 +5,6 @@ import TimeLine from "../components/about/TimeLine"
 import TeamSection from "../components/about/TeamSection";
 import ContactSection from "../components/about/ContactSection";
 import Navbar from "../components/Navbar";
-import { Footer } from "../components/Footer";
 import PageWrapper from "../components/PageWrapper";
 
 const About = () => {
@@ -19,7 +18,6 @@ const About = () => {
         <TeamSection />
         <ContactSection />
       <PageWrapper />
-      <Footer />
     </main>
   );
 };

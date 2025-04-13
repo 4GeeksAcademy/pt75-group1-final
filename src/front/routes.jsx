@@ -44,7 +44,8 @@ export const router = createBrowserRouter(
       <Route path="/about" element={<About />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/reviewform" element={<ReviewForm />} />
-      <Route path="/writereview" element={<WriteReview />} />
+      <Route path="/write-review" element={<WriteReview />} />
+      <Route path="/write-review/:id" element={<ReviewForm />} />
       <Route path="/restaurant/:id" element={<RestaurantDetails />} />
       <Route path="/profile" element={<PrivateRoute>   <Profile /> </PrivateRoute>} />
       {/* <Route path="/results" element={<Results />} />

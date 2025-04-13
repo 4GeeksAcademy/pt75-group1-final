@@ -190,7 +190,7 @@ html {
   background-color: #f1f1f1;
 }
 
-/* -------------Login signup------- */
+/* -------------Login signup------------- */
 
 .authDiv {
   max-width: 400px;
@@ -284,4 +284,65 @@ html {
 .navbar .btn-light:hover,
 .navbar .btn-light:focus {
   background-color: #f0f0f0;
+}
+
+
+
+
+
+/* -------------HERO COMPONENT EDITS 4/11------------- *\
+
+
+/* Fix dot size in slider */
+.restaurant-slider .slick-dots li button:before {
+  font-size: 8px; /* Reduced from 12px to 8px */
+  color: white;
+  opacity: 0.75;
+}
+
+.restaurant-slider .slick-dots li.slick-active button:before {
+  color: white;
+  opacity: 1;
+}
+
+/* Ensure slider has proper height */
+.restaurant-slider .slick-slide {
+  height: 480px; /* Match the image height */
+}
+
+.restaurant-slider .slick-track {
+  display: flex;
+  align-items: center;
+}
+
+
+
+
+.review-snippet {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+  cursor: pointer;
+
+  /* Add these to force breaking */
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.restaurant-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  z-index: 1;
+  padding: 1.5rem 2rem 2rem 2rem; /* Adjust padding to reduce extra space */
+  width: 100%;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 60%, transparent 100%);
+}
+
+.restaurant-overlay h1,
+.restaurant-overlay p {
+  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6);
 }
