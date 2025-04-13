@@ -23,6 +23,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import String, Boolean
 from datetime import datetime, timezone
 from datetime import datetime, timezone
+from werkzeug.security import generate_password_hash
 
 db = SQLAlchemy()
 
@@ -36,7 +37,10 @@ class User(db.Model):
     password = db.Column(db.String(128), nullable=False)
     first_name = db.Column(db.String(30), nullable=False)
     last_name = db.Column(db.String(30), nullable=False)
+    phone = db.Column(db.String(20))  # ✅ NEW
+    address = db.Column(db.String(100))  # ✅ NEW
     is_active = db.Column(db.Boolean, nullable=False)
+
     favorites = db.relationship('Favorite', backref='user', lazy=True)
     reservations = db.relationship('Reservation', backref='user', lazy=True)
 
@@ -44,12 +48,14 @@ class User(db.Model):
         return {
             "id": self.id,
             "username": self.username,
-            "username": self.username,
             "email": self.email,
             "first_name": self.first_name,
             "last_name": self.last_name,
+            "phone": self.phone,
+            "address": self.address,
             "is_active": self.is_active
         }
+
 
 
 class Restaurant(db.Model):
