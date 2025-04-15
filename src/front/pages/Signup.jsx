@@ -16,6 +16,8 @@ export const Signup = () => {
     const firstName = event.target.firstNameInput.value;
     const lastName = event.target.lastNameInput.value;
     const email = event.target.emailInput.value;
+    const phone = event.target.phoneInput.value;
+    const address = event.target.addressInput.value;
     const password = event.target.passwordInput.value;
     const confirmPassword = event.target.confirmPasswordInput.value;
 
@@ -34,6 +36,8 @@ export const Signup = () => {
           password: password,
           first_name: firstName,
           last_name: lastName,
+          phone: phone,
+          address: address,
           is_active: true,
         }),
       });
@@ -88,6 +92,18 @@ export const Signup = () => {
           placeholder="Enter your last name"
           className="form-control mb-2"
           required
+        />
+        <input
+          type="text"
+          name="phoneInput"
+          placeholder="Enter phone number"
+          className="form-control mb-2"
+        />
+        <input
+          type="text"
+          name="addressInput"
+          placeholder="Enter address"
+          className="form-control mb-2"
         />
         <input
           type="email"
