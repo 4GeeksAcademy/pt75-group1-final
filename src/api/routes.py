@@ -11,7 +11,11 @@ RAPIDAPI_KEY = os.getenv("RAPIDAPI_KEY")
 RAPIDAPI_HOST = os.getenv("RAPIDAPI_HOST")
 
 api = Blueprint('api', __name__)
-CORS(api, resources={r"/*": {"origins": ["http://localhost:3000", "https://animated-guide-wrvvx9gwpgwv27p7-3000.app.github.dev"]}}, supports_credentials=True)
+CORS(api, resources={r"/*": {"origins": [
+    "http://localhost:3000", 
+    "https://animated-guide-wrvvx9gwpgwv27p7-3000.app.github.dev",
+    "https://animated-space-couscous-g47647pwqpqqhv9w5-3000.app.github.dev"  # Add your current Codespace URL
+]}}, supports_credentials=True)
 
 # --- User Routes ---
 
@@ -20,10 +24,12 @@ def get_users():
     users = User.query.all()
     return jsonify([user.serialize() for user in users])
 
+
 @api.route('/user/<int:user_id>', methods=['GET'])
 def get_user(user_id):
     user = User.query.get_or_404(user_id)
     return jsonify(user.serialize())
+
 
 @api.route('/user', methods=['POST'])
 def create_user():
@@ -40,6 +46,7 @@ def create_user():
     db.session.commit()
     return jsonify(new_user.serialize()), 201
 
+
 @api.route('/user/<int:user_id>', methods=['PUT'])
 def update_user(user_id):
     data = request.get_json()
@@ -53,12 +60,14 @@ def update_user(user_id):
     db.session.commit()
     return jsonify(user.serialize())
 
+
 @api.route('/user/<int:user_id>', methods=['DELETE'])
 def delete_user(user_id):
     user = User.query.get_or_404(user_id)
     db.session.delete(user)
     db.session.commit()
     return 'user deleted', 204
+
 
 @api.route('/login', methods=['POST'])
 def login():
@@ -74,15 +83,18 @@ def login():
 
 # --- Restaurant Routes ---
 
+
 @api.route('/restaurants', methods=['GET'])
 def get_restaurants():
     restaurants = Restaurant.query.all()
     return jsonify([restaurant.serialize() for restaurant in restaurants])
 
+
 @api.route('/restaurant/<int:restaurant_id>', methods=['GET'])
 def get_restaurant(restaurant_id):
     restaurant = Restaurant.query.get_or_404(restaurant_id)
     return jsonify(restaurant.serialize())
+
 
 @api.route('/restaurant', methods=['POST'])
 def create_restaurant():
@@ -94,18 +106,22 @@ def create_restaurant():
 
 # --- Favorite Routes ---
 
+
 @api.route('/favorites', methods=['GET'])
 def get_favorites():
     favorites = Favorite.query.all()
     return jsonify([favorite.serialize() for favorite in favorites])
 
+
 @api.route('/favorite', methods=['POST'])
 def create_favorite():
     data = request.get_json()
-    new_favorite = Favorite(user_id=data['user_id'], restaurant_id=data['restaurant_id'])
+    new_favorite = Favorite(
+        user_id=data['user_id'], restaurant_id=data['restaurant_id'])
     db.session.add(new_favorite)
     db.session.commit()
     return jsonify(new_favorite.serialize()), 201
+
 
 @api.route('/favorite/<int:favorite_id>', methods=['DELETE'])
 def delete_favorite(favorite_id):
@@ -116,15 +132,18 @@ def delete_favorite(favorite_id):
 
 # --- Reservation Routes ---
 
+
 @api.route('/reservations', methods=['GET'])
 def get_reservations():
     reservations = Reservation.query.all()
     return jsonify([reservation.serialize() for reservation in reservations])
 
+
 @api.route('/reservation/<int:reservation_id>', methods=['GET'])
 def get_reservation(reservation_id):
     reservation = Reservation.query.get_or_404(reservation_id)
     return jsonify(reservation.serialize())
+
 
 @api.route('/reservation', methods=['POST'])
 def create_reservation():
@@ -139,14 +158,17 @@ def create_reservation():
     db.session.commit()
     return jsonify(new_reservation.serialize()), 201
 
+
 @api.route('/reservation/<int:reservation_id>', methods=['PUT'])
 def update_reservation(reservation_id):
     data = request.get_json()
     reservation = Reservation.query.get_or_404(reservation_id)
-    reservation.reservation_time = datetime.fromisoformat(data['reservation_time'])
+    reservation.reservation_time = datetime.fromisoformat(
+        data['reservation_time'])
     reservation.is_active = data['is_active']
     db.session.commit()
     return jsonify(reservation.serialize())
+
 
 @api.route('/reservation/<int:reservation_id>', methods=['DELETE'])
 def delete_reservation(reservation_id):
@@ -155,18 +177,19 @@ def delete_reservation(reservation_id):
     db.session.commit()
     return '', 204
 
+
 def get_location_id(city):
     """
     Fetches location_id for a given city using the /typeahead endpoint.
     """
     url = "https://restaurants222.p.rapidapi.com/typeahead"
-    
+
     # Use a dictionary for the payload and let requests handle the encoding
     payload = {
         "q": city,
         "language": "en_US"
     }
-    
+
     headers = {
         "x-rapidapi-key": RAPIDAPI_KEY,
         "x-rapidapi-host": RAPIDAPI_HOST,
@@ -188,7 +211,7 @@ def get_location_id(city):
         for item in data["results"]["data"]:
             if item.get("result_type") == "geos":
                 return item["result_object"]["location_id"]
-    
+
     return None
 
 
@@ -202,7 +225,7 @@ def search_restaurants():
 
     if not city:
         return jsonify({"error": "City name is required"}), 400
-    
+
     # Make sure city is at least 3 characters (per API error message)
     if len(city) < 3:
         return jsonify({"error": "City name must be at least 3 characters"}), 400
@@ -215,7 +238,7 @@ def search_restaurants():
 
     # Fetch restaurants using the location_id
     url = "https://restaurants222.p.rapidapi.com/search"
-    
+
     # Use a dictionary for payload instead of f-string
     payload = {
         "location_id": location_id,
@@ -231,14 +254,93 @@ def search_restaurants():
 
     # Use data=payload with a dictionary to ensure proper URL encoding
     response = requests.post(url, data=payload, headers=headers)
-    
+
     print(f"Restaurant API Status Code: {response.status_code}")
-    
+
     if response.status_code == 200:
         response_data = response.json()
-        print(f"Response data keys: {response_data.keys() if isinstance(response_data, dict) else 'Not a dict'}")
+        print(
+            f"Response data keys: {response_data.keys() if isinstance(response_data, dict) else 'Not a dict'}")
         print(f"Response data sample: {str(response_data)[:500]}...")
         return jsonify(response_data), 200
     else:
         print(f"Error response: {response.text}")
         return jsonify({"error": "Failed to fetch restaurants"}), response.status_code
+
+
+@api.route('/restaurant/<restaurant_id>/photos', methods=['GET'])
+def get_restaurant_photos(restaurant_id):
+    """
+    Endpoint to get additional photos for a specific restaurant
+    """
+    try:
+        # For now, return placeholder images to prevent 502 errors
+        dummy_photos = [
+            "https://via.placeholder.com/800x600?text=Restaurant+Photo+1",
+            "https://via.placeholder.com/800x600?text=Restaurant+Photo+2",
+            "https://via.placeholder.com/800x600?text=Restaurant+Photo+3",
+            "https://via.placeholder.com/800x600?text=Restaurant+Photo+4",
+            "https://via.placeholder.com/800x600?text=Restaurant+Photo+5"
+        ]
+
+        return jsonify({"photos": dummy_photos}), 200
+
+    except Exception as e:
+        print(f"Error fetching restaurant photos: {str(e)}")
+        return jsonify({"error": "Failed to fetch restaurant photos"}), 500
+
+
+@api.route('/restaurant/<location_id>/photos', methods=['GET'])
+def get_api_restaurant_photos(location_id):
+    """
+    Endpoint to get photos for a specific restaurant from the RapidAPI service
+    """
+    try:
+        url = "https://restaurants222.p.rapidapi.com/photos"
+
+        # Use a dictionary for payload
+        payload = {
+            "location_id": location_id,
+            "language": "en_US",
+            "currency": "USD",
+            "offset": "0"
+        }
+
+        headers = {
+            "x-rapidapi-key": RAPIDAPI_KEY,
+            "x-rapidapi-host": RAPIDAPI_HOST,
+            "Content-Type": "application/x-www-form-urlencoded"
+        }
+
+        # Send request to the RapidAPI endpoint
+        response = requests.post(url, data=payload, headers=headers)
+
+        print(f"Restaurant Photos API Status Code: {response.status_code}")
+
+        if response.status_code == 200:
+            response_data = response.json()
+            print(
+                f"Photos response data sample: {str(response_data)[:500]}...")
+            return jsonify(response_data), 200
+        else:
+            print(f"Error response from photos API: {response.text}")
+            # Fall back to placeholder images if the API call fails
+            dummy_photos = [
+                "https://via.placeholder.com/800x600?text=Restaurant+Photo+1",
+                "https://via.placeholder.com/800x600?text=Restaurant+Photo+2",
+                "https://via.placeholder.com/800x600?text=Restaurant+Photo+3",
+                "https://via.placeholder.com/800x600?text=Restaurant+Photo+4",
+                "https://via.placeholder.com/800x600?text=Restaurant+Photo+5"
+            ]
+            return jsonify({"photos": dummy_photos}), 200
+
+    except Exception as e:
+        print(f"Error fetching restaurant photos: {str(e)}")
+        # Return fallback data to prevent frontend errors
+        return jsonify({"photos": [
+            "https://via.placeholder.com/800x600?text=Photo+1",
+            "https://via.placeholder.com/800x600?text=Photo+2",
+            "https://via.placeholder.com/800x600?text=Photo+3",
+            "https://via.placeholder.com/800x600?text=Photo+4",
+            "https://via.placeholder.com/800x600?text=Photo+5"
+        ]}), 200

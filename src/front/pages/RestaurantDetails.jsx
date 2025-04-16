@@ -13,10 +13,13 @@ export const RestaurantDetails = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { store } = useGlobalReducer();
-  
+
   // State for API data
   const [apiRestaurant, setApiRestaurant] = useState(null);
   const [isApiData, setIsApiData] = useState(false);
+  const [additionalPhotos, setAdditionalPhotos] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   // Initialize other states
   const [showGallery, setShowGallery] = useState(false);
@@ -29,18 +32,42 @@ export const RestaurantDetails = () => {
   useEffect(() => {
     // Check if coming from the Restaurants page with API data
     if (location.state?.isApiData) {
+      setLoading(true);
+      setError(null);
+
       try {
         // Try to get the API restaurant data from sessionStorage
         const storedData = sessionStorage.getItem('apiRestaurantDetails');
         if (storedData) {
           const parsedData = JSON.parse(storedData);
-          setApiRestaurant(parsedData);
+
+          // Enhance the parsedData with default values to prevent errors
+          const enhancedData = {
+            ...parsedData,
+            photos: parsedData.photos || [],
+            photo: parsedData.photo || {
+              images: {
+                large: { url: "https://via.placeholder.com/800x600?text=No+Image+Available" },
+                medium: { url: "https://via.placeholder.com/400x300?text=No+Image+Available" }
+              }
+            },
+            description: parsedData.description || "No description available",
+            hours_str: parsedData.hours_str || "Hours information not available",
+            address: parsedData.address || "Address information not available"
+          };
+
+          setApiRestaurant(enhancedData);
           setIsApiData(true);
-          console.log("Loaded API restaurant data:", parsedData);
+          setLoading(false);
+          console.log("Loaded API restaurant data:", enhancedData);
+        } else {
+          throw new Error("No restaurant data found in session storage");
         }
       } catch (error) {
         console.error("Error loading API restaurant data:", error);
-        navigate('/restaurants', { state: { message: "Error loading restaurant details" } });
+        setError(error.message);
+        setLoading(false);
+        // Don't navigate away immediately - show error in the UI instead
       }
     } else {
       // Using static data
@@ -58,9 +85,138 @@ export const RestaurantDetails = () => {
     }
   }, [location.state, store.reviews]);
 
+  // Function to fetch additional photos for the restaurant
+  const fetchAdditionalPhotos = async (locationId) => {
+    try {
+      console.log("Fetching additional photos for restaurant ID:", locationId);
+
+      // Direct call to RapidAPI
+      const response = await fetch('https://restaurants222.p.rapidapi.com/photos', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-RapidAPI-Key': '6523447ffdmshf6ff1c4acbf3f3dp109302jsnd9877b7e20f0',
+          'X-RapidAPI-Host': 'restaurants222.p.rapidapi.com'
+        },
+        body: new URLSearchParams({
+          location_id: locationId,
+          language: 'en_US',
+          currency: 'USD',
+          offset: '0'
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch photos: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("Photos API response:", data);
+
+      // Extract photo URLs
+      let photoUrls = [];
+
+      if (data.data && Array.isArray(data.data)) {
+        photoUrls = data.data
+          .filter(photo => photo.images && (photo.images.large || photo.images.medium))
+          .map(photo => photo.images.large?.url || photo.images.medium?.url)
+          .filter(url => url);
+
+        console.log("Extracted photo URLs:", photoUrls);
+      }
+
+      // Return the photo URLs or fallback images if none found
+      // Return the photo URLs or fallback images if none found
+      if (photoUrls.length > 0) {
+        return photoUrls;
+      } else {
+        return [
+          "https://placehold.co/800x600/gray/white?text=Restaurant+Photo+1",
+          "https://placehold.co/800x600/gray/white?text=Restaurant+Photo+2",
+          "https://placehold.co/800x600/gray/white?text=Restaurant+Photo+3"
+        ];
+      }
+    } catch (error) {
+      console.error("Error fetching additional photos:", error);
+      return [
+        "https://placehold.co/800x600/gray/white?text=Fallback+Photo+1",
+        "https://placehold.co/800x600/gray/white?text=Fallback+Photo+2",
+        "https://placehold.co/800x600/gray/white?text=Fallback+Photo+3"
+      ];
+    }
+  };
+
+  // Fetch additional photos when the component loads
+  useEffect(() => {
+    // Only fetch additional photos if we have a restaurant from API data
+    if (isApiData && apiRestaurant) {
+      setLoading(true);
+      const locationId = apiRestaurant.location_id || id;
+
+      // Fetch additional photos
+      fetchAdditionalPhotos(locationId)
+        .then(photos => {
+          if (photos && photos.length > 0) {
+            // Store the fetched photos in state
+            setAdditionalPhotos(photos);
+            console.log("Additional photos loaded:", photos);
+          }
+          setLoading(false);
+        })
+        .catch(error => {
+          console.error("Failed to load additional photos:", error);
+          setLoading(false);
+        });
+    }
+  }, [isApiData, apiRestaurant, id]);
+
+
   // Get static restaurant data
   const staticRestaurant = restaurantData[id];
-  
+
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div>
+        <Navbar />
+        <PageWrapper>
+          <div className="text-center mt-5">
+            <div className="spinner-border" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+            <h3 className="mt-3">Loading restaurant details...</h3>
+          </div>
+        </PageWrapper>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div>
+        <Navbar />
+        <PageWrapper>
+          <div className="text-center mt-5">
+            <div className="alert alert-danger">
+              <h3>Error loading restaurant</h3>
+              <p>{error}</p>
+            </div>
+            <button
+              className="btn btn-dark mt-3"
+              onClick={() => navigate('/restaurants')}
+            >
+              Back to Restaurants
+            </button>
+          </div>
+        </PageWrapper>
+        <Footer />
+      </div>
+    );
+  }
+
   // If we don't have a restaurant from either source, show an error
   if (!staticRestaurant && !apiRestaurant) {
     return (
@@ -70,8 +226,8 @@ export const RestaurantDetails = () => {
           <div className="text-center mt-5">
             <h3>Restaurant not found.</h3>
             <p>The restaurant you're looking for doesn't exist or was removed.</p>
-            <button 
-              className="btn btn-dark mt-3" 
+            <button
+              className="btn btn-dark mt-3"
               onClick={() => navigate('/restaurants')}
             >
               Back to Restaurants
@@ -85,9 +241,10 @@ export const RestaurantDetails = () => {
 
   // Use the appropriate restaurant data based on source
   const restaurant = isApiData ? apiRestaurant : staticRestaurant;
-  
+
   // Get restaurant reviews if using static data
   const restaurantReviews = isApiData ? [] : store.reviews.filter((r) => r.restaurantId === id);
+
 
   // Helper function to prepare images for the API restaurant
   const getRestaurantImages = () => {
@@ -95,39 +252,63 @@ export const RestaurantDetails = () => {
       // For static data, return the images array directly
       return restaurant.images || [];
     }
-    
+
     // For API data, construct an array of images
     const images = [];
-    
+
     // Add the main photo if available
     if (restaurant.photo?.images?.large?.url) {
       images.push(restaurant.photo.images.large.url);
     } else if (restaurant.photo?.images?.medium?.url) {
       images.push(restaurant.photo.images.medium.url);
     }
-    
+
     // Add photos from the photos array if available
     if (restaurant.photos && Array.isArray(restaurant.photos)) {
       restaurant.photos.forEach(photo => {
-        if (photo.images?.large?.url) {
-          images.push(photo.images.large.url);
-        } else if (photo.images?.medium?.url) {
-          images.push(photo.images.medium.url);
+        try {
+          // Check if photo is a string (direct URL)
+          if (typeof photo === 'string') {
+            images.push(photo);
+          }
+          // Check if photo is an object with images property
+          else if (photo.images?.large?.url) {
+            images.push(photo.images.large.url);
+          } else if (photo.images?.medium?.url) {
+            images.push(photo.images.medium.url);
+          }
+          // Check if photo has a direct URL property
+          else if (photo.url) {
+            images.push(photo.url);
+          }
+        } catch (err) {
+          console.error("Error processing photo:", err);
         }
       });
     }
-    
+
+    // Add any additional photos fetched separately
+    if (additionalPhotos && additionalPhotos.length > 0) {
+      additionalPhotos.forEach(photoUrl => {
+        if (!images.includes(photoUrl)) {
+          images.push(photoUrl);
+        }
+      });
+    }
+
     // If we still don't have images, add a placeholder
     if (images.length === 0) {
       images.push("https://via.placeholder.com/800x600?text=No+Image+Available");
     }
-    
+
+    console.log("Final restaurant images array:", images);
+
     return images;
   };
 
   // Get the images to display
   const restaurantImages = getRestaurantImages();
-  
+
   // Helper function to format restaurant details from API data
   const getRestaurantDetails = () => {
     if (!isApiData) {
@@ -145,36 +326,37 @@ export const RestaurantDetails = () => {
         popularDishes: restaurant.popularDishes || []
       };
     }
-    
+
     // For API data, normalize the fields
     return {
       name: restaurant.name,
       price: restaurant.normalizedPrice || restaurant.price || "$",
-      cuisine: restaurant.cuisine_type || 
-               (restaurant.cuisine && restaurant.cuisine[0]?.name) || 
-               "Various",
+      cuisine: restaurant.cuisine_type ||
+        (restaurant.cuisine && restaurant.cuisine[0]?.name) ||
+        "Various",
       rating: restaurant.normalizedRating || restaurant.rating || "N/A",
       isOpen: restaurant.normalizedOpenNow,
       description: restaurant.description || "No description available for this restaurant.",
-      location: restaurant.address || 
-                (restaurant.location && restaurant.location.address) || 
-                "Address not available",
-      hours: restaurant.hours_str || 
-             (restaurant.hours && restaurant.hours.weekday_text?.join(", ")) || 
-             "Hours not available",
-      amenities: restaurant.amenities || 
-                 restaurant.features || 
-                 restaurant.offerings || 
-                 [],
-      popularDishes: restaurant.signature_dishes || 
-                     restaurant.popular_dishes || 
-                     restaurant.dish_highlights || 
-                     ["Information not available"]
+      location: restaurant.address ||
+        (restaurant.location && restaurant.location.address) ||
+        "Address not available",
+      hours: restaurant.hours_str ||
+        (restaurant.hours && restaurant.hours.weekday_text?.join(", ")) ||
+        "Hours not available",
+      amenities: restaurant.amenities ||
+        restaurant.features ||
+        restaurant.offerings ||
+        [],
+      popularDishes: restaurant.signature_dishes ||
+        restaurant.popular_dishes ||
+        restaurant.dish_highlights ||
+        ["Information not available"]
     };
   };
 
   // Get formatted restaurant details
   const details = getRestaurantDetails();
+
 
   return (
     <div>
@@ -213,29 +395,30 @@ export const RestaurantDetails = () => {
               ))}
             </Slider>
 
-            {/* Overlay content */}
-            <div
-              className="position-absolute bottom-0 start-0 text-white p-4"
-              style={{ zIndex: 1, background: "linear-gradient(to top, rgba(0,0,0,0.7), transparent)" }}
-            >
-              <h1 className="fw-bold">{details.name}</h1>
-              <p className="mb-1">
-                💲{details.price} • {details.cuisine} • ⭐ {details.rating}
+            {/* Overlay content - Simplified but improved styling */}
+            <div className="restaurant-overlay text-white">
+              <h1 className="display-5 fw-bold mb-2">{details.name}</h1>
+              <div className="d-flex align-items-center gap-3 mb-2" style={{ fontSize: "1.1rem" }}>
+                {details.price && <span>{details.price}</span>}
+                <span>•</span>
+                <span>{details.cuisine}</span>
+                <span>•</span>
+                <span><span className="text-warning">★</span> {details.rating}</span>
+              </div>
+              <p className="mb-3">
+                <span className={details.isOpen ? "badge bg-success" : "badge bg-danger"}>
+                  {details.isOpen ? "Open Now" : "Closed"}
+                </span>
               </p>
-              <p className="mb-3">{details.isOpen ? "🟢 Open Now" : "🔴 Closed"}</p>
               <div className="d-flex gap-3">
-                <button className="btn btn-light btn-sm" onClick={() => setShowHours(true)}>
-                  See Hours
-                </button>
-
-                <button className="btn btn-outline-light btn-sm" onClick={() => setShowGallery(true)}>
-                  View All Photos
-                </button>
+                <button className="btn btn-light" onClick={() => setShowHours(true)}>See Hours</button>
+                <button className="btn btn-outline-light" onClick={() => setShowGallery(true)}>View All Photos</button>
               </div>
             </div>
+
+
           </div>
         </section>
-
         {/* Feature Buttons */}
         <section className="container py-4">
           <div className="d-flex justify-content-center flex-wrap gap-3">
@@ -353,9 +536,8 @@ export const RestaurantDetails = () => {
                         {[1, 2, 3, 4, 5].map((star) => (
                           <i
                             key={star}
-                            className={`fa-star me-1 ${
-                              r.rating >= star ? "fas text-warning" : "far text-muted"
-                            }`}
+                            className={`fa-star me-1 ${r.rating >= star ? "fas text-warning" : "far text-muted"
+                              }`}
                           />
                         ))}
                       </div>
@@ -481,7 +663,7 @@ export const RestaurantDetails = () => {
             </div>
           </div>
         )}
-        
+
         {selectedReview && (
           <ReviewModal
             review={selectedReview}
