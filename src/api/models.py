@@ -37,8 +37,8 @@ class User(db.Model):
     password = db.Column(db.String(128), nullable=False)
     first_name = db.Column(db.String(30), nullable=False)
     last_name = db.Column(db.String(30), nullable=False)
-    phone = db.Column(db.String(20))  # ✅ NEW
-    address = db.Column(db.String(100))  # ✅ NEW
+    # phone = db.Column(db.String(20))  
+    # address = db.Column(db.String(100))  
     is_active = db.Column(db.Boolean, nullable=False)
 
     favorites = db.relationship('Favorite', backref='user', lazy=True)
@@ -51,8 +51,8 @@ class User(db.Model):
             "email": self.email,
             "first_name": self.first_name,
             "last_name": self.last_name,
-            "phone": self.phone,
-            "address": self.address,
+            # "phone": self.phone,
+            # "address": self.address,
             "is_active": self.is_active
         }
 
