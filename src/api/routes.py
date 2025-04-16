@@ -1,7 +1,9 @@
 from flask import Flask, Blueprint, jsonify, request, abort
 from flask_cors import CORS
-from datetime import datetime
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from werkzeug.security import generate_password_hash, check_password_hash
 from api.models import db, User, Restaurant, Favorite, Reservation
+from datetime import datetime
 import requests
 import os
 from dotenv import load_dotenv
@@ -13,14 +15,15 @@ RAPIDAPI_HOST = os.getenv("RAPIDAPI_HOST")
 api = Blueprint('api', __name__)
 CORS(api, resources={r"/*": {"origins": ["http://localhost:3000", "https://animated-guide-wrvvx9gwpgwv27p7-3000.app.github.dev"]}}, supports_credentials=True)
 
-# --- User Routes ---
 
 @api.route('/users', methods=['GET'])
+@jwt_required()
 def get_users():
     users = User.query.all()
     return jsonify([user.serialize() for user in users])
 
 @api.route('/user/<int:user_id>', methods=['GET'])
+@jwt_required()
 def get_user(user_id):
     user = User.query.get_or_404(user_id)
     return jsonify(user.serialize())
@@ -28,37 +31,49 @@ def get_user(user_id):
 @api.route('/user', methods=['POST'])
 def create_user():
     data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+
+    if User.query.filter_by(email=email).first():
+        return jsonify({"msg": "User already exists"}), 400
+
+    hashed_password = generate_password_hash(password)
+
     new_user = User(
         username=data['username'],
-        email=data['email'],
-        password=data['password'],
+        email=email,
+        password=hashed_password,
         first_name=data['first_name'],
         last_name=data['last_name'],
-        is_active=data['is_active']
+        is_active=data.get('is_active', True)
     )
     db.session.add(new_user)
     db.session.commit()
     return jsonify(new_user.serialize()), 201
 
 @api.route('/user/<int:user_id>', methods=['PUT'])
+@jwt_required()
 def update_user(user_id):
     data = request.get_json()
     user = User.query.get_or_404(user_id)
-    user.username = data['username']
-    user.email = data['email']
-    user.password = data['password']
-    user.first_name = data['first_name']
-    user.last_name = data['last_name']
-    user.is_active = data['is_active']
+
+    user.username = data.get('username', user.username)
+    user.email = data.get('email', user.email)
+    if data.get('password'):
+        user.password = generate_password_hash(data['password'])
+    user.first_name = data.get('first_name', user.first_name)
+    user.last_name = data.get('last_name', user.last_name)
+    user.is_active = data.get('is_active', user.is_active)
     db.session.commit()
     return jsonify(user.serialize())
 
 @api.route('/user/<int:user_id>', methods=['DELETE'])
+@jwt_required()
 def delete_user(user_id):
     user = User.query.get_or_404(user_id)
     db.session.delete(user)
     db.session.commit()
-    return 'user deleted', 204
+    return jsonify({"msg": "User deleted"}), 204
 
 @api.route('/login', methods=['POST'])
 def login():
@@ -68,11 +83,27 @@ def login():
     if not email or not password:
         return jsonify({"msg": "Email and password required."}), 400
     user = User.query.filter_by(email=email).first()
-    if not user or user.password != password:
-        return jsonify({"msg": "Invalid credentials."}), 401
-    return jsonify(user.serialize()), 200
 
-# --- Restaurant Routes ---
+    if not user or not check_password_hash(user.password, password):
+        return jsonify({"msg": "Invalid credentials."}), 401
+
+    # Create JWT token
+    access_token = create_access_token(identity={"id": user.id, "username": user.username, "email": user.email})
+
+    return jsonify({
+        "access_token": access_token,
+        "user": user.serialize()
+    }), 200
+
+@api.route("/profile", methods=["GET"])
+@jwt_required()
+def get_user_profile():
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+    return jsonify({"profile": user.serialize()}), 200
+
 
 @api.route('/restaurants', methods=['GET'])
 def get_restaurants():
@@ -92,7 +123,6 @@ def create_restaurant():
     db.session.commit()
     return jsonify(new_restaurant.serialize()), 201
 
-# --- Favorite Routes ---
 
 @api.route('/favorites', methods=['GET'])
 def get_favorites():
@@ -114,7 +144,7 @@ def delete_favorite(favorite_id):
     db.session.commit()
     return '', 204
 
-# --- Reservation Routes ---
+
 
 @api.route('/reservations', methods=['GET'])
 def get_reservations():
@@ -127,6 +157,7 @@ def get_reservation(reservation_id):
     return jsonify(reservation.serialize())
 
 @api.route('/reservation', methods=['POST'])
+@jwt_required()
 def create_reservation():
     data = request.get_json()
     new_reservation = Reservation(
@@ -140,6 +171,7 @@ def create_reservation():
     return jsonify(new_reservation.serialize()), 201
 
 @api.route('/reservation/<int:reservation_id>', methods=['PUT'])
+@jwt_required()
 def update_reservation(reservation_id):
     data = request.get_json()
     reservation = Reservation.query.get_or_404(reservation_id)
@@ -149,6 +181,7 @@ def update_reservation(reservation_id):
     return jsonify(reservation.serialize())
 
 @api.route('/reservation/<int:reservation_id>', methods=['DELETE'])
+@jwt_required()
 def delete_reservation(reservation_id):
     reservation = Reservation.query.get_or_404(reservation_id)
     db.session.delete(reservation)
