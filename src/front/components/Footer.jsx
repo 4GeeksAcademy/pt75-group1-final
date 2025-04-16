@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 export const Footer = () => {
   return (
@@ -25,8 +26,8 @@ export const Footer = () => {
           <div className="col-md-4">
             <h6 className="fw-bold">Quick Links</h6>
             <ul className="list-unstyled">
-              <li><a href="#">About Us</a></li>
-              <li><a href="#">Contact Us</a></li>
+              <li><Link to="/about">About Us</Link></li>
+              <li><Link to="/contact">Contact Us</Link></li>
               <li><a href="#">Blog Posts</a></li>
               <li><a href="#">Help Center</a></li>
               <li><a href="#">User Reviews</a></li>

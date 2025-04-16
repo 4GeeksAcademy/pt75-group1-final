@@ -19,7 +19,6 @@ const About = () => {
         <TeamSection />
         <ContactSection />
       <PageWrapper />
-      <Footer />
     </main>
   );
 };

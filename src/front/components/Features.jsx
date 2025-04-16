@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import d1 from "../assets/discover/d1.jpg";
 import d2 from "../assets/discover/d2.jpg";
 import d3 from "../assets/discover/d3.jpg";
@@ -28,6 +29,8 @@ const features = [
 ];
 
 const Features = () => {
+  const navigate = useNavigate();
+
   return (
     <section className="bg-white py-5 border-top border-bottom">
       <div className="container">
@@ -69,8 +72,18 @@ const Features = () => {
 
         {/* Buttons */}
         <div className="d-flex gap-3">
-          <button className="btn btn-outline-dark px-4 py-2">Learn More</button>
-          <button className="btn btn-dark px-4 py-2">Sign Up</button>
+          <button 
+            className="btn btn-outline-dark px-4 py-2" 
+            onClick={() => navigate('/restaurants')}
+          >
+            Learn More
+          </button>
+          <button 
+            className="btn btn-dark px-4 py-2" 
+            onClick={() => navigate('/signup')}
+          >
+            Sign Up
+          </button>
         </div>
       </div>
     </section>

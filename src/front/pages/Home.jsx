@@ -18,7 +18,6 @@ export const Home = () => {
       <CTA />
       <Testimonial />
       <AwardsSection />
-      <Footer />
     </div>
   );
 };

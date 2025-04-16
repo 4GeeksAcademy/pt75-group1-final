@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import { Footer } from "../components/Footer";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { restaurantData } from "./restaurantData";
 import PageWrapper from "../components/PageWrapper";
 import AdvancedFilters from "../components/AdvancedFilters";
@@ -20,6 +20,7 @@ const SearchBar = ({ value, onChange }) => (
 
 const Restaurants = () => {
   const location = useLocation();
+  const navigate = useNavigate(); // Add useNavigate hook for navigation
   const [alert, setAlert] = useState(location.state?.message || null);
   const reviewId = location.state?.reviewId || null;
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -46,6 +47,25 @@ const Restaurants = () => {
   const [nameInput, setNameInput] = useState("");
   const [nameSuggestions, setNameSuggestions] = useState([]);
   const [isApiData, setIsApiData] = useState(false);
+
+  // Function to handle viewing restaurant details
+  const handleViewDetails = (restaurant) => {
+    // For API data
+    if (!Array.isArray(restaurant)) {
+      // Store the API restaurant data in sessionStorage before navigating
+      const restaurantDetails = JSON.stringify(restaurant);
+      sessionStorage.setItem('apiRestaurantDetails', restaurantDetails);
+      
+      // Generate a temporary ID for the API restaurant
+      const tempId = restaurant.location_id || restaurant.id || `api-${Date.now()}`;
+      navigate(`/restaurant/${tempId}`, { state: { isApiData: true } });
+    } 
+    // For static data
+    else {
+      const [id, _] = restaurant;
+      navigate(`/restaurant/${id}`);
+    }
+  };
 
   // Check if a restaurant is in favorites
   const isFavorite = (restaurant) => {
@@ -659,8 +679,12 @@ const Restaurants = () => {
                             {restaurant.normalizedDelivery && <span className="text-primary"> • Delivers</span>}
                           </p>
                           <div className="d-flex justify-content-between">
-                            <button className="btn btn-sm btn-dark">Contact</button>
-                            <button className="btn btn-sm btn-outline-dark">Reviews</button>
+                            <button 
+                              className="btn btn-sm btn-dark"
+                              onClick={() => handleViewDetails(restaurant)}
+                            >
+                              Details
+                            </button>
                             
                             {/* Favorite Button */}
                             <button 
@@ -707,7 +731,12 @@ const Restaurants = () => {
                           {restaurant.offersDelivery && <span className="text-primary"> • Delivers</span>}
                         </p>
                         <div className="d-flex justify-content-between">
-                          <button className="btn btn-sm btn-dark">Contact</button>
+                          <button 
+                            className="btn btn-sm btn-dark"
+                            onClick={() => handleViewDetails(item)}
+                          >
+                            Details
+                          </button>
                           <button className="btn btn-sm btn-outline-dark">Reviews</button>
                           
                           {/* Favorite Button */}
@@ -742,7 +771,6 @@ const Restaurants = () => {
           </div>
         </section>
       </PageWrapper>
-      <Footer />
     </div>
   );
 };

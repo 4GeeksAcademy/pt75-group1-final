@@ -1,9 +1,11 @@
 import React from "react";
 import { Container, Row, Col, Button } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 import useGlobalReducer from "../../hooks/useGlobalReducer";
 
 const Timeline = () => {
   const { dispatch } = useGlobalReducer(); // ✅ Hook moved inside component
+  const navigate = useNavigate();
 
   const timelineData = [
     {
@@ -16,7 +18,7 @@ const Timeline = () => {
     },
     {
       year: "2019",
-      text: "BiteFinder expanded its reach, partnering with over 1,000 restaurants nationwide. Our user base grew exponentially, reflecting the platform’s popularity.",
+      text: "BiteFinder expanded its reach, partnering with over 1,000 restaurants nationwide. Our user base grew exponentially, reflecting the platform's popularity.",
     },
     {
       year: "2021",
@@ -39,10 +41,20 @@ const Timeline = () => {
             BiteFinder began its journey in 2015, aiming to revolutionize restaurant discovery. Over the years, we have achieved significant milestones that have shaped our platform.
           </p>
           <div className="mt-3">
-            <a href="timeline">
-              <Button variant="dark" className="me-2 rounded-0">Learn More</Button>
-            </a>
-            <Button variant="outline-dark" className="rounded-0">Sign Up</Button>
+            <Button 
+              variant="dark" 
+              className="me-2 rounded-0"
+              onClick={() => navigate('/restaurants')}
+            >
+              Learn More
+            </Button>
+            <Button 
+              variant="outline-dark" 
+              className="rounded-0"
+              onClick={() => navigate('/signup')}
+            >
+              Sign Up
+            </Button>
           </div>
         </div>
 
@@ -100,14 +112,14 @@ const Timeline = () => {
             <Button
               variant="dark"
               className="me-2 rounded-0"
-              onClick={() => dispatch({ type: "SHOW_LOGIN_MODAL" })}
+              onClick={() => navigate('/login')}
             >
               Sign In
             </Button>
             <Button
               variant="outline-dark"
               className="rounded-0"
-              onClick={() => dispatch({ type: "SHOW_SIGNUP_MODAL" })}
+              onClick={() => navigate('/signup')}
             >
               Join &rarr;
             </Button>
