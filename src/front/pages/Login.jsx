@@ -36,11 +36,10 @@ export const Login = () => {
       const data = await response.json();
       console.log("Login success:", data);
 
-      dispatch({
-        type: "LOGIN_SUCCESS",
-        payload: data,
-      });
+      localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("access_token", data.access_token);
 
+      dispatch({ type: "LOGIN_SUCCESS", payload: data.user });
       navigate("/profile");
     } catch (err) {
       console.error("Login error:", err);
