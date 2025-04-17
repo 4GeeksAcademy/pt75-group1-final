@@ -586,3 +586,22 @@ body.search-active {
   z-index: 998;
   background: white;
 }
+
+
+
+
+/*-------------Review popup-------------*/
+
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}

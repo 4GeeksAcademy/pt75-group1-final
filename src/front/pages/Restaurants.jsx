@@ -72,7 +72,6 @@ const Restaurants = () => {
   });
 
   const [showPriceOptions, setShowPriceOptions] = useState(false);
-
   const [cityQuery, setCityQuery] = useState("");
   const [restaurants, setRestaurants] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -80,6 +79,9 @@ const Restaurants = () => {
   const [nameInput, setNameInput] = useState("");
   const [nameSuggestions, setNameSuggestions] = useState([]);
   const [isApiData, setIsApiData] = useState(false);
+  const [returningFromDetail, setReturningFromDetail] = useState(false);
+
+
 
   // Function to handle viewing restaurant details
   const handleViewDetails = (restaurant) => {
@@ -88,6 +90,7 @@ const Restaurants = () => {
       // Store the API restaurant data in sessionStorage before navigating
       const restaurantDetails = JSON.stringify(restaurant);
       sessionStorage.setItem('apiRestaurantDetails', restaurantDetails);
+      sessionStorage.setItem('viewingRestaurantDetails', 'true');
 
       // Generate a temporary ID for the API restaurant
       const tempId = restaurant.location_id || restaurant.id || `api-${Date.now()}`;
@@ -96,6 +99,7 @@ const Restaurants = () => {
     // For static data
     else {
       const [id, _] = restaurant;
+      sessionStorage.setItem('viewingRestaurantDetails', 'true');
       navigate(`/restaurant/${id}`);
     }
   };
@@ -246,6 +250,15 @@ const Restaurants = () => {
 
         // Also set hasSearched to true for empty results
         setHasSearched(true);
+        if (normalizedResults && normalizedResults.length > 0) {
+          // Store the search results in sessionStorage
+          sessionStorage.setItem('lastSearchResults', JSON.stringify({
+            query: cityQuery,
+            results: normalizedResults,
+            timestamp: Date.now()
+          }));
+        }
+
       }
     } catch (err) {
       console.error("Search error:", err);
@@ -446,10 +459,18 @@ const Restaurants = () => {
   const filteredRestaurants = getFilteredRestaurants();
 
   useEffect(() => {
-    if (location.state) {
-      window.history.replaceState({}, document.title);
+    if (location.state?.message) {
+      setAlert(location.state.message);
+      setReturningFromDetail(true);
+
+      // Keep the alert visible for 5 seconds then dismiss
+      const timer = setTimeout(() => {
+        setAlert(null);
+      }, 5000);
+
+      return () => clearTimeout(timer);
     }
-  }, []);
+  }, [location.state]);
 
 
   useEffect(() => {
@@ -511,6 +532,10 @@ const Restaurants = () => {
         });
       });
 
+
+
+
+
       container.appendChild(emoji);
 
       console.log("🎯 emoji added", emoji); // NEW
@@ -571,47 +596,82 @@ const Restaurants = () => {
   }, []);
 
 
+  useEffect(() => {
+    // Check if we're returning from restaurant details
+    const wasViewingDetails = sessionStorage.getItem('viewingRestaurantDetails');
+
+    if (wasViewingDetails || location.state?.returnedFromDetails) {
+      // Clear the flag to prevent reloading on further navigation
+      sessionStorage.removeItem('viewingRestaurantDetails');
+
+      // Try to load previous search results
+      const storedSearch = sessionStorage.getItem('lastSearchResults');
+      if (storedSearch) {
+        try {
+          const parsed = JSON.parse(storedSearch);
+
+          // Only use stored results if they exist and have data
+          if (parsed && parsed.results && parsed.results.length > 0) {
+            console.log("Restoring search results:", parsed.results.length, "items");
+            setCityQuery(parsed.query || "");
+            setRestaurants(parsed.results);
+            setIsApiData(true);
+            setHasSearched(true); // This is crucial!
+          }
+        } catch (err) {
+          console.error("Error loading stored search:", err);
+        }
+      }
+    }
+  }, []);  // Empty dependency array to run only once on mount
+
+
+
 
   return (
     <div>
       <Navbar />
       <div className="emoji-rain-background"></div>
 
-
       {emojiEatenCount > 0 && (
         <div className="floating-bite-container">
-          <div className="bite-counter floating-bite-box shake-on-update">
-            <div className="bite-count-text">
-              🍴 Eaten: <strong>{emojiEatenCount}</strong>
-            </div>
-            <div className="bite-message">{getBiteMessage(emojiEatenCount)}</div>
-            <div className="bite-milestone">
-              Next award at {getNextMilestone(emojiEatenCount)} bites!! 🎯🥇🚀
-            </div>
-          </div>
+          {/* Bite counter content */}
+        </div>
+      )}
+
+      {/* Move the alert outside of PageWrapper to ensure it's visible during search */}
+      {alert && (
+        <div
+          className="alert alert-success alert-dismissible fade show text-center"
+          role="alert"
+          style={{
+            position: "fixed",
+            top: "70px", // Below navbar
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: "80%",
+            maxWidth: "500px",
+            zIndex: 2000, // Higher than other elements
+            boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
+          }}
+        >
+          {alert}
+          {reviewId && (
+            <>
+              {" "}
+              <Link to="#" className="alert-link">
+                View
+              </Link>
+            </>
+          )}
+          <button
+            type="button"
+            className="btn-close"
+            onClick={() => setAlert(null)}
+          ></button>
         </div>
       )}
       <PageWrapper>
-
-        {alert && (
-          <div className="alert alert-success alert-dismissible fade show m-0 rounded-0 text-center" role="alert">
-            {alert}
-            {reviewId && (
-              <>
-                {" "}
-                <Link to="#" className="alert-link">
-                  View
-                </Link>
-              </>
-            )}
-            <button
-              type="button"
-              className="btn-close"
-              onClick={() => setAlert(null)}
-            ></button>
-          </div>
-        )}
-
         {/* Search Section with transition effect */}
         <section
           className={`search-section ${hasSearched ? 'searched' : ''}`}

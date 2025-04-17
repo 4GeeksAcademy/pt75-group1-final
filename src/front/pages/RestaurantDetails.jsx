@@ -34,6 +34,7 @@ export const RestaurantDetails = () => {
   const [showAllReviews, setShowAllReviews] = useState(false);
 
   // Get the restaurant data - either from static data or from API
+  // In the useEffect section that handles API data loading
   useEffect(() => {
     // Check if coming from the Restaurants page with API data
     if (location.state?.isApiData) {
@@ -72,11 +73,33 @@ export const RestaurantDetails = () => {
         console.error("Error loading API restaurant data:", error);
         setError(error.message);
         setLoading(false);
-        // Don't navigate away immediately - show error in the UI instead
       }
     } else {
-      // Using static data
-      setIsApiData(false);
+      // Check if this is an API restaurant ID even without location state
+      // This helps when navigating back from a review or refresh
+      try {
+        // If the ID starts with "api-" or looks like a location_id number, try to load from storage
+        if ((id && (id.startsWith('api-') || !isNaN(id))) ||
+          sessionStorage.getItem('apiRestaurantDetails')) {
+          const storedData = sessionStorage.getItem('apiRestaurantDetails');
+
+          if (storedData) {
+            const parsedData = JSON.parse(storedData);
+            // Only set as API data if the IDs match or if it's the only stored restaurant
+            if (!id || id === parsedData.location_id || id === `api-${parsedData.location_id}`) {
+              setApiRestaurant(parsedData);
+              setIsApiData(true);
+            } else {
+              setIsApiData(false);
+            }
+          }
+        } else {
+          setIsApiData(false);
+        }
+      } catch (err) {
+        console.error("Error checking for API restaurant:", err);
+        setIsApiData(false);
+      }
     }
   }, [id, location.state, navigate]);
 
@@ -176,6 +199,108 @@ export const RestaurantDetails = () => {
   }, [isApiData, apiRestaurant, id]);
 
 
+  const ReviewItem = ({ review }) => {
+    const [expanded, setExpanded] = useState(false);
+
+    return (
+      <>
+        <div
+          className="list-group-item mb-3 shadow-sm border rounded p-3"
+          style={{
+            cursor: "pointer",
+            transition: "all 0.3s ease",
+          }}
+          onClick={() => setExpanded(true)}
+        >
+          <div className="mb-2">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <i
+                key={star}
+                className={`fa-star me-1 ${review.rating >= star ? "fas text-warning" : "far text-muted"}`}
+              />
+            ))}
+          </div>
+          <div
+            className="mb-2"
+            style={{
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              display: "-webkit-box",
+              WebkitLineClamp: 3,
+              WebkitBoxOrient: "vertical",
+              wordWrap: "break-word",
+            }}
+          >
+            {review.review}
+          </div>
+          <div>
+            <small className="text-muted">
+              Posted on {new Date(review.date).toLocaleDateString()}
+            </small>
+          </div>
+        </div>
+
+        {expanded && (
+          <div
+            className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+            style={{
+              backgroundColor: "rgba(0, 0, 0, 0.7)",
+              zIndex: 1050,
+              cursor: "pointer"
+            }}
+            onClick={() => setExpanded(false)}
+          >
+            <div
+              className="bg-white rounded-3 p-4 mx-3"
+              style={{
+                maxWidth: "500px",
+                width: "90%",
+                height: "auto",
+                overflowY: "visible",
+                transform: "scale(1)",
+                animation: "popIn 0.3s ease-out",
+                cursor: "default"
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <h5 className="mb-0 fw-bold">Review</h5>
+                <button
+                  className="btn-close"
+                  onClick={() => setExpanded(false)}
+                  aria-label="Close"
+                ></button>
+              </div>
+
+              <div className="mb-3">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <i
+                    key={star}
+                    className={`fa-star fa-lg me-1 ${review.rating >= star ? "fas text-warning" : "far text-muted"}`}
+                  />
+                ))}
+              </div>
+
+              <div className="review-content mb-4" style={{
+                whiteSpace: "normal",
+                wordWrap: "break-word",
+                hyphens: "auto",
+                lineHeight: "1.6"
+              }}>
+                {review.review}
+              </div>
+
+              <div className="text-end text-muted">
+                <small>Posted on {new Date(review.date).toLocaleDateString()}</small>
+              </div>
+            </div>
+          </div>
+        )}
+      </>
+    );
+  };
+
+
   // Get static restaurant data
   const staticRestaurant = restaurantData[id];
 
@@ -247,9 +372,16 @@ export const RestaurantDetails = () => {
   // Use the appropriate restaurant data based on source
   const restaurant = isApiData ? apiRestaurant : staticRestaurant;
 
-  // Get restaurant reviews if using static data
-  const restaurantReviews = isApiData ? [] : store.reviews.filter((r) => r.restaurantId === id);
-
+  // Get restaurant reviews for both static and API data
+  const restaurantReviews = store.reviews ? store.reviews.filter((r) => {
+    if (isApiData) {
+      // For API data, match by location_id or any other identifier
+      return r.restaurantId === (restaurant.location_id || id);
+    } else {
+      // For static data, use the existing logic
+      return r.restaurantId === id;
+    }
+  }) : [];
 
   // Helper function to prepare images for the API restaurant
   const getRestaurantImages = () => {
@@ -533,77 +665,64 @@ export const RestaurantDetails = () => {
           </div>
         </section>
 
-        {/* 📝 User Reviews Section - Only show for non-API restaurants */}
-        {!isApiData && (
-          <section className="container py-5">
-            <h3 className="fw-bold mb-4">User Reviews</h3>
+        {/* 📝 User Reviews Section - Now works for both static and API data */}
+        <section className="container py-5">
+          <h3 className="fw-bold mb-4">User Reviews</h3>
 
-            {restaurantReviews.length === 0 ? (
-              <p className="text-muted">No reviews yet. Be the first to leave one!</p>
-            ) : (
-              <div className="list-group">
-                {restaurantReviews.slice(0, showAllReviews ? restaurantReviews.length : 3).map((r, index) => {
-                  const isLong = r.review.length > 200;
-                  const [expanded, setExpanded] = useState(false);
-                  const preview = isLong && !expanded ? r.review.slice(0, 200) + "..." : r.review;
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <span>{restaurantReviews.length} {restaurantReviews.length === 1 ? 'review' : 'reviews'}</span>
+            <button
+              className="btn btn-dark"
+              onClick={() => {
+                // For API data, we need to store the restaurant info before navigating
+                if (isApiData) {
+                  // Store minimal restaurant info for the review
+                  const restaurantInfo = {
+                    id: restaurant.location_id || id,
+                    name: restaurant.name,
+                    isApiData: true
+                  };
+                  sessionStorage.setItem('reviewingRestaurant', JSON.stringify(restaurantInfo));
+                }
+                // Navigate to review form with the restaurant ID
+                navigate(`/write-review/${isApiData ? (restaurant.location_id || id) : id}`);
+              }}
+            >
+              Write a Review
+            </button>
+          </div>
 
-                  return (
-                    <div
-                      key={index}
-                      className="list-group-item mb-3 shadow-sm border rounded p-3"
-                      style={{ cursor: "pointer" }}
-                      onClick={() => setSelectedReview(r)}
-                    >
-                      <div className="mb-2">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <i
-                            key={star}
-                            className={`fa-star me-1 ${r.rating >= star ? "fas text-warning" : "far text-muted"
-                              }`}
-                          />
-                        ))}
-                      </div>
-                      <p className="mb-2">{preview}</p>
-                      {isLong && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setExpanded(!expanded);
-                          }}
-                          className="btn btn-link btn-sm p-0"
-                        >
-                          {expanded ? "Show less" : "Read more"}
-                        </button>
-                      )}
-                      <div>
-                        <small className="text-muted">
-                          Posted on {new Date(r.date).toLocaleDateString()}
-                        </small>
-                      </div>
-                    </div>
-                  );
-                })}
+          {restaurantReviews.length === 0 ? (
+            <p className="text-muted">No reviews yet. Be the first to leave one!</p>
+          ) : (
+            <div className="list-group">
+              {restaurantReviews.slice(0, showAllReviews ? restaurantReviews.length : 3).map((r, index) => (
+                <ReviewItem key={index} review={r} />
+              ))}
 
-                {restaurantReviews.length > 3 && !showAllReviews && (
-                  <div className="text-center mt-3">
-                    <button
-                      className="btn btn-outline-dark btn-sm"
-                      onClick={() => setShowAllReviews(true)}
-                    >
-                      Show more reviews
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
-          </section>
-        )}
+              {restaurantReviews.length > 3 && !showAllReviews && (
+                <div className="text-center mt-3">
+                  <button
+                    className="btn btn-outline-dark btn-sm"
+                    onClick={() => setShowAllReviews(true)}
+                  >
+                    Show more reviews
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </section>
 
         {/* Back Button */}
         <section className="container py-3 mb-5">
           <button
             className="btn btn-outline-secondary"
-            onClick={() => navigate('/restaurants')}
+            onClick={() => {
+              // Set the flag for returning to search page
+              sessionStorage.setItem('viewingRestaurantDetails', 'true');
+              navigate('/restaurants', { state: { returnedFromDetails: true } });
+            }}
           >
             Back to Restaurants
           </button>
