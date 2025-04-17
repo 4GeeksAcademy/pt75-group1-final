@@ -286,10 +286,6 @@ html {
   background-color: #f0f0f0;
 }
 
-
-
-
-
 /* -------------HERO COMPONENT EDITS 4/11------------- *\
 
 
@@ -315,41 +311,278 @@ html {
   align-items: center;
 }
 
+/*-------------Advanced button animation------------- */
 
-
-
-.review-snippet {
-  display: -webkit-box;
-  -webkit-line-clamp: 4;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: normal;
-  cursor: pointer;
-
-  /* Add these to force breaking */
-  word-break: break-word;
-  overflow-wrap: break-word;
+@keyframes fadeSlide {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.restaurant-overlay {
+/* Animation for search-to-results transition */
+.search-section {
+  position: relative;
+  z-index: 10;
+  height: calc(100vh - 60px);
+  max-height: calc(100vh - 60px);
+  overflow: hidden;
+}
+
+.search-section.searched {
   position: absolute;
-  bottom: 0;
+  top: 0;
   left: 0;
+  right: 0;
+  visibility: hidden;
+  transition: height 1.2s ease, opacity 0.8s ease, visibility 0s 1.2s;
+}
+
+.results-container,
+.results-container.show {
+  position: relative !important;
+  z-index: 20 !important;
+}
+
+/* Optional: Add this if you don't already have it */
+.hover-float {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-float:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* Animation keyframes */
+@keyframes fadeSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+body.search-active {
+  overflow: hidden;
+  height: 100vh;
+  position: fixed;
   width: 100%;
-  padding: 2rem 2rem 2.5rem 2rem;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.65) 60%, transparent 100%);
-  z-index: 2;
+}
+
+.restaurant-slider .slick-slide {
+  margin: 0;
+  padding: 0;
+}
+
+.restaurant-slider {
+  border: none !important;
+}
+
+/*-------------Advanced button animation------------- */
+.emoji-rain-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 2000;  /* 👈 bumped up from 1000 to 2000 */
+  user-select: none;
+}
+
+.emoji {
+  position: absolute;
+  font-size: 2rem;
+  animation-name: fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  cursor: pointer;
+  pointer-events: auto;         /* only emojis respond to clicks */
+  z-index: 1001;                /* above rain background, below content if needed */
+  user-select: none;
+}
+
+
+@keyframes fall {
+  0% {
+    transform: translateY(-100px) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(110vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+
+
+/*-------------Crumb Animation------------- */
+
+.emoji-particle {
+  position: absolute;
+  pointer-events: none;
+  z-index: 1002;
+  animation: crumb-blast 1s ease-out forwards;
+  transform: translate(0, 0);
+}
+
+@keyframes crumb-blast {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--tx), var(--ty)) scale(0.2);
+  }
+}
+
+
+/*-------------Bite Game + Floating Counter-------------*/
+
+.floating-bite-container {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  z-index: 1050;
   pointer-events: none;
 }
 
-.restaurant-overlay * {
+.floating-bite-box {
   pointer-events: auto;
+  background-color: #fff3cd;
+  padding: 1.5rem 2rem;
+  border: 2px solid #ffa502;
+  border-radius: 12px;
+  font-size: 1.4rem;
+  font-weight: bold;
+  box-shadow: 0 0 20px rgba(255, 165, 0, 0.3);
+  max-width: 280px;
+  transition: transform 0.2s ease;
+  text-align: center;
 }
 
-.restaurant-slider .slick-dots {
+.bite-counter .bite-message {
+  font-size: 0.95rem;
+  margin-top: 6px;
+  font-style: italic;
+}
+
+.bite-counter .bite-milestone {
+  font-size: 0.9rem;
+  margin-top: 8px;
+  color: #d63031;
+}
+
+.shake-on-update {
+  animation: shake 0.4s ease;
+}
+
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  50% { transform: translateX(3px); }
+  75% { transform: translateX(-2px); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes shakeHard {
+  0%, 100% { transform: rotate(0deg); }
+  20% { transform: rotate(6deg); }
+  40% { transform: rotate(-6deg); }
+  60% { transform: rotate(5deg); }
+  80% { transform: rotate(-5deg); }
+}
+
+.bite-counter.shake-hard {
+  animation: shakeHard 0.6s ease;
+}
+
+.bite-count-text.slam {
+  animation: slam 0.4s ease;
+}
+
+@keyframes slam {
+  0% {
+    transform: scale(1.5) rotate(2deg);
+    color: #d63031;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    color: inherit;
+  }
+}
+
+/*-------------Combo Pop Text-------------*/
+.combo-popup {
+  position: fixed;
+  transform: translate(-50%, -50%);
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #ff7675;
+  text-shadow: 0 0 4px #fff;
+  animation: combo-pop 0.8s ease-out forwards;
+  z-index: 99999;
+  pointer-events: none;
+}
+
+@keyframes combo-pop {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -120%) scale(1.8);
+  }
+}
+
+/*-------------Emoji Rain Z-index Fixes-------------*/
+
+.emoji-rain-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 1000;
+  user-select: none;
+}
+
+.emoji {
   position: absolute;
-  bottom: 15px;
-  width: 100%;
-  z-index: 3; /* above overlay */
+  font-size: 2rem;
+  animation-name: fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  cursor: pointer;
+  pointer-events: auto;
+  z-index: 1001;
+  user-select: none;
+}
+
+@keyframes fall {
+  0% {
+    transform: translateY(-100px) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(110vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* Search section underlay fix */
+.search-section {
+  z-index: 998;
+  background: white;
 }

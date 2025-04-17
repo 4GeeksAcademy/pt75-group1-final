@@ -7,6 +7,11 @@ import { restaurantData } from "./restaurantData";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 import ReviewModal from "../components/ReviewModal";
 import PageWrapper from "../components/PageWrapper";
+import RestaurantMealTypes from "../components/restaurant/RestaurantMealTypes";
+import HoursTable from "../components/restaurant/HoursTable";
+import LocationMap from "../components/restaurant/LocationMap";
+
+
 
 export const RestaurantDetails = () => {
   const { id } = useParams();
@@ -361,67 +366,81 @@ export const RestaurantDetails = () => {
   return (
     <div>
       <Navbar />
-      <PageWrapper>
+      <PageWrapper style={{ padding: 0, margin: 0 }}>
         <p className="text-center mt-3">
           {isApiData ? "API Restaurant Details" : `Viewing restaurant ID: ${id}`}
         </p>
 
-        {/* Header Slideshow */}
-        <section className="position-relative text-white" style={{ height: "550px", overflow: "hidden" }}>
-          <div style={{ position: "relative", height: "100%" }}>
-            <Slider
-              autoplay
-              infinite
-              dots
-              speed={500}
-              slidesToShow={1}
-              slidesToScroll={1}
-              className="restaurant-slider"
-            >
-              {restaurantImages.map((img, idx) => (
-                <div key={idx}>
-                  <div
-                    style={{
-                      height: "550px",
-                      backgroundImage: `url(${img})`,
-                      backgroundSize: "cover",
-                      backgroundPosition: "center",
-                      transition: "transform 0.3s ease-in-out",
-                      cursor: "zoom-in",
-                    }}
-                    onClick={() => setActiveImage(img)}
-                  ></div>
-                </div>
-              ))}
-            </Slider>
 
-            {/* Overlay content - Simplified but improved styling */}
-            <div className="restaurant-overlay text-white">
-              <h1 className="display-5 fw-bold mb-2">{details.name}</h1>
-              <div className="d-flex align-items-center gap-3 mb-2" style={{ fontSize: "1.1rem" }}>
-                {details.price && <span>{details.price}</span>}
-                <span>•</span>
-                <span>{details.cuisine}</span>
-                <span>•</span>
-                <span><span className="text-warning">★</span> {details.rating}</span>
+        {/* -----------------------Header Slideshow----------------------- */}
+        <section
+          className="position-relative"
+          style={{
+            height: "550px",
+            margin: 0,
+            padding: 0,
+            overflow: "hidden",
+          }}
+        >
+          <Slider
+            autoplay
+            infinite
+            dots={false}
+            speed={500}
+            slidesToShow={1}
+            slidesToScroll={1}
+            className="restaurant-slider"
+          >
+            {restaurantImages.map((img, idx) => (
+              <div key={idx}>
+                <div
+                  style={{
+                    height: "550px",
+                    backgroundImage: `url(${img})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                    cursor: "zoom-in"
+                  }}
+                  onClick={() => setActiveImage(img)}
+                ></div>
               </div>
-              <p className="mb-3">
-                <span className={details.isOpen ? "badge bg-success" : "badge bg-danger"}>
-                  {details.isOpen ? "Open Now" : "Closed"}
-                </span>
-              </p>
-              <div className="d-flex gap-3">
-                <button className="btn btn-light" onClick={() => setShowHours(true)}>See Hours</button>
-                <button className="btn btn-outline-light" onClick={() => setShowGallery(true)}>View All Photos</button>
-              </div>
+            ))}
+          </Slider>
+
+          {/* -----------------------Overlay----------------------- */}
+
+          <div
+            className="position-absolute top-50 start-50 translate-middle text-center text-white"
+            style={{
+              zIndex: 2,
+              padding: "20px 30px",
+              backgroundColor: "rgba(0, 0, 0, 0.4)",
+              borderRadius: "12px",
+              maxWidth: "90%",
+              backdropFilter: "blur(3px)"
+            }}
+          >
+            <h1 className="fw-bold">{details.name}</h1>
+            <p className="mb-1">
+              {details.price} • {details.cuisine} • ⭐ {details.rating}
+            </p>
+            <p className="mb-3">{details.isOpen ? "🟢 Open Now" : "🔴 Closed"}</p>
+            <div className="d-flex justify-content-center flex-wrap gap-2">
+              <button className="btn btn-light btn-sm" onClick={() => setShowHours(true)}>
+                See Hours
+              </button>
+              <button className="btn btn-outline-light btn-sm" onClick={() => setShowGallery(true)}>
+                View All Photos
+              </button>
             </div>
-
-
           </div>
+
+
         </section>
-        {/* Feature Buttons */}
-        <section className="container py-4">
-          <div className="d-flex justify-content-center flex-wrap gap-3">
+
+        {/* -----------------------Action Buttons----------------------- */}
+        <section className="container py-3">
+          <div className="d-flex justify-content-center gap-3">
             <button className="btn btn-outline-dark">Share</button>
             <button className="btn btn-outline-dark">Save</button>
             <button className="btn btn-outline-dark">Reviews</button>
@@ -429,25 +448,28 @@ export const RestaurantDetails = () => {
           </div>
         </section>
 
-        {/* Menu Section - Only show for non-API data or if we have popular dishes */}
-        {(!isApiData || (isApiData && details.popularDishes.length > 0)) && (
-          <section className="container py-4">
-            <h3 className="fw-bold mb-3">Popular Dishes</h3>
-            <ul className="list-group">
-              {details.popularDishes.map((dish, idx) => (
-                <li key={idx} className="list-group-item">{dish}</li>
-              ))}
-            </ul>
-          </section>
-        )}
 
-        {/* Location Section */}
+        {/* -----------------------Meal Type Icons - Circular Bubbles----------------------- */}
+        <RestaurantMealTypes restaurant={restaurant} isApiData={isApiData} />
+
+
+        {/* -----------------------Location & Hours Section with Side-by-Side Layout----------------------- */}
         <section className="container py-4">
           <h3 className="fw-bold mb-3">Location & Hours</h3>
-          <p>{details.location}</p>
-          <p>{details.hours}</p>
-          <div className="bg-secondary" style={{ width: "100%", height: "200px", borderRadius: "8px" }}></div>
+
+          <div className="row">
+            {/* Hours Table */}
+            <div className="col-md-6 mb-3">
+              <HoursTable restaurant={restaurant} isApiData={isApiData} />
+            </div>
+
+            {/* Map */}
+            <div className="col-md-6 mb-3">
+              <LocationMap restaurant={restaurant} details={details} isApiData={isApiData} />
+            </div>
+          </div>
         </section>
+
 
         {/* About Section */}
         <section className="container py-4">
@@ -671,7 +693,6 @@ export const RestaurantDetails = () => {
           />
         )}
       </PageWrapper>
-      <Footer />
     </div>
   );
 };
