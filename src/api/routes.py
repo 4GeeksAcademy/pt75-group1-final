@@ -1,7 +1,9 @@
 from flask import Flask, Blueprint, jsonify, request, abort
 from flask_cors import CORS
-from datetime import datetime
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from werkzeug.security import generate_password_hash, check_password_hash
 from api.models import db, User, Restaurant, Favorite, Reservation
+from datetime import datetime
 import requests
 import os
 from dotenv import load_dotenv
@@ -17,15 +19,16 @@ CORS(api, resources={r"/*": {"origins": [
     "https://animated-space-couscous-g47647pwqpqqhv9w5-3000.app.github.dev"  # Add your current Codespace URL
 ]}}, supports_credentials=True)
 
-# --- User Routes ---
 
 @api.route('/users', methods=['GET'])
+@jwt_required()
 def get_users():
     users = User.query.all()
     return jsonify([user.serialize() for user in users])
 
 
 @api.route('/user/<int:user_id>', methods=['GET'])
+@jwt_required()
 def get_user(user_id):
     user = User.query.get_or_404(user_id)
     return jsonify(user.serialize())
@@ -34,13 +37,21 @@ def get_user(user_id):
 @api.route('/user', methods=['POST'])
 def create_user():
     data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+
+    if User.query.filter_by(email=email).first():
+        return jsonify({"msg": "User already exists"}), 400
+
+    hashed_password = generate_password_hash(password)
+
     new_user = User(
         username=data['username'],
-        email=data['email'],
-        password=data['password'],
+        email=email,
+        password=hashed_password,
         first_name=data['first_name'],
         last_name=data['last_name'],
-        is_active=data['is_active']
+        is_active=data.get('is_active', True)
     )
     db.session.add(new_user)
     db.session.commit()
@@ -48,25 +59,29 @@ def create_user():
 
 
 @api.route('/user/<int:user_id>', methods=['PUT'])
+@jwt_required()
 def update_user(user_id):
     data = request.get_json()
     user = User.query.get_or_404(user_id)
-    user.username = data['username']
-    user.email = data['email']
-    user.password = data['password']
-    user.first_name = data['first_name']
-    user.last_name = data['last_name']
-    user.is_active = data['is_active']
+
+    user.username = data.get('username', user.username)
+    user.email = data.get('email', user.email)
+    if data.get('password'):
+        user.password = generate_password_hash(data['password'])
+    user.first_name = data.get('first_name', user.first_name)
+    user.last_name = data.get('last_name', user.last_name)
+    user.is_active = data.get('is_active', user.is_active)
     db.session.commit()
     return jsonify(user.serialize())
 
 
 @api.route('/user/<int:user_id>', methods=['DELETE'])
+@jwt_required()
 def delete_user(user_id):
     user = User.query.get_or_404(user_id)
     db.session.delete(user)
     db.session.commit()
-    return 'user deleted', 204
+    return jsonify({"msg": "User deleted"}), 204
 
 
 @api.route('/login', methods=['POST'])
@@ -77,11 +92,51 @@ def login():
     if not email or not password:
         return jsonify({"msg": "Email and password required."}), 400
     user = User.query.filter_by(email=email).first()
-    if not user or user.password != password:
-        return jsonify({"msg": "Invalid credentials."}), 401
-    return jsonify(user.serialize()), 200
 
-# --- Restaurant Routes ---
+    if not user or not check_password_hash(user.password, password):
+        return jsonify({"msg": "Invalid credentials."}), 401
+
+    access_token = create_access_token(identity=user.id)
+    access_token = create_access_token(identity=str(user.id))
+
+    return jsonify({
+        "access_token": access_token,
+        "user": user.serialize()
+    }), 200
+
+
+@api.route("/profile", methods=["GET"])
+@jwt_required()
+def get_user_profile():
+    user_id = get_jwt_identity()  
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+    return jsonify({"profile": user.serialize()}), 200
+
+@api.route('/change-password', methods=['POST'])
+@jwt_required()
+def change_password():
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+
+    data = request.get_json()
+    current_password = data.get("current_password")
+    new_password = data.get("new_password")
+
+    if not current_password or not new_password:
+        return jsonify({"msg": "Current and new password are required"}), 400
+
+    if not check_password_hash(user.password, current_password):
+        return jsonify({"msg": "Incorrect current password"}), 401
+
+    user.password = generate_password_hash(new_password)
+    db.session.commit()
+    
+    return jsonify({"msg": "Password changed successfully"}), 200
 
 
 @api.route('/restaurants', methods=['GET'])
@@ -103,8 +158,6 @@ def create_restaurant():
     db.session.add(new_restaurant)
     db.session.commit()
     return jsonify(new_restaurant.serialize()), 201
-
-# --- Favorite Routes ---
 
 
 @api.route('/favorites', methods=['GET'])
@@ -130,7 +183,6 @@ def delete_favorite(favorite_id):
     db.session.commit()
     return '', 204
 
-# --- Reservation Routes ---
 
 
 @api.route('/reservations', methods=['GET'])
@@ -146,6 +198,7 @@ def get_reservation(reservation_id):
 
 
 @api.route('/reservation', methods=['POST'])
+@jwt_required()
 def create_reservation():
     data = request.get_json()
     new_reservation = Reservation(
@@ -160,6 +213,7 @@ def create_reservation():
 
 
 @api.route('/reservation/<int:reservation_id>', methods=['PUT'])
+@jwt_required()
 def update_reservation(reservation_id):
     data = request.get_json()
     reservation = Reservation.query.get_or_404(reservation_id)
@@ -171,6 +225,7 @@ def update_reservation(reservation_id):
 
 
 @api.route('/reservation/<int:reservation_id>', methods=['DELETE'])
+@jwt_required()
 def delete_reservation(reservation_id):
     reservation = Reservation.query.get_or_404(reservation_id)
     db.session.delete(reservation)
@@ -266,81 +321,3 @@ def search_restaurants():
     else:
         print(f"Error response: {response.text}")
         return jsonify({"error": "Failed to fetch restaurants"}), response.status_code
-
-
-@api.route('/restaurant/<restaurant_id>/photos', methods=['GET'])
-def get_restaurant_photos(restaurant_id):
-    """
-    Endpoint to get additional photos for a specific restaurant
-    """
-    try:
-        # For now, return placeholder images to prevent 502 errors
-        dummy_photos = [
-            "https://via.placeholder.com/800x600?text=Restaurant+Photo+1",
-            "https://via.placeholder.com/800x600?text=Restaurant+Photo+2",
-            "https://via.placeholder.com/800x600?text=Restaurant+Photo+3",
-            "https://via.placeholder.com/800x600?text=Restaurant+Photo+4",
-            "https://via.placeholder.com/800x600?text=Restaurant+Photo+5"
-        ]
-
-        return jsonify({"photos": dummy_photos}), 200
-
-    except Exception as e:
-        print(f"Error fetching restaurant photos: {str(e)}")
-        return jsonify({"error": "Failed to fetch restaurant photos"}), 500
-
-
-@api.route('/restaurant/<location_id>/photos', methods=['GET'])
-def get_api_restaurant_photos(location_id):
-    """
-    Endpoint to get photos for a specific restaurant from the RapidAPI service
-    """
-    try:
-        url = "https://restaurants222.p.rapidapi.com/photos"
-
-        # Use a dictionary for payload
-        payload = {
-            "location_id": location_id,
-            "language": "en_US",
-            "currency": "USD",
-            "offset": "0"
-        }
-
-        headers = {
-            "x-rapidapi-key": RAPIDAPI_KEY,
-            "x-rapidapi-host": RAPIDAPI_HOST,
-            "Content-Type": "application/x-www-form-urlencoded"
-        }
-
-        # Send request to the RapidAPI endpoint
-        response = requests.post(url, data=payload, headers=headers)
-
-        print(f"Restaurant Photos API Status Code: {response.status_code}")
-
-        if response.status_code == 200:
-            response_data = response.json()
-            print(
-                f"Photos response data sample: {str(response_data)[:500]}...")
-            return jsonify(response_data), 200
-        else:
-            print(f"Error response from photos API: {response.text}")
-            # Fall back to placeholder images if the API call fails
-            dummy_photos = [
-                "https://via.placeholder.com/800x600?text=Restaurant+Photo+1",
-                "https://via.placeholder.com/800x600?text=Restaurant+Photo+2",
-                "https://via.placeholder.com/800x600?text=Restaurant+Photo+3",
-                "https://via.placeholder.com/800x600?text=Restaurant+Photo+4",
-                "https://via.placeholder.com/800x600?text=Restaurant+Photo+5"
-            ]
-            return jsonify({"photos": dummy_photos}), 200
-
-    except Exception as e:
-        print(f"Error fetching restaurant photos: {str(e)}")
-        # Return fallback data to prevent frontend errors
-        return jsonify({"photos": [
-            "https://via.placeholder.com/800x600?text=Photo+1",
-            "https://via.placeholder.com/800x600?text=Photo+2",
-            "https://via.placeholder.com/800x600?text=Photo+3",
-            "https://via.placeholder.com/800x600?text=Photo+4",
-            "https://via.placeholder.com/800x600?text=Photo+5"
-        ]}), 200
