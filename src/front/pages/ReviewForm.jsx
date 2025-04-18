@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { Footer } from "../components/Footer";
@@ -6,22 +6,73 @@ import useGlobalReducer from "../hooks/useGlobalReducer";
 import { v4 as uuidv4 } from "uuid";
 import PageWrapper from "../components/PageWrapper";
 
-const restaurantMap = {
-  r1: "COTE Miami",
-  r2: "Agliolio",
-  r3: "1000 NORTH",
-  r4: "Common Grounds Brew & Roastery",
-  r5: "City Oyster & Sushi Bar",
-};
-
 const ReviewForm = () => {
   const { id } = useParams();
   const { dispatch } = useGlobalReducer();
   const navigate = useNavigate();
-  const restaurantName = restaurantMap[id] || "Unknown Restaurant";
+
+  // States for restaurant data
+  const [restaurantData, setRestaurantData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // States for review form
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [review, setReview] = useState("");
+
+  // Static restaurant map for non-API restaurants
+  const staticRestaurantMap = {
+    r1: "COTE Miami",
+    r2: "Agliolio",
+    r3: "1000 NORTH",
+    r4: "Common Grounds Brew & Roastery",
+    r5: "City Oyster & Sushi Bar",
+  };
+
+  // Get restaurant data on component mount
+  useEffect(() => {
+    const getRestaurantData = () => {
+      // Check if this is an API restaurant from sessionStorage
+      const storedData = sessionStorage.getItem('reviewingRestaurant');
+
+      if (storedData) {
+        try {
+          const parsedData = JSON.parse(storedData);
+          setRestaurantData({
+            id: parsedData.id,
+            name: parsedData.name,
+            isApiData: true
+          });
+          setIsLoading(false);
+        } catch (error) {
+          console.error("Error parsing restaurant data:", error);
+          // Fallback to static data
+          setRestaurantData({
+            id: id,
+            name: staticRestaurantMap[id] || "Unknown Restaurant",
+            isApiData: false
+          });
+          setIsLoading(false);
+        }
+      } else {
+        // Check if this is a static restaurant
+        setRestaurantData({
+          id: id,
+          name: staticRestaurantMap[id] || "Unknown Restaurant",
+          isApiData: false
+        });
+        setIsLoading(false);
+      }
+    };
+
+    getRestaurantData();
+
+    // Clean up session storage on component unmount
+    return () => {
+      // Don't remove on unmount as we need it for navigation back
+      // sessionStorage.removeItem('reviewingRestaurant');
+    };
+  }, [id]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -31,9 +82,16 @@ const ReviewForm = () => {
       return;
     }
 
+    if (!restaurantData) {
+      alert("Error: Restaurant data not found.");
+      return;
+    }
+
     const newReview = {
       id: uuidv4(),
-      restaurantId: id,
+      restaurantId: restaurantData.id,
+      restaurantName: restaurantData.name,
+      isApiData: restaurantData.isApiData,
       rating,
       review,
       date: new Date().toISOString(),
@@ -44,14 +102,32 @@ const ReviewForm = () => {
 
     // Navigate to restaurants page with review info
     navigate("/restaurants", {
-      state: { 
-        message: "Your review was posted successfully!", 
+      state: {
+        message: "Your review was posted successfully!",
         reviewId: newReview.id,
-        restaurantId: id 
+        restaurantId: restaurantData.id,
+        isApiData: restaurantData.isApiData
       },
     });
   };
-  
+
+  if (isLoading) {
+    return (
+      <>
+        <Navbar />
+        <PageWrapper>
+          <div className="container text-center py-5">
+            <div className="spinner-border" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+            <p className="mt-3">Loading restaurant information...</p>
+          </div>
+        </PageWrapper>
+        <Footer />
+      </>
+    );
+  }
+
   return (
     <>
       <Navbar />
@@ -59,7 +135,7 @@ const ReviewForm = () => {
         <div className="container py-5" style={{ maxWidth: "600px" }}>
           <h1 className="mb-4 fw-bold">Write a Review</h1>
           <p>
-            You're writing a review for: <strong>{restaurantName}</strong>
+            You're writing a review for: <strong>{restaurantData.name}</strong>
           </p>
           <form onSubmit={handleSubmit}>
             <div className="mb-4">

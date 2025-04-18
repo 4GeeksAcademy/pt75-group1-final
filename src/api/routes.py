@@ -13,7 +13,11 @@ RAPIDAPI_KEY = os.getenv("RAPIDAPI_KEY")
 RAPIDAPI_HOST = os.getenv("RAPIDAPI_HOST")
 
 api = Blueprint('api', __name__)
-CORS(api, resources={r"/*": {"origins": ["http://localhost:3000", "https://animated-guide-wrvvx9gwpgwv27p7-3000.app.github.dev"]}}, supports_credentials=True)
+CORS(api, resources={r"/*": {"origins": [
+    "http://localhost:3000", 
+    "https://animated-guide-wrvvx9gwpgwv27p7-3000.app.github.dev",
+    "https://animated-space-couscous-g47647pwqpqqhv9w5-3000.app.github.dev"  # Add your current Codespace URL
+]}}, supports_credentials=True)
 
 
 @api.route('/users', methods=['GET'])
@@ -22,11 +26,13 @@ def get_users():
     users = User.query.all()
     return jsonify([user.serialize() for user in users])
 
+
 @api.route('/user/<int:user_id>', methods=['GET'])
 @jwt_required()
 def get_user(user_id):
     user = User.query.get_or_404(user_id)
     return jsonify(user.serialize())
+
 
 @api.route('/user', methods=['POST'])
 def create_user():
@@ -51,6 +57,7 @@ def create_user():
     db.session.commit()
     return jsonify(new_user.serialize()), 201
 
+
 @api.route('/user/<int:user_id>', methods=['PUT'])
 @jwt_required()
 def update_user(user_id):
@@ -67,6 +74,7 @@ def update_user(user_id):
     db.session.commit()
     return jsonify(user.serialize())
 
+
 @api.route('/user/<int:user_id>', methods=['DELETE'])
 @jwt_required()
 def delete_user(user_id):
@@ -74,6 +82,7 @@ def delete_user(user_id):
     db.session.delete(user)
     db.session.commit()
     return jsonify({"msg": "User deleted"}), 204
+
 
 @api.route('/login', methods=['POST'])
 def login():
@@ -135,10 +144,12 @@ def get_restaurants():
     restaurants = Restaurant.query.all()
     return jsonify([restaurant.serialize() for restaurant in restaurants])
 
+
 @api.route('/restaurant/<int:restaurant_id>', methods=['GET'])
 def get_restaurant(restaurant_id):
     restaurant = Restaurant.query.get_or_404(restaurant_id)
     return jsonify(restaurant.serialize())
+
 
 @api.route('/restaurant', methods=['POST'])
 def create_restaurant():
@@ -154,13 +165,16 @@ def get_favorites():
     favorites = Favorite.query.all()
     return jsonify([favorite.serialize() for favorite in favorites])
 
+
 @api.route('/favorite', methods=['POST'])
 def create_favorite():
     data = request.get_json()
-    new_favorite = Favorite(user_id=data['user_id'], restaurant_id=data['restaurant_id'])
+    new_favorite = Favorite(
+        user_id=data['user_id'], restaurant_id=data['restaurant_id'])
     db.session.add(new_favorite)
     db.session.commit()
     return jsonify(new_favorite.serialize()), 201
+
 
 @api.route('/favorite/<int:favorite_id>', methods=['DELETE'])
 def delete_favorite(favorite_id):
@@ -176,10 +190,12 @@ def get_reservations():
     reservations = Reservation.query.all()
     return jsonify([reservation.serialize() for reservation in reservations])
 
+
 @api.route('/reservation/<int:reservation_id>', methods=['GET'])
 def get_reservation(reservation_id):
     reservation = Reservation.query.get_or_404(reservation_id)
     return jsonify(reservation.serialize())
+
 
 @api.route('/reservation', methods=['POST'])
 @jwt_required()
@@ -195,15 +211,18 @@ def create_reservation():
     db.session.commit()
     return jsonify(new_reservation.serialize()), 201
 
+
 @api.route('/reservation/<int:reservation_id>', methods=['PUT'])
 @jwt_required()
 def update_reservation(reservation_id):
     data = request.get_json()
     reservation = Reservation.query.get_or_404(reservation_id)
-    reservation.reservation_time = datetime.fromisoformat(data['reservation_time'])
+    reservation.reservation_time = datetime.fromisoformat(
+        data['reservation_time'])
     reservation.is_active = data['is_active']
     db.session.commit()
     return jsonify(reservation.serialize())
+
 
 @api.route('/reservation/<int:reservation_id>', methods=['DELETE'])
 @jwt_required()
@@ -213,18 +232,19 @@ def delete_reservation(reservation_id):
     db.session.commit()
     return '', 204
 
+
 def get_location_id(city):
     """
     Fetches location_id for a given city using the /typeahead endpoint.
     """
     url = "https://restaurants222.p.rapidapi.com/typeahead"
-    
+
     # Use a dictionary for the payload and let requests handle the encoding
     payload = {
         "q": city,
         "language": "en_US"
     }
-    
+
     headers = {
         "x-rapidapi-key": RAPIDAPI_KEY,
         "x-rapidapi-host": RAPIDAPI_HOST,
@@ -246,7 +266,7 @@ def get_location_id(city):
         for item in data["results"]["data"]:
             if item.get("result_type") == "geos":
                 return item["result_object"]["location_id"]
-    
+
     return None
 
 
@@ -260,7 +280,7 @@ def search_restaurants():
 
     if not city:
         return jsonify({"error": "City name is required"}), 400
-    
+
     # Make sure city is at least 3 characters (per API error message)
     if len(city) < 3:
         return jsonify({"error": "City name must be at least 3 characters"}), 400
@@ -273,7 +293,7 @@ def search_restaurants():
 
     # Fetch restaurants using the location_id
     url = "https://restaurants222.p.rapidapi.com/search"
-    
+
     # Use a dictionary for payload instead of f-string
     payload = {
         "location_id": location_id,
@@ -289,12 +309,13 @@ def search_restaurants():
 
     # Use data=payload with a dictionary to ensure proper URL encoding
     response = requests.post(url, data=payload, headers=headers)
-    
+
     print(f"Restaurant API Status Code: {response.status_code}")
-    
+
     if response.status_code == 200:
         response_data = response.json()
-        print(f"Response data keys: {response_data.keys() if isinstance(response_data, dict) else 'Not a dict'}")
+        print(
+            f"Response data keys: {response_data.keys() if isinstance(response_data, dict) else 'Not a dict'}")
         print(f"Response data sample: {str(response_data)[:500]}...")
         return jsonify(response_data), 200
     else:
