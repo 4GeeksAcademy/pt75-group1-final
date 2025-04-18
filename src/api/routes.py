@@ -87,22 +87,47 @@ def login():
     if not user or not check_password_hash(user.password, password):
         return jsonify({"msg": "Invalid credentials."}), 401
 
-    # Create JWT token
-    access_token = create_access_token(identity={"id": user.id, "username": user.username, "email": user.email})
+    access_token = create_access_token(identity=user.id)
+    access_token = create_access_token(identity=str(user.id))
 
     return jsonify({
         "access_token": access_token,
         "user": user.serialize()
     }), 200
 
+
 @api.route("/profile", methods=["GET"])
 @jwt_required()
 def get_user_profile():
-    user_id = get_jwt_identity()
+    user_id = get_jwt_identity()  
     user = User.query.get(user_id)
     if not user:
         return jsonify({"msg": "User not found"}), 404
     return jsonify({"profile": user.serialize()}), 200
+
+@api.route('/change-password', methods=['POST'])
+@jwt_required()
+def change_password():
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+
+    data = request.get_json()
+    current_password = data.get("current_password")
+    new_password = data.get("new_password")
+
+    if not current_password or not new_password:
+        return jsonify({"msg": "Current and new password are required"}), 400
+
+    if not check_password_hash(user.password, current_password):
+        return jsonify({"msg": "Incorrect current password"}), 401
+
+    user.password = generate_password_hash(new_password)
+    db.session.commit()
+    
+    return jsonify({"msg": "Password changed successfully"}), 200
 
 
 @api.route('/restaurants', methods=['GET'])

@@ -1,111 +1,3 @@
-// import React from "react";
-// import useGlobalReducer from "../hooks/useGlobalReducer";
-// import Navbar from "../components/Navbar";
-// import { Footer } from "../components/Footer";
-// import PageWrapper from "../components/PageWrapper";
-// import "../Profile.css";
-
-// const Profile = () => {
-//   const { store } = useGlobalReducer();
-//   const user = store.user;
-
-//   if (!user) return <p className="text-center py-5">Loading...</p>;
-
-//   return (
-//     <div>
-//       <PageWrapper>
-//         <section className="py-5 bg-light">
-//           <div className="container">
-
-//             {/* Profile Header */}
-//             <div className="profile-header text-center mb-4">
-//             <img
-//               src="https://picsum.photos/150"
-//               alt="User"
-//               className="profile-picture rounded-circle shadow"
-//             />
-//               <h1 className="fw-bold">{user.username}</h1>
-//               <p className="text-muted">{user.city || "Austin, Texas"}</p>
-//               <button className="btn btn-dark mx-2">Edit Profile</button>
-//               <button className="btn btn-outline-secondary">Change Password</button>
-//             </div>
-
-//             {/* Profile Information */}
-//             <div className="row mb-4">
-//               <div className="col-md-6">
-//                 <div className="card p-3 mb-3">
-//                   <h5 className="card-title">Profile Information</h5>
-//                   <p><strong>Name:</strong> {user.first_name} {user.last_name}</p>
-//                   <p><strong>Email:</strong> {user.email}</p>
-//                   <p><strong>Phone:</strong> {user.phone || "Not provided"}</p>
-//                   <p><strong>Address:</strong> {user.address || "Not provided"}</p>
-//                 </div>
-//               </div>
-//             </div>
-
-//             {/* Favorite Restaurants */}
-//             <h2 className="section-title text-center">Favorite Restaurants</h2>
-//             <div className="row g-4 mb-4">
-//               {[1, 2, 3].map((id) => (
-//                 <div key={id} className="col-md-4">
-//                   <div className="card h-100 shadow-sm">
-//                     <img
-//                       src={`https://picsum.photos/300?random=${id}`}
-//                       className="card-img-top"
-//                       alt="Favorite Restaurant"
-//                     />
-//                     <div className="card-body text-center">
-//                       <h5 className="card-title">Favorite Restaurant #{id}</h5>
-//                       <button className="btn btn-sm btn-dark mx-1">View</button>
-//                       <button className="btn btn-sm btn-outline-dark mx-1">Reserve</button>
-//                       <button className="btn btn-sm btn-outline-danger mx-1">Remove</button>
-//                     </div>
-//                   </div>
-//                 </div>
-//               ))}
-//             </div>
-
-//             {/* Reservations Section */}
-//             <h2 className="section-title text-center">Manage Reservations</h2>
-//             <div className="list-group mb-4">
-//               {[1, 2].map((id) => (
-//                 <div key={id} className="list-group-item d-flex justify-content-between align-items-center">
-//                   <span>Reservation #{id} - Restaurant Name</span>
-//                   <div>
-//                     <button className="btn btn-sm btn-outline-dark mx-1">View</button>
-//                     <button className="btn btn-sm btn-outline-danger mx-1">Cancel</button>
-//                   </div>
-//                 </div>
-//               ))}
-//             </div>
-
-//             {/* User Reviews */}
-//             <h2 className="section-title text-center">Your Reviews</h2>
-//             <div className="list-group">
-//               {[1, 2, 3].map((id) => (
-//                 <div key={id} className="list-group-item d-flex justify-content-between align-items-center">
-//                   <span>Review #{id} - Restaurant Name</span>
-//                   <div>
-//                     <button className="btn btn-sm btn-outline-dark mx-1">Edit</button>
-//                     <button className="btn btn-sm btn-outline-danger mx-1">Delete</button>
-//                   </div>
-//                 </div>
-//               ))}
-//             </div>
-
-//           </div>
-//         </section>
-//       </PageWrapper>
-//     </div>
-//   );
-// };
-
-// export default Profile;
-
-
-
-
-
 import React, { useEffect, useState } from "react";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 import PageWrapper from "../components/PageWrapper";
@@ -114,7 +6,10 @@ import "../Profile.css";
 const Profile = () => {
   const { store, dispatch } = useGlobalReducer();
   const [loading, setLoading] = useState(true);
-  const [localUser, setLocalUser] = useState(store.user);
+  const [localUser, setLocalUser] = useState(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [changeModalOpen, setChangeModalOpen] = useState(false);
+  const [profilePic, setProfilePic] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");
@@ -123,31 +18,50 @@ const Profile = () => {
       return;
     }
 
-    fetch(import.meta.env.VITE_BACKEND_URL + "/api/profile", {
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/profile`, {
       headers: {
-        Authorization: `Bearer ${token}`,
-      },
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      }
     })
-      .then((res) => {
-        if (!res.ok) throw new Error("Unauthorized");
-        return res.json();
-      })
-      .then((data) => {
+      .then(res => res.json())
+      .then(data => {
+        if (!data?.profile?.id) throw new Error("Invalid profile data");
         dispatch({ type: "LOGIN_SUCCESS", payload: data.profile });
         setLocalUser(data.profile);
         setLoading(false);
       })
-      .catch((err) => {
-        console.error("Failed to fetch user profile:", err.message);
+      .catch(err => {
+        console.error("❌ Fetch error:", err);
         localStorage.removeItem("access_token");
         setLoading(false);
       });
   }, []);
 
-  if (loading) return <p className="text-center py-5">Loading...</p>;
-  if (!localUser) return <p className="text-center py-5">You must be logged in.</p>;
+  const initials = (localUser?.first_name?.[0] || "") + (localUser?.last_name?.[0] || "");
+  const bgColor = stringToColor(localUser?.username || "U");
 
-  const handleProfileUpdate = async (e) => {
+  function stringToColor(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const c = (hash & 0x00ffffff).toString(16).toUpperCase();
+    return "#" + "00000".substring(0, 6 - c.length) + c;
+  }
+
+  const handleProfilePicChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setProfilePic(reader.result); // base64
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleEditProfile = async (e) => {
     e.preventDefault();
     const form = e.target;
     const token = localStorage.getItem("access_token");
@@ -155,12 +69,9 @@ const Profile = () => {
     const updatedData = {
       first_name: form.first_name.value,
       last_name: form.last_name.value,
-      phone: form.phone.value,
-      address: form.address.value,
-      username: localUser.username, // send required fields
-      email: localUser.email,
-      password: localUser.password,
-      is_active: localUser.is_active,
+      email: form.email.value,
+      username: localUser.username,
+      is_active: true,
     };
 
     try {
@@ -173,28 +84,29 @@ const Profile = () => {
         body: JSON.stringify(updatedData),
       });
 
-      if (!res.ok) throw new Error("Failed to update profile");
+      if (!res.ok) throw new Error("Update failed");
 
       const updatedUser = await res.json();
       setLocalUser(updatedUser);
       dispatch({ type: "LOGIN_SUCCESS", payload: updatedUser });
-      alert("Profile updated successfully");
+      setEditModalOpen(false);
     } catch (err) {
-      console.error("Update error:", err);
-      alert("Could not update profile.");
+      alert("Update failed");
     }
   };
+
   const handleChangePassword = async (e) => {
     e.preventDefault();
     const form = e.target;
     const token = localStorage.getItem("access_token");
 
-    const current_password = form.current_password.value;
-    const new_password = form.new_password.value;
-    const confirm_password = form.confirm_password.value;
+    const body = {
+      current_password: form.current_password.value,
+      new_password: form.new_password.value
+    };
 
-    if (new_password !== confirm_password) {
-      alert("New passwords do not match.");
+    if (form.new_password.value !== form.confirm_password.value) {
+      alert("Passwords do not match.");
       return;
     }
 
@@ -203,116 +115,146 @@ const Profile = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify({ current_password, new_password }),
+        body: JSON.stringify(body)
       });
 
-      const data = await res.json();
+      if (!res.ok) throw new Error("Change password failed");
 
-      if (!res.ok) {
-        throw new Error(data.msg || "Failed to change password");
-      }
-
+      setChangeModalOpen(false);
+      form.reset();
       alert("Password changed successfully.");
-      form.reset(); // clear form
-      document.querySelector("#changePasswordModal .btn-close").click(); // close modal
     } catch (err) {
-      console.error("Change password error:", err.message);
-      alert(err.message);
+      alert("Failed to change password.");
     }
   };
 
+  const handleDeleteAccount = async () => {
+    if (!confirm("Are you sure you want to delete your account?")) return;
+    const token = localStorage.getItem("access_token");
+
+    try {
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/user/${localUser.id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) throw new Error("Failed to delete account");
+
+      dispatch({ type: "LOGOUT" });
+      localStorage.removeItem("access_token");
+      window.location.href = "/";
+    } catch (err) {
+      alert("Could not delete account.");
+    }
+  };
+
+  if (loading) return <p className="text-center py-5">Loading...</p>;
+  if (!localUser) return <p className="text-center py-5">You must be logged in.</p>;
 
   return (
-    <div>
-      <PageWrapper>
-        <section className="py-5 bg-light">
-          <div className="container">
+    <PageWrapper>
+      <section className="py-5 bg-light">
+        <div className="container text-center">
 
-            <div className="profile-header text-center mb-4">
-              <img
-                src="/assets/img/user-placeholder.png"
-                alt="User"
-                className="profile-picture rounded-circle shadow"
-              />
-              <h1 className="fw-bold">{localUser.username}</h1>
-              <p className="text-muted">{localUser.city || "Austin, Texas"}</p>
-              <button className="btn btn-dark mx-2">Edit Profile</button>
-              <button
-                className="btn btn-outline-secondary"
-                data-bs-toggle="modal"
-                data-bs-target="#changePasswordModal"
-              >
-                Change Password
-              </button>
-              {/* Change Password Modal */}
-              <div className="modal fade" id="changePasswordModal" tabIndex="-1" aria-hidden="true">
-                <div className="modal-dialog modal-dialog-centered">
-                  <div className="modal-content">
-                    <form onSubmit={handleChangePassword}>
-                      <div className="modal-header">
-                        <h5 className="modal-title">Change Password</h5>
-                        <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                      </div>
-                      <div className="modal-body">
-                        <div className="mb-3">
-                          <label className="form-label">Current Password</label>
-                          <input type="password" className="form-control" name="current_password" required />
-                        </div>
-                        <div className="mb-3">
-                          <label className="form-label">New Password</label>
-                          <input type="password" className="form-control" name="new_password" required />
-                        </div>
-                        <div className="mb-3">
-                          <label className="form-label">Confirm New Password</label>
-                          <input type="password" className="form-control" name="confirm_password" required />
-                        </div>
-                      </div>
-                      <div className="modal-footer">
-                        <button type="submit" className="btn btn-dark">Save</button>
-                        <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                      </div>
-                    </form>
+          {/* Avatar + Upload */}
+          <div className="position-relative d-inline-block mb-3">
+            <div
+              className="rounded-circle shadow d-flex align-items-center justify-content-center"
+              style={{
+                width: "120px",
+                height: "120px",
+                backgroundColor: bgColor,
+                fontSize: "36px",
+                color: "white",
+                position: "relative",
+                overflow: "hidden",
+              }}
+            >
+              {profilePic ? (
+                <img src={profilePic} alt="Profile" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              ) : (
+                initials
+              )}
+              <label htmlFor="profilePicUpload" className="position-absolute bottom-0 end-0 text-dark" style={{
+                width: "30px",
+                height: "30px",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                cursor: "pointer",
+              }}>
+                <span className="fa-stack" style={{ fontSize: "0.8rem" }}>
+                  <i className="fas fa-circle fa-stack-2x text-white"></i>
+                  <i className="fas fa-camera fa-stack-1x text-dark"></i>
+                  <i className="fas fa-plus fa-stack-1x text-danger" style={{ fontSize: "0.5rem", top: "0", right: "0" }}></i>
+                </span>
+              </label>
+              <input id="profilePicUpload" type="file" accept="image/*" onChange={handleProfilePicChange} style={{ display: "none" }} />
+            </div>
+          </div>
+
+          <h2 className="fw-bold mt-3">{localUser.first_name} {localUser.last_name}</h2>
+
+          <div className="mb-4">
+            <button className="btn btn-dark mx-2" onClick={() => setEditModalOpen(true)}>Edit Profile</button>
+            <button className="btn btn-outline-secondary" onClick={() => setChangeModalOpen(true)}>Change Password</button>
+          </div>
+        </div>
+
+        {/* Edit Profile Modal */}
+        <div className={`modal fade ${editModalOpen ? "show d-block" : ""}`} tabIndex="-1">
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <form onSubmit={handleEditProfile}>
+                <div className="modal-header">
+                  <h5>Edit Profile</h5>
+                  <button type="button" className="btn-close" onClick={() => setEditModalOpen(false)} />
+                </div>
+                <div className="modal-body">
+                  <input name="first_name" className="form-control mb-2" placeholder="First Name" defaultValue={localUser.first_name} />
+                  <input name="last_name" className="form-control mb-2" placeholder="Last Name" defaultValue={localUser.last_name} />
+                  <input name="email" type="email" className="form-control mb-2" placeholder="Email" defaultValue={localUser.email} />
+                </div>
+                <div className="modal-footer d-flex justify-content-between">
+                  <button type="button" className="btn btn-danger" onClick={handleDeleteAccount}>Delete Account</button>
+                  <div>
+                    <button className="btn btn-dark" type="submit">Save</button>
+                    <button className="btn btn-secondary ms-2" onClick={() => setEditModalOpen(false)}>Cancel</button>
                   </div>
                 </div>
-              </div>
-
+              </form>
             </div>
-
-            <div className="row mb-4">
-              <div className="col-md-6">
-                <div className="card p-3 mb-3">
-                  <h5 className="card-title">Edit Profile Information</h5>
-                  <form onSubmit={handleProfileUpdate}>
-                    <div className="mb-2">
-                      <label className="form-label">First Name</label>
-                      <input type="text" className="form-control" name="first_name" defaultValue={localUser.first_name} required />
-                    </div>
-                    <div className="mb-2">
-                      <label className="form-label">Last Name</label>
-                      <input type="text" className="form-control" name="last_name" defaultValue={localUser.last_name} required />
-                    </div>
-                    <div className="mb-2">
-                      <label className="form-label">Phone</label>
-                      <input type="text" className="form-control" name="phone" defaultValue={localUser.phone || ""} />
-                    </div>
-                    <div className="mb-2">
-                      <label className="form-label">Address</label>
-                      <input type="text" className="form-control" name="address" defaultValue={localUser.address || ""} />
-                    </div>
-                    <button type="submit" className="btn btn-dark mt-2">Save Changes</button>
-                  </form>
-                </div>
-              </div>
-            </div>
-
-
-
           </div>
-        </section>
-      </PageWrapper>
-    </div>
+        </div>
+
+        {/* Change Password Modal */}
+        <div className={`modal fade ${changeModalOpen ? "show d-block" : ""}`} tabIndex="-1">
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <form onSubmit={handleChangePassword}>
+                <div className="modal-header">
+                  <h5>Change Password</h5>
+                  <button type="button" className="btn-close" onClick={() => setChangeModalOpen(false)} />
+                </div>
+                <div className="modal-body">
+                  <input name="current_password" type="password" className="form-control mb-2" placeholder="Current Password" required />
+                  <input name="new_password" type="password" className="form-control mb-2" placeholder="New Password" required />
+                  <input name="confirm_password" type="password" className="form-control mb-2" placeholder="Confirm New Password" required />
+                </div>
+                <div className="modal-footer">
+                  <button className="btn btn-dark" type="submit">Save</button>
+                  <button className="btn btn-secondary" onClick={() => setChangeModalOpen(false)}>Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+    </PageWrapper>
   );
 };
 
