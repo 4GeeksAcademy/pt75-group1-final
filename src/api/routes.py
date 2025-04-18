@@ -37,7 +37,7 @@ def create_user():
     if User.query.filter_by(email=email).first():
         return jsonify({"msg": "User already exists"}), 400
 
-    hashed_password = generate_password_hash(password)
+    hashed_password = generate_password_hash(password, method="pbkdf2:sha256:150000")
 
     new_user = User(
         username=data['username'],
@@ -124,7 +124,7 @@ def change_password():
     if not check_password_hash(user.password, current_password):
         return jsonify({"msg": "Incorrect current password"}), 401
 
-    user.password = generate_password_hash(new_password)
+    user.password = generate_password_hash(new_password, method="pbkdf2:sha256:150000")
     db.session.commit()
     
     return jsonify({"msg": "Password changed successfully"}), 200
