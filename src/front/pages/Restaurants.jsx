@@ -5,6 +5,9 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import PageWrapper from "../components/PageWrapper";
 import AdvancedFilters from "../components/AdvancedFilters";
 import useGlobalReducer from "../hooks/useGlobalReducer"; // Import the global reducer
+import BiteCounter from "../components/BiteGame/BiteCounter"; // <== near the top
+import useEmojiRain from "../components/BiteGame/useEmojiRain";
+
 
 // This is a simple search bar component since your original was not provided
 const SearchBar = ({ value, onChange }) => (
@@ -17,33 +20,6 @@ const SearchBar = ({ value, onChange }) => (
   />
 );
 
-const getBiteMessage = (count) => {
-  if (count >= 100) return "🥳 Legend! You've devoured 100+!";
-  if (count >= 50) return "🔥 You're on fire!";
-  if (count >= 25) return "😋 You’ve got an appetite!";
-  if (count >= 10) return "🍽️ You’re stuffed!";
-  if (count >= 5) return "😄 Keep going!";
-  return "Welcome, hungry friend!";
-};
-
-const getNextMilestone = (count) => {
-  if (count < 25) return 25;
-  if (count < 50) return 50;
-  if (count < 100) return 100;
-  if (count < 200) return 200;
-  return 500;
-};
-
-const getComboMessage = (count) => {
-  if (count % 100 === 0) return "💀 FOOD GOD MODE";
-  if (count % 50 === 0) return "🔥 MASSIVE BITE COMBO!";
-  if (count % 25 === 0) return "💪 You’re crushing it!";
-  if (count % 10 === 0) return "😋 Snack streak!";
-  return "🍴 Yum!";
-};
-
-
-
 const Restaurants = () => {
   const location = useLocation();
   const navigate = useNavigate(); // Add useNavigate hook for navigation
@@ -53,14 +29,21 @@ const Restaurants = () => {
   const [showMoreFilters, setShowMoreFilters] = useState(false);
   const [emojiEatenCount, setEmojiEatenCount] = useState(0); // 🍽️ counter for clicked emojis
 
+  useEmojiRain(setEmojiEatenCount);
 
   // Get global state and dispatch for favorites
   const { store, dispatch } = useGlobalReducer();
   const favorites = store.favorites || [];
 
-  // Add these two lines right here:
-  const [hasSearched, setHasSearched] = useState(false);
+  const [hasSearched, setHasSearched] = useState(
+    sessionStorage.getItem('viewingRestaurantDetails') !== null ||
+    location.state?.returnedFromDetails === true ||
+    sessionStorage.getItem('lastSearchResults') !== null
+  );
   const resultsRef = useRef(null);
+
+
+
 
   // Enhanced filters state
   const [selectedFilters, setSelectedFilters] = useState({
@@ -79,9 +62,10 @@ const Restaurants = () => {
   const [nameInput, setNameInput] = useState("");
   const [nameSuggestions, setNameSuggestions] = useState([]);
   const [isApiData, setIsApiData] = useState(false);
-  const [returningFromDetail, setReturningFromDetail] = useState(false);
-
-
+  const [returningFromDetail, setReturningFromDetail] = useState(
+    sessionStorage.getItem('viewingRestaurantDetails') !== null ||
+    location.state?.returnedFromDetails === true
+  );
 
   // Function to handle viewing restaurant details
   const handleViewDetails = (restaurant) => {
@@ -159,6 +143,7 @@ const Restaurants = () => {
       dispatch({ type: 'SET_FAVORITES', payload: newFavorites });
     }
   };
+
 
   const handleSearch = async () => {
     if (!cityQuery.trim()) {
@@ -244,21 +229,26 @@ const Restaurants = () => {
 
         // Set hasSearched to true to trigger the transition effect
         setHasSearched(true);
+
+        // Store the search results in sessionStorage
+        sessionStorage.setItem('lastSearchResults', JSON.stringify({
+          query: cityQuery,
+          results: normalizedResults,
+          timestamp: Date.now()
+        }));
       } else {
         setRestaurants([]);
         setIsApiData(true);
 
         // Also set hasSearched to true for empty results
         setHasSearched(true);
-        if (normalizedResults && normalizedResults.length > 0) {
-          // Store the search results in sessionStorage
-          sessionStorage.setItem('lastSearchResults', JSON.stringify({
-            query: cityQuery,
-            results: normalizedResults,
-            timestamp: Date.now()
-          }));
-        }
 
+        // Store the empty search results in sessionStorage
+        sessionStorage.setItem('lastSearchResults', JSON.stringify({
+          query: cityQuery,
+          results: [],
+          timestamp: Date.now()
+        }));
       }
     } catch (err) {
       console.error("Search error:", err);
@@ -269,6 +259,7 @@ const Restaurants = () => {
       setLoading(false);
     }
   };
+
 
   // Function to handle filter toggle with debugging
   const toggleFilter = (filterName) => {
@@ -485,122 +476,11 @@ const Restaurants = () => {
     };
   }, [hasSearched]);
 
-  useEffect(() => {
-    const emojiList = ["🍕", "🍔", "🍣", "🍩", "🌮", "🍟", "🍜", "🍦"];
-    const container = document.querySelector(".emoji-rain-background");
-    container.style.height = `${document.body.scrollHeight}px`;
-    const numEmojis = 30;
-
-    const createEmoji = () => {
-      const emoji = document.createElement("div");
-      emoji.classList.add("emoji");
-      emoji.textContent = emojiList[Math.floor(Math.random() * emojiList.length)];
-      emoji.style.left = `${Math.random() * 100}%`;
-      emoji.style.animationDuration = `${5 + Math.random() * 5}s`;
-      emoji.style.fontSize = `${1 + Math.random() * 2}rem`;
-      emoji.style.opacity = Math.random();
-
-      // Add click event for particle pop
-      emoji.addEventListener("click", (e) => {
-        console.log("🍕 emoji clicked!");
-        e.stopPropagation();
-        createParticles(e.clientX, e.clientY);
-        emoji.remove();
-
-        // Animate bite counter box
-        const counterBox = document.querySelector(".bite-counter");
-        if (counterBox) {
-          counterBox.classList.remove("shake"); // restart animation
-          void counterBox.offsetWidth; // force reflow
-          counterBox.classList.add("shake");
-        }
-
-
-        setEmojiEatenCount(prev => {
-          const nextCount = prev + 1;
-          const comboMessage = getComboMessage(nextCount);
-
-          // Pop-up message logic
-          if (!["🍴 Yum!"].includes(comboMessage)) {
-            const comboText = document.createElement("div");
-            comboText.classList.add("combo-popup");
-            comboText.textContent = comboMessage;
-
-          }
-
-          return nextCount;
-        });
-      });
-
-
-
-
-
-      container.appendChild(emoji);
-
-      console.log("🎯 emoji added", emoji); // NEW
-      emoji.onclick = () => console.log("🧪 emoji clicked via .onclick"); // NEW
-
-      // Remove after animation
-      setTimeout(() => {
-        if (emoji.parentElement) {
-          emoji.remove();
-        }
-      }, 10000);
-    };
-    const createParticles = (x, y) => {
-      const particleCount = 18; // More crumbs!
-      const colors = ["#f5deb3", "#e0c083", "#d9a74f", "#fff2cc"];
-
-      for (let i = 0; i < particleCount; i++) {
-        const particle = document.createElement("div");
-        particle.classList.add("emoji-particle");
-
-        // Position at the click location
-        particle.style.left = `${x}px`;
-        particle.style.top = `${y}px`;
-
-        // Crumb-like styles
-        const size = Math.random() * 6 + 4; // 4px to 10px
-        particle.style.width = `${size}px`;
-        particle.style.height = `${size}px`;
-        particle.style.borderRadius = "50%";
-        particle.style.background = colors[Math.floor(Math.random() * colors.length)];
-
-        // Big scatter effect
-        const angle = Math.random() * 2 * Math.PI;
-        const distance = 80 + Math.random() * 60; // 80–140px explosion
-        const translateX = Math.cos(angle) * distance;
-        const translateY = Math.sin(angle) * distance;
-
-        // Add initial transform for animation
-        particle.style.setProperty('--tx', `${translateX}px`);
-        particle.style.setProperty('--ty', `${translateY}px`);
-
-        container.appendChild(particle);
-
-        setTimeout(() => {
-          particle.remove();
-        }, 1000); // 1 second lifetime
-      }
-    };
-
-    const interval = setInterval(() => {
-      if (container && document.body.contains(container)) {
-        createEmoji();
-
-      }
-    }, 800); // Every 300ms
-
-    return () => clearInterval(interval); // Cleanup
-  }, []);
-
 
   useEffect(() => {
-    // Check if we're returning from restaurant details
-    const wasViewingDetails = sessionStorage.getItem('viewingRestaurantDetails');
-
-    if (wasViewingDetails || location.state?.returnedFromDetails) {
+    // We already set returningFromDetail in the initial state,
+    // but we still need to clear the flag and load the stored results
+    if (returningFromDetail) {
       // Clear the flag to prevent reloading on further navigation
       sessionStorage.removeItem('viewingRestaurantDetails');
 
@@ -609,7 +489,6 @@ const Restaurants = () => {
       if (storedSearch) {
         try {
           const parsed = JSON.parse(storedSearch);
-
           // Only use stored results if they exist and have data
           if (parsed && parsed.results && parsed.results.length > 0) {
             console.log("Restoring search results:", parsed.results.length, "items");
@@ -623,43 +502,40 @@ const Restaurants = () => {
         }
       }
     }
-  }, []);  // Empty dependency array to run only once on mount
-
-
-
+  }, [returningFromDetail]); // Dependency on returningFromDetail
 
   return (
     <div>
-      <Navbar />
       <div className="emoji-rain-background"></div>
 
-      {emojiEatenCount > 0 && (
-        <div className="floating-bite-container">
-          {/* Bite counter content */}
-        </div>
-      )}
+      <BiteCounter count={emojiEatenCount} />
 
       {/* Move the alert outside of PageWrapper to ensure it's visible during search */}
       {alert && (
-        <div
-          className="alert alert-success alert-dismissible fade show text-center"
+        <div className="alert alert-success alert-dismissible fade show text-center"
           role="alert"
           style={{
             position: "fixed",
-            top: "70px", // Below navbar
+            top: "70px",
             left: "50%",
             transform: "translateX(-50%)",
             width: "80%",
             maxWidth: "500px",
-            zIndex: 2000, // Higher than other elements
+            zIndex: 2000,
             boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
-          }}
-        >
+          }}>
           {alert}
-          {reviewId && (
+          {reviewId && location.state?.restaurantId && (
             <>
               {" "}
-              <Link to="#" className="alert-link">
+              <Link
+                to={`/restaurant/${location.state.restaurantId}`}
+                state={{
+                  reviewId: reviewId,
+                  isApiData: location.state?.isApiData || false
+                }}
+                className="alert-link"
+              >
                 View
               </Link>
             </>
@@ -671,13 +547,14 @@ const Restaurants = () => {
           ></button>
         </div>
       )}
+
       <PageWrapper>
         {/* Search Section with transition effect */}
         <section
           className={`search-section ${hasSearched ? 'searched' : ''}`}
           style={{
             opacity: hasSearched ? 0 : 1,
-            transition: 'opacity 1s ease, visibility 0s 1s',
+            transition: returningFromDetail ? 'none' : 'opacity 1s ease, visibility 0s 1s',
             visibility: hasSearched ? 'hidden' : 'visible',
             display: 'flex',
             flexDirection: 'column',
@@ -802,17 +679,18 @@ const Restaurants = () => {
           style={{
             opacity: hasSearched ? 1 : 0,
             transform: hasSearched ? 'translateY(0)' : 'translateY(20vh)',
-            transition: 'opacity 1.5s ease, transform 1.5s ease',
-            transitionDelay: '0.3s',
+            transition: returningFromDetail ? 'none' : 'opacity 1.5s ease, transform 1.5s ease',
+            transitionDelay: returningFromDetail ? '0s' : '0.3s',
             visibility: hasSearched ? 'visible' : 'hidden',
-            position: 'relative'
+            position: 'relative',
+            zIndex: 4
           }}
         >
           {/* Reference point for scrolling to results */}
           <div ref={resultsRef}></div>
 
           {/* More Filters Section - Only visible after search */}
-          <section className="container py-4">
+          <section className="container py-4 filter-section">
             <div className="d-flex justify-content-center">
               <button
                 className="btn btn-outline-dark"
@@ -906,7 +784,7 @@ const Restaurants = () => {
           </section>
 
           {/* Results Section */}
-          <section className="container py-5">
+          <section className="container py-5 results-section">
             <div className="row g-4">
               {filteredRestaurants.length > 0 ? (
                 filteredRestaurants.map((item, index) => {
@@ -917,13 +795,12 @@ const Restaurants = () => {
 
                     return (
                       <div key={`api-${index}`} className="col-md-4">
-                        <div className="card h-100 shadow-sm hover-float">
-                          <img
-                            src={restaurant.photo?.images?.medium?.url || "https://via.placeholder.com/400x200?text=Restaurant+Image"}
-                            className="card-img-top"
-                            alt={restaurant.name}
-                            style={{ height: "200px", objectFit: "cover" }}
-                          />
+                        <div className="card h-100 shadow-sm hover-float" style={{ position: 'relative', zIndex: 10 }}>                          <img
+                          src={restaurant.photo?.images?.medium?.url || "https://via.placeholder.com/400x200?text=Restaurant+Image"}
+                          className="card-img-top"
+                          alt={restaurant.name}
+                          style={{ height: "200px", objectFit: "cover" }}
+                        />
                           <div className="card-body">
                             <h5 className="card-title">
                               <a href={restaurant.website} target="_blank" rel="noopener noreferrer" className="text-decoration-none text-dark">
@@ -970,7 +847,7 @@ const Restaurants = () => {
 
                   return (
                     <div key={id} className="col-md-4">
-                      <div className="card h-100 shadow-sm hover-float">
+                      <div className="card h-100 shadow-sm hover-float" style={{ position: 'relative', zIndex: 15 }}>
                         <img
                           src={restaurant.images[0]}
                           className="card-img-top"

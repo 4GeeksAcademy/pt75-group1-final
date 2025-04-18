@@ -105,7 +105,8 @@ const ReviewForm = () => {
       state: {
         message: "Your review was posted successfully!",
         reviewId: newReview.id,
-        restaurantId: restaurantData.id
+        restaurantId: restaurantData.id,
+        isApiData: restaurantData.isApiData
       },
     });
   };

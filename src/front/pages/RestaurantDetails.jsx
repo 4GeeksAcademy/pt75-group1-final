@@ -32,6 +32,8 @@ export const RestaurantDetails = () => {
   const [activeImage, setActiveImage] = useState(null);
   const [selectedReview, setSelectedReview] = useState(null);
   const [showAllReviews, setShowAllReviews] = useState(false);
+  const [isReturningFromDetails, setIsReturningFromDetails] = useState(false);
+
 
   // Get the restaurant data - either from static data or from API
   // In the useEffect section that handles API data loading
@@ -199,6 +201,30 @@ export const RestaurantDetails = () => {
   }, [isApiData, apiRestaurant, id]);
 
 
+  // Add this updated useEffect to handle returning from restaurant details
+  useEffect(() => {
+    // Check if we're returning from restaurant details
+    const wasViewingDetails = sessionStorage.getItem('viewingRestaurantDetails');
+
+    if (wasViewingDetails || location.state?.returnedFromDetails) {
+      // Clear the flag to prevent reloading on further navigation
+      sessionStorage.removeItem('viewingRestaurantDetails');
+      setIsReturningFromDetails(true); // Set this flag to true
+
+      // Try to load previous search results but don't try to set city query or restaurants
+      // This should be handled in the Restaurants component instead
+      const storedSearch = sessionStorage.getItem('lastSearchResults');
+      if (storedSearch) {
+        try {
+          console.log("Found stored search results, but they will be handled in Restaurants component");
+          // Don't try to use setCityQuery or setRestaurants here
+        } catch (err) {
+          console.error("Error accessing stored search:", err);
+        }
+      }
+    }
+  }, []);  // Empty dependency array to run only once on mount
+
   const ReviewItem = ({ review }) => {
     const [expanded, setExpanded] = useState(false);
 
@@ -306,18 +332,31 @@ export const RestaurantDetails = () => {
 
 
   // Show loading state
+  // Loading state component for RestaurantDetails.jsx
+  // Replace the current loading section with this code
+
+  // Show loading state
   if (loading) {
     return (
       <div>
-        <Navbar />
-        <PageWrapper>
-          <div className="text-center mt-5">
-            <div className="spinner-border" role="status">
-              <span className="visually-hidden">Loading...</span>
-            </div>
-            <h3 className="mt-3">Loading restaurant details...</h3>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            minHeight: "100vh",
+            padding: "20px",
+            textAlign: "center",
+            background: "white"
+          }}
+        >
+          <div className="spinner-border mb-4" role="status" style={{ width: "3rem", height: "3rem" }}>
+            <span className="visually-hidden">Loading...</span>
           </div>
-        </PageWrapper>
+          <h3 className="mb-2">Loading restaurant details...</h3>
+          <p className="text-muted">Please wait while we get the latest information</p>
+        </div>
         <Footer />
       </div>
     );
@@ -351,7 +390,6 @@ export const RestaurantDetails = () => {
   if (!staticRestaurant && !apiRestaurant) {
     return (
       <div>
-        <Navbar />
         <PageWrapper>
           <div className="text-center mt-5">
             <h3>Restaurant not found.</h3>
@@ -714,6 +752,7 @@ export const RestaurantDetails = () => {
           )}
         </section>
 
+
         {/* Back Button */}
         <section className="container py-3 mb-5">
           <button
@@ -721,12 +760,18 @@ export const RestaurantDetails = () => {
             onClick={() => {
               // Set the flag for returning to search page
               sessionStorage.setItem('viewingRestaurantDetails', 'true');
-              navigate('/restaurants', { state: { returnedFromDetails: true } });
+              navigate('/restaurants', {
+                state: {
+                  returnedFromDetails: true,
+                  isApiData: isApiData
+                }
+              });
             }}
           >
             Back to Restaurants
           </button>
         </section>
+
 
         {/* Modals */}
         {showGallery && restaurantImages.length > 0 && (

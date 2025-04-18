@@ -1,14 +1,12 @@
-// Get saved user and favorites from localStorage
 const savedUser = JSON.parse(localStorage.getItem("user"));
 const savedFavorites = JSON.parse(localStorage.getItem("favorites")) || [];
 const savedReviews = JSON.parse(localStorage.getItem("reviews")) || [];
-
 export const initialStore = () => {
   return {
     message: null,
     user: savedUser || null,
     favorites: savedFavorites,
-    reviews: savedReviews,
+    reviews: savedReviews, // Add reviews to the initial store
     todos: [
       {
         id: 1,
@@ -30,6 +28,7 @@ export default function storeReducer(store, action = {}) {
         ...store,
         message: action.payload,
       };
+
     case "add_task":
       const { id, color } = action.payload;
       return {
@@ -38,16 +37,19 @@ export default function storeReducer(store, action = {}) {
           todo.id === id ? { ...todo, background: color } : todo
         ),
       };
+
     case "LOGIN_SUCCESS":
       return {
         ...store,
         user: action.payload,
       };
+
     case "LOGOUT":
       return {
         ...store,
         user: null,
       };
+
     case "SET_FAVORITES":
       // Save favorites to localStorage for persistence
       localStorage.setItem("favorites", JSON.stringify(action.payload));
@@ -55,15 +57,17 @@ export default function storeReducer(store, action = {}) {
         ...store,
         favorites: action.payload,
       };
+
     case "ADD_REVIEW":
-      // Add new review to the reviews array
-      const updatedReviews = [...(store.reviews || []), action.payload];
+      // Add a new review to the store
+      const updatedReviews = [...store.reviews, action.payload];
       // Save reviews to localStorage for persistence
       localStorage.setItem("reviews", JSON.stringify(updatedReviews));
       return {
         ...store,
         reviews: updatedReviews,
       };
+
     default:
       throw new Error("Unknown action.");
   }
