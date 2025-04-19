@@ -11,22 +11,27 @@ const Timeline = () => {
     {
       year: "2015",
       text: "BiteFinder was founded with the vision of connecting food lovers. The platform launched with a handful of restaurants and a passionate community.",
+      image: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
     },
     {
       year: "2017",
       text: "We introduced user-generated reviews, allowing diners to share their experiences. This feature significantly enhanced community engagement on the platform.",
+      image: "https://images.unsplash.com/photo-1577563908411-5077b6dc7624?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
     },
     {
       year: "2019",
       text: "BiteFinder expanded its reach, partnering with over 1,000 restaurants nationwide. Our user base grew exponentially, reflecting the platform's popularity.",
+      image: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
     },
     {
       year: "2021",
       text: "We launched our mobile app, making restaurant discovery even more accessible. Users can now make reservations and save favorites on-the-go.",
+      image: "https://images.unsplash.com/photo-1511317559916-56d5ddb62563?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
     },
     {
       year: "2023",
       text: "Today, BiteFinder continues to innovate, enhancing user experience with new features. We remain committed to connecting food enthusiasts with their next favorite meal.",
+      image: "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
     },
   ];
 
@@ -84,15 +89,15 @@ const Timeline = () => {
                 <Col md={6} className={isLeft ? "order-md-1" : ""}>
                   <div className="bg-white p-4 shadow-sm">
                     <p>{item.text}</p>
-                    <div className="d-flex gap-2 mb-3">
-                      <Button variant="outline-dark" className="rounded-0">Button</Button>
-                      <Button variant="link" className="text-decoration-none">Button &rarr;</Button>
-                    </div>
                     <div
-                      className="bg-secondary text-white text-center"
-                      style={{ height: "200px", borderRadius: "10px", lineHeight: "200px" }}
+                      className="bg-secondary overflow-hidden"
+                      style={{ height: "200px", borderRadius: "10px" }}
                     >
-                      Image Placeholder
+                      <img 
+                        src={item.image} 
+                        alt={`BiteFinder milestone ${item.year}`}
+                        className="w-100 h-100 object-fit-cover"
+                      />
                     </div>
                   </div>
                 </Col>
