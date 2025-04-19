@@ -39,6 +39,8 @@ class User(db.Model):
     is_active = db.Column(db.Boolean, nullable=False)
     favorites = db.relationship('Favorite', backref='user', lazy=True)
     reservations = db.relationship('Reservation', backref='user', lazy=True)
+    profile_picture = db.Column(db.Text, nullable=True)
+
 
     def serialize(self):
         return {
@@ -48,7 +50,8 @@ class User(db.Model):
             "email": self.email,
             "first_name": self.first_name,
             "last_name": self.last_name,
-            "is_active": self.is_active
+            "is_active": self.is_active,
+            "profile_picture": self.profile_picture
         }
 
 

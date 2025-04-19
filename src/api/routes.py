@@ -61,8 +61,11 @@ def create_user():
 @api.route('/user/<int:user_id>', methods=['PUT'])
 @jwt_required()
 def update_user(user_id):
+    user = db.session.get(User, user_id)
+    if user is None:
+        return jsonify({"error": "User not found"}), 404
+
     data = request.get_json()
-    user = User.query.get_or_404(user_id)
 
     user.username = data.get('username', user.username)
     user.email = data.get('email', user.email)
@@ -71,8 +74,11 @@ def update_user(user_id):
     user.first_name = data.get('first_name', user.first_name)
     user.last_name = data.get('last_name', user.last_name)
     user.is_active = data.get('is_active', user.is_active)
+
+    user.profile_picture = data.get("profile_picture", user.profile_picture)
+
     db.session.commit()
-    return jsonify(user.serialize())
+    return jsonify(user.serialize()), 200
 
 
 @api.route('/user/<int:user_id>', methods=['DELETE'])

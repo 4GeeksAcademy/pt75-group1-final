@@ -55,7 +55,7 @@ const Profile = () => {
     if (file) {
       const reader = new FileReader();
       reader.onload = () => {
-        setProfilePic(reader.result); // base64
+        setProfilePic(reader.result); 
       };
       reader.readAsDataURL(file);
     }
@@ -72,6 +72,7 @@ const Profile = () => {
       email: form.email.value,
       username: localUser.username,
       is_active: true,
+      profile_picture: profilePic || localUser.profile_picture
     };
 
     try {
@@ -160,7 +161,6 @@ const Profile = () => {
       <section className="py-5 bg-light">
         <div className="container text-center">
 
-          {/* Avatar + Upload */}
           <div className="position-relative d-inline-block mb-3">
             <div
               className="rounded-circle shadow d-flex align-items-center justify-content-center"
@@ -174,7 +174,106 @@ const Profile = () => {
                 overflow: "hidden",
               }}
             >
-              {profilePic ? (
+              <div className="position-relative w-100 h-100">
+                {profilePic ? (
+                  <img
+                    src={profilePic}
+                    alt="Profile"
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  />
+                ) : localUser?.profile_picture ? (
+                  <img
+                    src={localUser.profile_picture}
+                    alt="Profile"
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  />
+                ) : (
+                  <div
+                    className="d-flex justify-content-center align-items-center w-100 h-100"
+                    style={{ backgroundColor: bgColor, color: "white", fontSize: "2rem" }}
+                  >
+                    {initials}
+                  </div>
+                )}
+
+                <label
+                  htmlFor="profilePicUpload"
+                  className="position-absolute bottom-0 end-0 text-dark"
+                  style={{
+                    width: "30px",
+                    height: "30px",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    cursor: "pointer",
+                  }}
+                >
+                  <span className="fa-stack" style={{ fontSize: "0.8rem" }}>
+                    <i className="fas fa-circle fa-stack-2x text-white"></i>
+                    <i className="fas fa-camera fa-stack-1x text-dark"></i>
+                    <i
+                      className="fas fa-plus fa-stack-1x text-danger"
+                      style={{ fontSize: "0.5rem", top: "0", right: "0" }}
+                    ></i>
+                  </span>
+                </label>
+
+                <input
+                  id="profilePicUpload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleProfilePicChange}
+                  style={{ display: "none" }}
+                />
+              </div>
+              {/* <div className="position-relative rounded-circle overflow-hidden" style={{ width: "100px", height: "100px" }}>
+  {profilePic ? (
+    <img src={profilePic} alt="Profile" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+  ) : localUser?.profile_picture ? (
+    <img src={localUser.profile_picture} alt="Profile" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+  ) : (
+    <div
+      className="d-flex justify-content-center align-items-center w-100 h-100"
+      style={{ backgroundColor: bgColor, color: "white", fontSize: "2rem" }}
+    >
+      {initials}
+    </div>
+  )}
+
+  <label
+    htmlFor="profilePicUpload"
+    className="position-absolute bottom-0 end-0 text-dark"
+    style={{
+      width: "30px",
+      height: "30px",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      cursor: "pointer",
+    }}
+  >
+    <span className="fa-stack" style={{ fontSize: "0.8rem" }}>
+      <i className="fas fa-circle fa-stack-2x text-white"></i>
+      <i className="fas fa-camera fa-stack-1x text-dark"></i>
+      <i
+        className="fas fa-plus fa-stack-1x text-danger"
+        style={{ fontSize: "0.5rem", top: "0", right: "0" }}
+      ></i>
+    </span>
+  </label>
+
+  <input
+    id="profilePicUpload"
+    type="file"
+    accept="image/*"
+    onChange={handleProfilePicChange}
+    style={{ display: "none" }}
+  />
+</div> */}
+
+
+
+              {/* {profilePic ? (
                 <img src={profilePic} alt="Profile" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
               ) : (
                 initials
@@ -193,7 +292,7 @@ const Profile = () => {
                   <i className="fas fa-plus fa-stack-1x text-danger" style={{ fontSize: "0.5rem", top: "0", right: "0" }}></i>
                 </span>
               </label>
-              <input id="profilePicUpload" type="file" accept="image/*" onChange={handleProfilePicChange} style={{ display: "none" }} />
+              <input id="profilePicUpload" type="file" accept="image/*" onChange={handleProfilePicChange} style={{ display: "none" }} /> */}
             </div>
           </div>
 
@@ -205,7 +304,6 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* Edit Profile Modal */}
         <div className={`modal fade ${editModalOpen ? "show d-block" : ""}`} tabIndex="-1">
           <div className="modal-dialog modal-dialog-centered">
             <div className="modal-content">
@@ -231,7 +329,6 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* Change Password Modal */}
         <div className={`modal fade ${changeModalOpen ? "show d-block" : ""}`} tabIndex="-1">
           <div className="modal-dialog modal-dialog-centered">
             <div className="modal-content">
