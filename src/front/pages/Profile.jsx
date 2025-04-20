@@ -51,16 +51,26 @@ const Profile = () => {
     return "#" + "00000".substring(0, 6 - c.length) + c;
   }
 
+
+
   const handleProfilePicChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = () => {
-        setProfilePic(reader.result);
+        setProfilePic(reader.result); // still for local preview
+        dispatch({
+          type: "LOGIN_SUCCESS",
+          payload: {
+            ...localUser,
+            profile_picture: reader.result, // 🔥 update global state immediately
+          },
+        });
       };
       reader.readAsDataURL(file);
     }
   };
+
 
   const handleEditProfile = async (e) => {
     e.preventDefault();

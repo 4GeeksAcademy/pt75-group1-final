@@ -115,50 +115,7 @@ def login():
         "access_token": access_token,
         "user": user.serialize()
     }), 200
-    # user = User.query.filter_by(email=email).first()
-
-    # if not user or not check_password_hash(user.password, password):
-    #     return jsonify({"msg": "Invalid credentials."}), 401
-
-    # access_token = create_access_token(identity=user.id)
-    # access_token = create_access_token(identity=str(user.id))
-
-    # return jsonify({
-    #     "access_token": access_token,
-    #     "user": user.serialize()
-    # }), 200
-
-
-# @api.route("/profile", methods=["GET"])
-# @jwt_required()
-# def get_user_profile():
-#     try:
-#         user_id = int(get_jwt_identity())  
-#     except (ValueError, TypeError):
-#         return jsonify({"msg": "Invalid token identity"}), 422
     
-#     user = User.query.get(user_id)
-#     if not user:
-#         return jsonify({"msg": "User not found"}), 404
-#     return jsonify({"profile": user.serialize()}), 200
-# @api.route("/profile", methods=["GET"])
-# @jwt_required()
-# def get_user_profile():
-#     try:
-#         user_id = int(get_jwt_identity())
-#         print("🧠 JWT identity (user_id):", user_id)  # LOG
-
-#         user = User.query.get(user_id)
-#         if not user:
-#             print("❌ User not found for ID:", user_id)
-#             return jsonify({"msg": "User not found"}), 404
-
-#         print("✅ Found user:", user.serialize())
-#         return jsonify({"profile": user.serialize()}), 200
-
-#     except Exception as e:
-#         print("🔥 Exception in /api/profile:", str(e))
-#         return jsonify({"msg": "Something went wrong", "error": str(e)}), 422
 
 @api.route("/profile", methods=["GET"])
 @jwt_required()
@@ -310,7 +267,6 @@ def get_location_id(city):
     """
     url = "https://restaurants222.p.rapidapi.com/typeahead"
 
-    # Use a dictionary for the payload and let requests handle the encoding
     payload = {
         "q": city,
         "language": "en_US"
@@ -322,7 +278,6 @@ def get_location_id(city):
         "Content-Type": "application/x-www-form-urlencoded"
     }
 
-    # Use data=payload with a dictionary to ensure proper URL encoding
     response = requests.post(url, data=payload, headers=headers)
 
     try:
@@ -332,7 +287,6 @@ def get_location_id(city):
         print("Failed to parse JSON response")
         return None
 
-    # Check if we have results and data is correctly structured
     if "results" in data and "data" in data["results"]:
         for item in data["results"]["data"]:
             if item.get("result_type") == "geos":

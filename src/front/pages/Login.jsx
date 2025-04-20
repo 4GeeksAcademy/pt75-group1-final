@@ -64,13 +64,7 @@ export const Login = () => {
         </div>
       )}
       <form onSubmit={handleSubmit} className="login-form">
-        {/* <input
-          type="email"
-          name="emailInput"
-          placeholder="Enter email"
-          className="form-control mb-2"
-          required
-        /> */}
+        
         <input
           type="text"
           className="form-control"

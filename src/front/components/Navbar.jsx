@@ -17,6 +17,17 @@ const Navbar = () => {
     navigate("/profile");
   };
 
+  const initials = (user?.first_name?.[0] || "") + (user?.last_name?.[0] || "");
+  const stringToColor = (str) => {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const color = (hash & 0x00ffffff).toString(16).toUpperCase();
+    return "#" + "00000".substring(0, 6 - color.length) + color;
+  };
+  const bgColor = stringToColor(user?.username || "");
+
   return (
     <div className="navbar-wrapper position-relative">
       <nav className="navbar navbar-expand-lg navbar-light bg-light fixed-top shadow-sm">
@@ -75,12 +86,26 @@ const Navbar = () => {
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
                 >
-                  <img
-                    src="https://loremflickr.com/320/240"
-                    alt="Profile"
-                    className="rounded-circle me-2"
-                    style={{ width: "40px", height: "40px", objectFit: "cover" }}
-                  />
+                  {user.profile_picture ? (
+                    <img
+                      src={user.profile_picture}
+                      alt="Profile"
+                      className="rounded-circle me-2"
+                      style={{ width: "40px", height: "40px", objectFit: "cover" }}
+                    />
+                  ) : (
+                    <div
+                      className="rounded-circle me-2 d-flex align-items-center justify-content-center text-white fw-bold"
+                      style={{
+                        width: "40px",
+                        height: "40px",
+                        backgroundColor: bgColor,
+                        fontSize: "1rem",
+                      }}
+                    >
+                      {initials}
+                    </div>
+                  )}
                   {user.username}
                 </button>
                 <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
