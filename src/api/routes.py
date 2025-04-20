@@ -172,19 +172,9 @@ def get_user_profile():
             print("❌ User not found for ID:", user_id)
             return jsonify({"msg": "User not found"}), 404
 
-        # ✅ Test manual response without serialize()
-        test_response = {
-            "id": user.id,
-            "email": user.email,
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-            "username": user.username,
-            "is_active": user.is_active,
-            "profile_picture": user.profile_picture
-        }
+       
+        return jsonify({ "profile": user.serialize() }), 200
 
-        print("✅ Returning test user data:", test_response)
-        return jsonify({ "profile": test_response }), 200
 
     except Exception as e:
         print("🔥 Exception in /api/profile:", str(e))
