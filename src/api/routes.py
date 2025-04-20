@@ -7,6 +7,21 @@ from datetime import datetime
 import requests
 import os
 from dotenv import load_dotenv
+from flask_mail import Mail, Message
+
+mail = Mail()  
+
+def configure_mail(app):
+    app.config.update(
+        MAIL_SERVER='smtp.mail.protonmail.ch',
+        MAIL_PORT=587,
+        MAIL_USE_TLS=True,
+        MAIL_USERNAME=os.getenv("MAIL_USERNAME"),
+        MAIL_PASSWORD=os.getenv("MAIL_PASSWORD"),
+        MAIL_DEFAULT_SENDER=os.getenv("MAIL_USERNAME")
+    )
+    mail.init_app(app)
+
 
 load_dotenv()
 RAPIDAPI_KEY = os.getenv("RAPIDAPI_KEY")
@@ -346,3 +361,45 @@ def search_restaurants():
     else:
         print(f"Error response: {response.text}")
         return jsonify({"error": "Failed to fetch restaurants"}), response.status_code
+
+
+from flask_mail import Mail, Message
+
+# Initialize Flask-Mail (outside the route)
+mail = Mail()
+
+def configure_mail(app):
+    app.config.update(
+        MAIL_SERVER='smtp.gmail.com',
+        MAIL_PORT=587,
+        MAIL_USE_TLS=True,
+        MAIL_USERNAME=os.getenv("MAIL_USERNAME"),
+        MAIL_PASSWORD=os.getenv("MAIL_PASSWORD"),
+        MAIL_DEFAULT_SENDER=os.getenv("MAIL_USERNAME"),
+    )
+    mail.init_app(app)
+
+@api.route("/forgot-password", methods=["POST"])
+def forgot_password():
+    data = request.get_json()
+    email = data.get("email")
+
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        return jsonify({ "msg": "If that email exists, a reset link has been sent." }), 200
+
+    from flask_jwt_extended import create_access_token
+    import datetime
+
+    reset_token = create_access_token(identity=user.id, expires_delta=datetime.timedelta(hours=1))
+    frontend_url = os.getenv("FRONTEND_URL")
+    reset_link = f"{frontend_url}reset-password?token={reset_token}"
+
+    try:
+        msg = Message("🔐 Reset your BiteFinder password", recipients=[email])
+        msg.body = f"Hi {user.first_name},\n\nClick the link below to reset your password:\n{reset_link}\n\nThis link expires in 1 hour.\n\nIf you didn't request this, just ignore it.\n\n– BiteFinder Team"
+        mail.send(msg)
+        return jsonify({ "msg": "If that email exists, a reset link has been sent." }), 200
+    except Exception as e:
+        print("❌ Email sending failed:", e)
+        return jsonify({ "msg": "Failed to send recovery email." }), 500

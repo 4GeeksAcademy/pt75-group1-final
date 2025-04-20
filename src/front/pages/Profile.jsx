@@ -17,7 +17,6 @@ const Profile = () => {
       setLoading(false);
       return;
     }
-    console.log("🐛 JWT Token being sent to /api/profile:", token);
 
     fetch(`${import.meta.env.VITE_BACKEND_URL}/api/profile`, {
       headers: {
@@ -39,6 +38,12 @@ const Profile = () => {
       });
   }, []);
 
+  useEffect(() => {
+    if (localUser?.profile_picture) {
+      setProfilePic(localUser.profile_picture);
+    }
+  }, [localUser]);
+
   const initials = (localUser?.first_name?.[0] || "") + (localUser?.last_name?.[0] || "");
   const bgColor = stringToColor(localUser?.username || "U");
 
@@ -57,20 +62,39 @@ const Profile = () => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = () => {
-        setProfilePic(reader.result); // still for local preview
-        dispatch({
-          type: "LOGIN_SUCCESS",
-          payload: {
-            ...localUser,
-            profile_picture: reader.result, // 🔥 update global state immediately
-          },
-        });
+      reader.onload = async () => {
+        const base64 = reader.result;
+        setProfilePic(base64);
+  
+        const token = localStorage.getItem("access_token");
+  
+        try {
+          const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/user/${localUser.id}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              profile_picture: base64,
+            }),
+          });
+  
+          if (!res.ok) throw new Error("Failed to update picture");
+  
+          const updatedUser = await res.json();
+          setLocalUser(updatedUser);
+          dispatch({ type: "LOGIN_SUCCESS", payload: updatedUser });
+        } catch (err) {
+          console.error("❌ Failed to save profile picture:", err);
+          alert("There was an error saving your profile picture.");
+        }
       };
+  
       reader.readAsDataURL(file);
     }
   };
-
+  
 
   const handleEditProfile = async (e) => {
     e.preventDefault();

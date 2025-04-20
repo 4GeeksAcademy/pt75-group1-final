@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 import "../index.css";
 import { useState } from "react";
@@ -64,7 +65,7 @@ export const Login = () => {
         </div>
       )}
       <form onSubmit={handleSubmit} className="login-form">
-        
+
         <input
           type="text"
           className="form-control"
@@ -83,6 +84,10 @@ export const Login = () => {
         <button className="btn btn-dark mt-2" type="submit">
           Log In
         </button>
+        <p className="text-center mt-3">
+          <Link to="/forgot-password">Forgot your password or username?</Link>
+        </p>
+
       </form>
     </div>
   );

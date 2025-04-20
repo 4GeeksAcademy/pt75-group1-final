@@ -19,10 +19,8 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import WriteReview from "./pages/WriteReview";
 import ReviewForm from "./pages/ReviewForm";
+import ForgotPassword from "./pages/ForgotPassword";
 
-//import { Results } from "./pages/Results";
-//import { Discover } from "./pages/Discover";
-//import { Details } from "./pages/Details";
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -39,6 +37,7 @@ export const router = createBrowserRouter(
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/searchpage" element={<SearchPage />} />
       <Route path="/restaurants" element={<Restaurants />} />
       <Route path="/about" element={<About />} />
@@ -48,9 +47,7 @@ export const router = createBrowserRouter(
       <Route path="/write-review/:id" element={<ReviewForm />} />
       <Route path="/restaurant/:id" element={<RestaurantDetails />} />
       <Route path="/profile" element={<PrivateRoute>   <Profile /> </PrivateRoute>} />
-      {/* <Route path="/results" element={<Results />} />
-      <Route path="/discover" element={<Discover />} />
-      <Route path="/details" element={<Details />} /> */}
+      
     </Route>
   )
 );

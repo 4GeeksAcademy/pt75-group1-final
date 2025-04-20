@@ -117,6 +117,10 @@ export const Signup = () => {
       <p className="text-center mt-3">
         Already have an account? <Link to="/login">Login</Link>
       </p>
+      <p className="text-center">
+        <Link to="/forgot-password">Forgot your password or username?</Link>
+      </p>
+
     </div>
   );
 };
