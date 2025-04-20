@@ -20,6 +20,7 @@ import Contact from "./pages/Contact";
 import WriteReview from "./pages/WriteReview";
 import ReviewForm from "./pages/ReviewForm";
 import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword"; 
 
 
 export const router = createBrowserRouter(
@@ -38,6 +39,7 @@ export const router = createBrowserRouter(
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/searchpage" element={<SearchPage />} />
       <Route path="/restaurants" element={<Restaurants />} />
       <Route path="/about" element={<About />} />

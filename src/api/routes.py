@@ -391,7 +391,8 @@ def forgot_password():
     from flask_jwt_extended import create_access_token
     import datetime
 
-    reset_token = create_access_token(identity=user.id, expires_delta=datetime.timedelta(hours=1))
+    # reset_token = create_access_token(identity=user.id, expires_delta=datetime.timedelta(hours=1))
+    reset_token = create_access_token(identity=str(user.id), expires_delta=datetime.timedelta(hours=1))
     frontend_url = os.getenv("FRONTEND_URL")
     reset_link = f"{frontend_url}reset-password?token={reset_token}"
 
@@ -403,3 +404,29 @@ def forgot_password():
     except Exception as e:
         print("❌ Email sending failed:", e)
         return jsonify({ "msg": "Failed to send recovery email." }), 500
+
+@api.route("/reset-password", methods=["POST"])
+def reset_password():
+    data = request.get_json()
+    token = data.get("token")
+    new_password = data.get("new_password")
+
+    if not token or not new_password:
+        return jsonify({ "msg": "Token and new password are required" }), 400
+
+    try:
+        from flask_jwt_extended import decode_token
+        decoded = decode_token(token)
+        user_id = int(decoded["sub"])  # 👈 convert to integer
+    except Exception as e:
+        print("❌ Token error:", str(e))
+        return jsonify({ "msg": "Invalid or expired token", "error": str(e) }), 400
+
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({ "msg": "User not found" }), 404
+
+    user.password = generate_password_hash(new_password, method="pbkdf2:sha256:150000")
+    db.session.commit()
+
+    return jsonify({ "msg": "Password has been reset successfully" }), 200
