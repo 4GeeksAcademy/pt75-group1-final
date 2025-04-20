@@ -17,6 +17,7 @@ const Profile = () => {
       setLoading(false);
       return;
     }
+    console.log("🐛 JWT Token being sent to /api/profile:", token);
 
     fetch(`${import.meta.env.VITE_BACKEND_URL}/api/profile`, {
       headers: {
@@ -55,7 +56,7 @@ const Profile = () => {
     if (file) {
       const reader = new FileReader();
       reader.onload = () => {
-        setProfilePic(reader.result); 
+        setProfilePic(reader.result);
       };
       reader.readAsDataURL(file);
     }
@@ -70,7 +71,8 @@ const Profile = () => {
       first_name: form.first_name.value,
       last_name: form.last_name.value,
       email: form.email.value,
-      username: localUser.username,
+      // username: localUser.username,
+      username: form.username.value,
       is_active: true,
       profile_picture: profilePic || localUser.profile_picture
     };
@@ -226,77 +228,13 @@ const Profile = () => {
                   style={{ display: "none" }}
                 />
               </div>
-              {/* <div className="position-relative rounded-circle overflow-hidden" style={{ width: "100px", height: "100px" }}>
-  {profilePic ? (
-    <img src={profilePic} alt="Profile" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-  ) : localUser?.profile_picture ? (
-    <img src={localUser.profile_picture} alt="Profile" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-  ) : (
-    <div
-      className="d-flex justify-content-center align-items-center w-100 h-100"
-      style={{ backgroundColor: bgColor, color: "white", fontSize: "2rem" }}
-    >
-      {initials}
-    </div>
-  )}
 
-  <label
-    htmlFor="profilePicUpload"
-    className="position-absolute bottom-0 end-0 text-dark"
-    style={{
-      width: "30px",
-      height: "30px",
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      cursor: "pointer",
-    }}
-  >
-    <span className="fa-stack" style={{ fontSize: "0.8rem" }}>
-      <i className="fas fa-circle fa-stack-2x text-white"></i>
-      <i className="fas fa-camera fa-stack-1x text-dark"></i>
-      <i
-        className="fas fa-plus fa-stack-1x text-danger"
-        style={{ fontSize: "0.5rem", top: "0", right: "0" }}
-      ></i>
-    </span>
-  </label>
-
-  <input
-    id="profilePicUpload"
-    type="file"
-    accept="image/*"
-    onChange={handleProfilePicChange}
-    style={{ display: "none" }}
-  />
-</div> */}
-
-
-
-              {/* {profilePic ? (
-                <img src={profilePic} alt="Profile" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-              ) : (
-                initials
-              )}
-              <label htmlFor="profilePicUpload" className="position-absolute bottom-0 end-0 text-dark" style={{
-                width: "30px",
-                height: "30px",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                cursor: "pointer",
-              }}>
-                <span className="fa-stack" style={{ fontSize: "0.8rem" }}>
-                  <i className="fas fa-circle fa-stack-2x text-white"></i>
-                  <i className="fas fa-camera fa-stack-1x text-dark"></i>
-                  <i className="fas fa-plus fa-stack-1x text-danger" style={{ fontSize: "0.5rem", top: "0", right: "0" }}></i>
-                </span>
-              </label>
-              <input id="profilePicUpload" type="file" accept="image/*" onChange={handleProfilePicChange} style={{ display: "none" }} /> */}
             </div>
           </div>
 
           <h2 className="fw-bold mt-3">{localUser.first_name} {localUser.last_name}</h2>
+          <p className="text-muted">@{localUser.username}</p>
+
 
           <div className="mb-4">
             <button className="btn btn-dark mx-2" onClick={() => setEditModalOpen(true)}>Edit Profile</button>
@@ -316,6 +254,10 @@ const Profile = () => {
                   <input name="first_name" className="form-control mb-2" placeholder="First Name" defaultValue={localUser.first_name} />
                   <input name="last_name" className="form-control mb-2" placeholder="Last Name" defaultValue={localUser.last_name} />
                   <input name="email" type="email" className="form-control mb-2" placeholder="Email" defaultValue={localUser.email} />
+
+                  <input name="username" className="form-control mb-2" placeholder="Username" defaultValue={localUser.username} />
+
+
                 </div>
                 <div className="modal-footer d-flex justify-content-between">
                   <button type="button" className="btn btn-danger" onClick={handleDeleteAccount}>Delete Account</button>

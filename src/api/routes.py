@@ -93,32 +93,107 @@ def delete_user(user_id):
 @api.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
-    email = data.get('email')
+    # email = data.get('email')
+    identifier = data.get("identifier")
     password = data.get('password')
-    if not email or not password:
-        return jsonify({"msg": "Email and password required."}), 400
-    user = User.query.filter_by(email=email).first()
+    # if not email or not password:
+    #     return jsonify({"msg": "Email and password required."}), 400
+    if not identifier or not password:
+        return jsonify({"msg": "Identifier and password required."}), 400
+
+    user = User.query.filter(
+        (User.email == identifier) | (User.username == identifier)
+    ).first()
 
     if not user or not check_password_hash(user.password, password):
         return jsonify({"msg": "Invalid credentials."}), 401
 
-    access_token = create_access_token(identity=user.id)
+    # access_token = create_access_token(identity=user.id)
     access_token = create_access_token(identity=str(user.id))
 
     return jsonify({
         "access_token": access_token,
         "user": user.serialize()
     }), 200
+    # user = User.query.filter_by(email=email).first()
 
+    # if not user or not check_password_hash(user.password, password):
+    #     return jsonify({"msg": "Invalid credentials."}), 401
+
+    # access_token = create_access_token(identity=user.id)
+    # access_token = create_access_token(identity=str(user.id))
+
+    # return jsonify({
+    #     "access_token": access_token,
+    #     "user": user.serialize()
+    # }), 200
+
+
+# @api.route("/profile", methods=["GET"])
+# @jwt_required()
+# def get_user_profile():
+#     try:
+#         user_id = int(get_jwt_identity())  
+#     except (ValueError, TypeError):
+#         return jsonify({"msg": "Invalid token identity"}), 422
+    
+#     user = User.query.get(user_id)
+#     if not user:
+#         return jsonify({"msg": "User not found"}), 404
+#     return jsonify({"profile": user.serialize()}), 200
+# @api.route("/profile", methods=["GET"])
+# @jwt_required()
+# def get_user_profile():
+#     try:
+#         user_id = int(get_jwt_identity())
+#         print("🧠 JWT identity (user_id):", user_id)  # LOG
+
+#         user = User.query.get(user_id)
+#         if not user:
+#             print("❌ User not found for ID:", user_id)
+#             return jsonify({"msg": "User not found"}), 404
+
+#         print("✅ Found user:", user.serialize())
+#         return jsonify({"profile": user.serialize()}), 200
+
+#     except Exception as e:
+#         print("🔥 Exception in /api/profile:", str(e))
+#         return jsonify({"msg": "Something went wrong", "error": str(e)}), 422
 
 @api.route("/profile", methods=["GET"])
 @jwt_required()
 def get_user_profile():
-    user_id = get_jwt_identity()  
-    user = User.query.get(user_id)
-    if not user:
-        return jsonify({"msg": "User not found"}), 404
-    return jsonify({"profile": user.serialize()}), 200
+    try:
+        user_id = int(get_jwt_identity())
+        print("🧠 JWT identity (user_id):", user_id)
+
+        user = User.query.get(user_id)
+        if not user:
+            print("❌ User not found for ID:", user_id)
+            return jsonify({"msg": "User not found"}), 404
+
+        # ✅ Test manual response without serialize()
+        test_response = {
+            "id": user.id,
+            "email": user.email,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "username": user.username,
+            "is_active": user.is_active,
+            "profile_picture": user.profile_picture
+        }
+
+        print("✅ Returning test user data:", test_response)
+        return jsonify({ "profile": test_response }), 200
+
+    except Exception as e:
+        print("🔥 Exception in /api/profile:", str(e))
+        return jsonify({ "msg": "Something went wrong", "error": str(e) }), 422
+
+    except Exception as e:
+        print("🔥 Exception in /api/profile:", str(e))
+        return jsonify({"msg": "Something went wrong", "error": str(e)}), 422
+
 
 @api.route('/change-password', methods=['POST'])
 @jwt_required()

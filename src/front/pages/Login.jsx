@@ -3,15 +3,20 @@ import useGlobalReducer from "../hooks/useGlobalReducer";
 import "../index.css";
 import { useState } from "react";
 
+
 export const Login = () => {
   const { dispatch } = useGlobalReducer();
   const navigate = useNavigate();
+  const [identifier, setIdentifier] = useState("");
+  const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+
+
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    const email = event.target.emailInput.value;
+    // const email = event.target.emailInput.value;
     const password = event.target.passwordInput.value;
 
     try {
@@ -20,7 +25,10 @@ export const Login = () => {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password }),
+          // body: JSON.stringify({ email, password }),
+          // body: JSON.stringify({ identifier: emailOrUsername, password: password }),
+          body: JSON.stringify({ identifier, password })
+
         }
       );
 
@@ -56,11 +64,19 @@ export const Login = () => {
         </div>
       )}
       <form onSubmit={handleSubmit} className="login-form">
-        <input
+        {/* <input
           type="email"
           name="emailInput"
           placeholder="Enter email"
           className="form-control mb-2"
+          required
+        /> */}
+        <input
+          type="text"
+          className="form-control"
+          placeholder="Email or Username"
+          value={identifier}
+          onChange={(e) => setIdentifier(e.target.value)}
           required
         />
         <input
