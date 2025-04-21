@@ -13,21 +13,26 @@ const AboutMission = () => {
           </Col>
           <Col md={6}>
             <p>
-              At BiteFinder, our mission is to unite food enthusiasts with exceptional dining experiences. 
-              We believe that every meal should be memorable, and our platform is designed to help you discover 
-              the best restaurants tailored to your tastes. Our values center around community engagement, 
+              At BiteFinder, our mission is to unite food enthusiasts with exceptional dining experiences.
+              We believe that every meal should be memorable, and our platform is designed to help you discover
+              the best restaurants tailored to your tastes. Our values center around community engagement,
               transparency, and a passion for culinary exploration.
             </p>
           </Col>
         </Row>
 
         <div className="mt-5">
-          <div
-            className="bg-secondary d-flex justify-content-center align-items-center"
-            style={{ height: "600px", borderRadius: "15px", color: "#fff" }}
-          >
-            Image Placeholder
-          </div>
+          <img
+            src="https://images.pexels.com/photos/4252136/pexels-photo-4252136.jpeg?auto=compress&cs=tinysrgb&w=1600"
+            alt="Chef preparing food"
+            className="img-fluid w-100"
+            style={{
+              height: "600px",
+              objectFit: "cover",
+              objectPosition: "center 90%",
+              borderRadius: "15px"
+            }}
+          />
         </div>
       </Container>
     </section>

@@ -13,12 +13,12 @@ const Timeline = () => {
       duration: 1000,
       once: false,
       mirror: false,
-      offset: 100 
+      offset: 100
     });
-    
+
     // Refresh AOS on window resize to handle animations correctly
     window.addEventListener('resize', AOS.refresh);
-    
+
     return () => {
       window.removeEventListener('resize', AOS.refresh);
     };
@@ -27,24 +27,37 @@ const Timeline = () => {
   const timelineData = [
     {
       year: "2015",
+      title: "BiteFinder Launches",
       text: "BiteFinder was founded with the vision of connecting food lovers. The platform launched with a handful of restaurants and a passionate community.",
     },
     {
       year: "2017",
+      title: "User Reviews Go Live",
       text: "We introduced user-generated reviews, allowing diners to share their experiences. This feature significantly enhanced community engagement on the platform.",
     },
     {
       year: "2019",
+      title: "National Restaurant Partnerships",
       text: "BiteFinder expanded its reach, partnering with over 1,000 restaurants nationwide. Our user base grew exponentially, reflecting the platform's popularity.",
     },
     {
       year: "2021",
+      title: "Mobile App Release",
       text: "We launched our mobile app, making restaurant discovery even more accessible. Users can now make reservations and save favorites on-the-go.",
     },
     {
       year: "2023",
+      title: "Innovating the Dining Experience",
       text: "Today, BiteFinder continues to innovate, enhancing user experience with new features. We remain committed to connecting food enthusiasts with their next favorite meal.",
-    },
+    }
+  ];
+
+  const timelineImages = [
+    "https://images.pexels.com/photos/3184160/pexels-photo-3184160.jpeg?auto=compress&cs=tinysrgb&w=800", // 2015: Startup/launch
+    "https://images.pexels.com/photos/262978/pexels-photo-262978.jpeg?auto=compress&cs=tinysrgb&w=1200",
+    "https://images.pexels.com/photos/70497/pexels-photo-70497.jpeg?auto=compress&cs=tinysrgb&w=1200",
+    "https://images.pexels.com/photos/4252134/pexels-photo-4252134.jpeg?auto=compress&cs=tinysrgb&w=1200",
+    "https://images.pexels.com/photos/8927699/pexels-photo-8927699.jpeg?auto=compress&cs=tinysrgb&w=800", // 2021: Mobile app
   ];
 
   return (
@@ -91,19 +104,23 @@ const Timeline = () => {
                 </Col>
                 <Col md={6} className={isLeft ? "order-md-1" : ""}>
                   <div className="bg-white p-4 shadow-sm">
+                    <h5 className="fw-bold mb-3">{item.title}</h5>
                     <p>{item.text}</p>
-                    <div className="d-flex gap-2 mb-3">
-                      <Button variant="outline-dark">Button</Button>
-                      <Button variant="link" className="text-decoration-none">Button &rarr;</Button>
-                    </div>
-                    <div
-                      className="bg-secondary text-white text-center"
-                      style={{ height: "200px", borderRadius: "10px", lineHeight: "200px" }}
-                    >
-                      Image Placeholder
-                    </div>
+                    <img
+                      src={timelineImages[index]}
+                      alt={`Timeline event ${item.year}`}
+                      className="img-fluid"
+                      style={{
+                        height: "200px",
+                        width: "100%",
+                        objectFit: "cover",
+                        objectPosition: "center",
+                        borderRadius: "10px"
+                      }}
+                    />
                   </div>
                 </Col>
+
               </Row>
             );
           })}
