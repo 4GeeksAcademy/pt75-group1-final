@@ -42,9 +42,6 @@ const Restaurants = () => {
   );
   const resultsRef = useRef(null);
 
-
-
-
   // Enhanced filters state
   const [selectedFilters, setSelectedFilters] = useState({
     price: null,
@@ -67,6 +64,24 @@ const Restaurants = () => {
     location.state?.returnedFromDetails === true
   );
 
+    // 🔁 Fetch favorites on mount
+    useEffect(() => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+  
+      fetch(`${import.meta.env.VITE_BACKEND_URL}/api/user/favorites`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then(res => res.json())
+        .then(data => {
+          console.log("Fetched favorites:", data.favorites); 
+          dispatch({ type: "SET_FAVORITES", payload: data.favorites });
+        })
+        .catch(err => console.error("Failed to load favorites:", err));
+    }, []);
+  
   // Function to handle viewing restaurant details
   const handleViewDetails = (restaurant) => {
     // For API data

@@ -9,7 +9,8 @@ import os
 from dotenv import load_dotenv
 from flask_mail import Mail, Message
 
-mail = Mail()  
+mail = Mail()
+
 
 def configure_mail(app):
     app.config.update(
@@ -29,9 +30,10 @@ RAPIDAPI_HOST = os.getenv("RAPIDAPI_HOST")
 
 api = Blueprint('api', __name__)
 CORS(api, resources={r"/*": {"origins": [
-    "http://localhost:3000", 
+    "http://localhost:3000",
     "https://animated-guide-wrvvx9gwpgwv27p7-3000.app.github.dev",
-    "https://animated-space-couscous-g47647pwqpqqhv9w5-3000.app.github.dev"  # Add your current Codespace URL
+    # Add your current Codespace URL
+    "https://animated-space-couscous-g47647pwqpqqhv9w5-3000.app.github.dev"
 ]}}, supports_credentials=True)
 
 
@@ -58,7 +60,8 @@ def create_user():
     if User.query.filter_by(email=email).first():
         return jsonify({"msg": "User already exists"}), 400
 
-    hashed_password = generate_password_hash(password, method="pbkdf2:sha256:150000")
+    hashed_password = generate_password_hash(
+        password, method="pbkdf2:sha256:150000")
 
     new_user = User(
         username=data['username'],
@@ -130,7 +133,7 @@ def login():
         "access_token": access_token,
         "user": user.serialize()
     }), 200
-    
+
 
 @api.route("/profile", methods=["GET"])
 @jwt_required()
@@ -144,13 +147,11 @@ def get_user_profile():
             print("❌ User not found for ID:", user_id)
             return jsonify({"msg": "User not found"}), 404
 
-       
-        return jsonify({ "profile": user.serialize() }), 200
-
+        return jsonify({"profile": user.serialize()}), 200
 
     except Exception as e:
         print("🔥 Exception in /api/profile:", str(e))
-        return jsonify({ "msg": "Something went wrong", "error": str(e) }), 422
+        return jsonify({"msg": "Something went wrong", "error": str(e)}), 422
 
     except Exception as e:
         print("🔥 Exception in /api/profile:", str(e))
@@ -176,9 +177,10 @@ def change_password():
     if not check_password_hash(user.password, current_password):
         return jsonify({"msg": "Incorrect current password"}), 401
 
-    user.password = generate_password_hash(new_password, method="pbkdf2:sha256:150000")
+    user.password = generate_password_hash(
+        new_password, method="pbkdf2:sha256:150000")
     db.session.commit()
-    
+
     return jsonify({"msg": "Password changed successfully"}), 200
 
 
@@ -209,14 +211,94 @@ def get_favorites():
     return jsonify([favorite.serialize() for favorite in favorites])
 
 
+# @api.route('/favorite', methods=['POST'])
+# @jwt_required()
+# def create_favorite():
+#     data = request.get_json()
+#     user_id = get_jwt_identity()
+
+#     existing = Restaurant.query.filter_by(name=data.get("name")).first()
+
+#     if existing:
+#         restaurant = existing
+#     else:
+#         restaurant = Restaurant(
+#             user_id=user_id,
+#             name=data.get("name"),
+#             address=data.get("address") or (data.get("location", {}).get("address")),
+#             cuisine=(data.get("cuisine")[0]["name"] if data.get("cuisine") and isinstance(data.get("cuisine"), list) else None),
+#             price=data.get("normalizedPrice"),
+#             rating=str(data.get("normalizedRating")),
+#             photo_url=(data.get("photo", {}).get("images", {}).get("medium", {}).get("url")),
+#             is_open=data.get("normalizedOpenNow"),
+#             delivers=data.get("normalizedDelivery")
+#         )
+#         db.session.add(restaurant)
+#         db.session.commit()
+
+#     existing_fav = Favorite.query.filter_by(user_id=user_id, restaurant_id=restaurant.id).first()
+#     if existing_fav:
+#         return jsonify({"msg": "Already favorited"}), 200
+
+#     new_fav = Favorite(user_id=user_id, restaurant_id=restaurant.id)
+#     db.session.add(new_fav)
+#     db.session.commit()
+
+#     return jsonify({
+#         "favorite_id": new_fav.id,
+#         "restaurant": restaurant.serialize()
+#     }), 201
+
 @api.route('/favorite', methods=['POST'])
+@jwt_required()
 def create_favorite():
     data = request.get_json()
-    new_favorite = Favorite(
-        user_id=data['user_id'], restaurant_id=data['restaurant_id'])
-    db.session.add(new_favorite)
+    user_id = get_jwt_identity()
+
+    # Try to find restaurant by API ID (TripAdvisor location_id)
+    api_id = data.get("location_id")
+    existing_restaurant = Restaurant.query.filter_by(api_id=api_id).first()
+
+    if existing_restaurant:
+        restaurant = existing_restaurant
+    else:
+        # Get first cuisine if available
+        cuisine = None
+        if isinstance(data.get("cuisine"), list) and len(data["cuisine"]) > 0:
+            cuisine = data["cuisine"][0].get("name")
+
+        restaurant = Restaurant(
+            user_id=user_id,
+            name=data.get("name"),
+            api_id=api_id,
+            address=data.get("address"),
+            cuisine=cuisine,
+            price=data.get("price") or data.get("normalizedPrice"),
+            rating=str(data.get("rating") or data.get("normalizedRating")),
+            photo_url=data.get("photo", {}).get(
+                "images", {}).get("medium", {}).get("url"),
+            is_open=data.get("normalizedOpenNow"),
+            delivers=data.get("normalizedDelivery"),
+            website=data.get("website")
+        )
+
+        db.session.add(restaurant)
+        db.session.commit()
+
+    # Prevent duplicate favorite
+    existing_fav = Favorite.query.filter_by(
+        user_id=user_id, restaurant_id=restaurant.id).first()
+    if existing_fav:
+        return jsonify({"msg": "Already favorited"}), 200
+
+    new_fav = Favorite(user_id=user_id, restaurant_id=restaurant.id)
+    db.session.add(new_fav)
     db.session.commit()
-    return jsonify(new_favorite.serialize()), 201
+
+    return jsonify({
+        "favorite_id": new_fav.id,
+        "restaurant": restaurant.serialize()
+    }), 201
 
 
 @api.route('/favorite/<int:favorite_id>', methods=['DELETE'])
@@ -225,7 +307,6 @@ def delete_favorite(favorite_id):
     db.session.delete(favorite)
     db.session.commit()
     return '', 204
-
 
 
 @api.route('/reservations', methods=['GET'])
@@ -363,10 +444,9 @@ def search_restaurants():
         return jsonify({"error": "Failed to fetch restaurants"}), response.status_code
 
 
-from flask_mail import Mail, Message
-
 # Initialize Flask-Mail (outside the route)
 mail = Mail()
+
 
 def configure_mail(app):
     app.config.update(
@@ -379,6 +459,7 @@ def configure_mail(app):
     )
     mail.init_app(app)
 
+
 @api.route("/forgot-password", methods=["POST"])
 def forgot_password():
     data = request.get_json()
@@ -386,13 +467,14 @@ def forgot_password():
 
     user = User.query.filter_by(email=email).first()
     if not user:
-        return jsonify({ "msg": "If that email exists, a reset link has been sent." }), 200
+        return jsonify({"msg": "If that email exists, a reset link has been sent."}), 200
 
     from flask_jwt_extended import create_access_token
     import datetime
 
     # reset_token = create_access_token(identity=user.id, expires_delta=datetime.timedelta(hours=1))
-    reset_token = create_access_token(identity=str(user.id), expires_delta=datetime.timedelta(hours=1))
+    reset_token = create_access_token(identity=str(
+        user.id), expires_delta=datetime.timedelta(hours=1))
     frontend_url = os.getenv("FRONTEND_URL")
     reset_link = f"{frontend_url}reset-password?token={reset_token}"
 
@@ -400,10 +482,11 @@ def forgot_password():
         msg = Message("🔐 Reset your BiteFinder password", recipients=[email])
         msg.body = f"Hi {user.first_name},\n\nClick the link below to reset your password:\n{reset_link}\n\nThis link expires in 1 hour.\n\nIf you didn't request this, just ignore it.\n\n– BiteFinder Team"
         mail.send(msg)
-        return jsonify({ "msg": "If that email exists, a reset link has been sent." }), 200
+        return jsonify({"msg": "If that email exists, a reset link has been sent."}), 200
     except Exception as e:
         print("❌ Email sending failed:", e)
-        return jsonify({ "msg": "Failed to send recovery email." }), 500
+        return jsonify({"msg": "Failed to send recovery email."}), 500
+
 
 @api.route("/reset-password", methods=["POST"])
 def reset_password():
@@ -412,7 +495,7 @@ def reset_password():
     new_password = data.get("new_password")
 
     if not token or not new_password:
-        return jsonify({ "msg": "Token and new password are required" }), 400
+        return jsonify({"msg": "Token and new password are required"}), 400
 
     try:
         from flask_jwt_extended import decode_token
@@ -420,13 +503,50 @@ def reset_password():
         user_id = int(decoded["sub"])  # 👈 convert to integer
     except Exception as e:
         print("❌ Token error:", str(e))
-        return jsonify({ "msg": "Invalid or expired token", "error": str(e) }), 400
+        return jsonify({"msg": "Invalid or expired token", "error": str(e)}), 400
 
     user = User.query.get(user_id)
     if not user:
-        return jsonify({ "msg": "User not found" }), 404
+        return jsonify({"msg": "User not found"}), 404
 
-    user.password = generate_password_hash(new_password, method="pbkdf2:sha256:150000")
+    user.password = generate_password_hash(
+        new_password, method="pbkdf2:sha256:150000")
     db.session.commit()
 
-    return jsonify({ "msg": "Password has been reset successfully" }), 200
+    return jsonify({"msg": "Password has been reset successfully"}), 200
+
+
+@api.route("/user/favorites", methods=["GET"])
+@jwt_required()
+def get_user_favorites():
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+
+    favorites = Favorite.query.filter_by(user_id=user_id).all()
+    result = []
+
+    for fav in favorites:
+        restaurant = Restaurant.query.get(fav.restaurant_id)
+        if restaurant:
+            serialized = restaurant.serialize()
+            serialized["favorite_id"] = fav.id
+            result.append(serialized)
+
+    return jsonify({"favorites": result}), 200
+
+
+@api.route("/seed-restaurants", methods=["POST"])
+def seed_restaurants():
+    sample_names = ["Sushi Hub", "La Pizzeria", "BBQ Town",
+                    "Curry Delight", "Burger Bros", "Vegan Garden"]
+    user_id = 1  # 👈 Replace with a valid user_id from your DB
+
+    for name in sample_names:
+        restaurant = Restaurant(name=name, user_id=user_id)
+        db.session.add(restaurant)
+
+    db.session.commit()
+    return jsonify({"message": "Restaurants seeded"}), 201

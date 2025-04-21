@@ -39,12 +39,32 @@ class Restaurant(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
+    name = db.Column(db.String(100), nullable=False)
+    api_id = db.Column(db.String(20), unique=True, nullable=True)
+    address = db.Column(db.String(255), nullable=True)
+    cuisine = db.Column(db.String(100), nullable=True)
+    price = db.Column(db.String(50), nullable=True)
+    rating = db.Column(db.String(10), nullable=True)
+    photo_url = db.Column(db.String(500), nullable=True)
+    is_open = db.Column(db.Boolean, nullable=True)
+    delivers = db.Column(db.Boolean, nullable=True)
+    website = db.Column(db.String(300), nullable=True)
+
     def serialize(self):
         return {
             "restaurant_id": self.id,
-            "user_id": self.user_id
+            "user_id": self.user_id,
+            "name": self.name,
+            "api_id": self.api_id,
+            "address": self.address,
+            "cuisine": self.cuisine,
+            "price": self.price,
+            "rating": self.rating,
+            "photo_url": self.photo_url,
+            "is_open": self.is_open,
+            "delivers": self.delivers,
+            "website": self.website
         }
-
 
 class Favorite(db.Model):
     __tablename__ = "favorites"

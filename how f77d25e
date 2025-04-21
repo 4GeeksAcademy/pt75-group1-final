@@ -1,0 +1,124 @@
+* [33m6a9ca6e[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mClaudio2[m[33m, [m[1;31morigin/Claudio2[m[33m)[m  forgot password and recovery link
+* [33m4f09df0[m  forgot password and mail recovery feature
+* [33m4cdec94[m  profile picture fix
+* [33mc55571e[m  fix
+* [33ma0e39f4[m  Added username/profile_pic to user
+* [33m804781c[m profile photo fix in db
+*   [33mbfaffdc[m[33m ([m[1;31morigin/Development[m[33m, [m[1;32mDevelopment[m[33m)[m Merge pull request #9 from 4GeeksAcademy/Noah2
+[32m|[m[33m\[m  
+[32m|[m *   [33m117afcd[m[33m ([m[1;31morigin/Noah2[m[33m)[m Merge branch 'Development' of https://github.com/4GeeksAcademy/pt75-group1-final into Noah2
+[32m|[m [34m|[m[35m\[m  
+[32m|[m * [35m|[m [33m43bedcc[m substantial design update
+[32m|[m * [35m|[m [33m80a1983[m Reviews and emoji background(not final)
+[32m|[m * [35m|[m [33m21f24ad[m changed search page | added rest.detail design (ALL UNFINSIHED)
+[32m|[m * [35m|[m [33m6ad9309[m added additinal photo code - in progress
+* [35m|[m [35m|[m   [33mf77d25e[m Merge pull request #10 from 4GeeksAcademy/Claudio2
+[35m|[m[1;31m\[m [35m\[m [35m\[m  
+[35m|[m [1;31m|[m[35m_[m[35m|[m[35m/[m  
+[35m|[m[35m/[m[1;31m|[m [35m|[m   
+[35m|[m * [35m|[m [33mf30fcee[m  password lenght fix
+* [1;31m|[m [35m|[m [33m8ab1366[m Merge pull request #8 from 4GeeksAcademy/Claudio2
+[1;32m|[m[1;31m\[m[1;31m|[m [35m|[m 
+[1;32m|[m * [35m|[m   [33m2b6d19d[m Merge remote-tracking branch 'origin/Development' into Claudio2
+[1;32m|[m [1;34m|[m[1;32m\[m [35m\[m  
+[1;32m|[m [1;34m|[m[1;32m/[m [35m/[m  
+[1;32m|[m[1;32m/[m[1;34m|[m [35m|[m   
+* [1;34m|[m [35m|[m   [33mab574ed[m Merge pull request #7 from 4GeeksAcademy/Claudio2
+[35m|[m[31m\[m [1;34m\[m [35m\[m  
+[35m|[m [31m|[m[35m_[m[1;34m|[m[35m/[m  
+[35m|[m[35m/[m[31m|[m [1;34m|[m   
+[35m|[m [31m|[m * [33mcaa2353[m  profile pic update
+[35m|[m [31m|[m * [33me4bb405[m  JWT fix / pasword and profile modals fix
+[35m|[m [31m|[m[31m/[m  
+[35m|[m * [33me98e1bf[m upgrades
+[35m|[m[35m/[m  
+* [33m1719061[m fix
+* [33md402bcf[m details
+[31m|[m * [33me0c4d1a[m[33m ([m[1;31morigin/Jackson2[m[33m)[m tons of fixes
+[31m|[m * [33m336be83[m filters and favorites
+[31m|[m * [33mb4ea4c4[m fixed api
+[31m|[m * [33me579e99[m api test
+[31m|[m * [33m21d5034[m fixed api
+[31m|[m [32m|[m * [33m0826c9c[m[33m ([m[1;31morigin/Claudio-backup[m[33m, [m[1;32mClaudio-backup[m[33m)[m models and app
+[31m|[m [32m|[m [33m|[m * [33m6b049a2[m[33m ([m[1;31morigin/Claudio[m[33m, [m[1;32mClaudio[m[33m)[m Add missing phone and address fields to User model
+[31m|[m [32m|[m [33m|[m * [33m1d98678[m Merge branch 'Development' into Claudio # Please enter a commit message to explain why this merge is necessary, # especially if it merges an updated upstream into a topic branch. # # Lines starting with '#' will be ignored, and an empty message aborts # the commit.
+[31m|[m [32m|[m [33m|[m[33m/[m[31m|[m 
+[31m|[m [32m|[m[31m_[m[33m|[m[31m/[m  
+[31m|[m[31m/[m[32m|[m [33m|[m   
+* [32m|[m [33m|[m [33m151dc0e[m restaurants.jsx update
+[36m|[m [32m|[m [33m|[m * [33mcf35e31[m[33m ([m[1;35mrefs/stash[m[33m)[m WIP on Claudio: 0cdf9e2 Fix Navbar JSX structure and cleanup duplicate Join button
+[36m|[m [32m|[m [33m|[m[33m/[m[1;32m|[m 
+[36m|[m [32m|[m [33m|[m * [33m99065cc[m index on Claudio: 0cdf9e2 Fix Navbar JSX structure and cleanup duplicate Join button
+[36m|[m [32m|[m [33m|[m[33m/[m  
+[36m|[m [32m|[m *   [33m0cdf9e2[m Fix Navbar JSX structure and cleanup duplicate Join button
+[36m|[m [32m|[m [1;33m|[m[36m\[m  
+[36m|[m [32m|[m[36m_[m[1;33m|[m[36m/[m  
+[36m|[m[36m/[m[32m|[m [1;33m|[m   
+* [32m|[m [1;33m|[m [33m0575e59[m Design Updates
+* [32m|[m [1;33m|[m [33mbacb725[m fixed api
+* [32m|[m [1;33m|[m [33m1cd5357[m fixed api
+[1;34m|[m [32m|[m * [33ma253d54[m Updating routes
+[1;34m|[m [32m|[m * [33mf13f7b8[m login fix. navbar login button
+[1;34m|[m [32m|[m[1;34m/[m  
+[1;34m|[m[1;34m/[m[32m|[m   
+* [32m|[m [33m10ec473[m profile. navbar. fixes
+* [32m|[m [33mbb58503[m Login. Indexcss.  update
+[32m|[m[32m/[m  
+* [33mbe3317d[m PR update
+*   [33m512497e[m Merge pull request #6 from 4GeeksAcademy/Noah
+[1;35m|[m[1;36m\[m  
+[1;35m|[m *   [33m39cbd38[m[33m ([m[1;31morigin/Noah[m[33m)[m reverting merge conflict files
+[1;35m|[m [31m|[m[32m\[m  
+[1;35m|[m * [32m|[m [33me719fae[m Fixed minor errors in routes.jsx
+[1;35m|[m * [32m|[m [33m74074cc[m updated files for pr
+* [32m|[m [32m|[m [33m5deafe7[m search components
+[32m|[m [32m|[m[32m/[m  
+[32m|[m[32m/[m[32m|[m   
+* [32m|[m   [33m4d18e63[m Merge pull request #3 from 4GeeksAcademy/Claudio
+[33m|[m[34m\[m [32m\[m  
+[33m|[m * [32m|[m [33m567915c[m navbar update
+[33m|[m * [32m|[m [33ma5cddec[m Updated Navbar, Layout, and Signup components
+[33m|[m * [32m|[m [33m0f45167[m updated key
+[33m|[m * [32m|[m   [33m40bc65c[m Merge branch 'Claudio' of https://github.com/4GeeksAcademy/pt75-group1-final into Claudio
+[33m|[m [35m|[m[36m\[m [32m\[m  
+[33m|[m [35m|[m * [32m|[m [33mfa325c8[m fixed api in routes.py
+[33m|[m [35m|[m * [32m|[m [33mf4c584a[m api update
+[33m|[m * [36m|[m [32m|[m [33m83cc4ef[m Profile mods and styles. routes.jsx
+[33m|[m [36m|[m[36m/[m [32m/[m  
+[33m|[m * [32m|[m   [33mc318da8[m merge
+[33m|[m [1;31m|[m[33m\[m [32m\[m  
+[33m|[m [1;31m|[m[33m/[m [32m/[m  
+[33m|[m[33m/[m[1;31m|[m [32m|[m   
+* [1;31m|[m [32m|[m   [33m380ae7f[m Merge pull request #2 from 4GeeksAcademy/Jackson
+[1;33m|[m[1;34m\[m [1;31m\[m [32m\[m  
+* [1;34m\[m [1;31m\[m [32m\[m   [33m31aa68b[m Merge pull request #1 from 4GeeksAcademy/Jackson
+[1;35m|[m[1;36m\[m [1;34m\[m [1;31m\[m [32m\[m  
+[1;35m|[m [1;36m|[m [1;34m|[m * [32m|[m [33m98bb574[m profile page, privateRoute, Signup fix, CORS fix
+[1;35m|[m [1;36m|[m [1;34m|[m * [32m|[m [33m6f92d25[m NavBar, Login, Signup update / SearchBar implementation / SearchPage Created
+[1;35m|[m [1;36m|[m [1;34m|[m * [32m|[m [33m372a99c[m Login and signup created
+[1;35m|[m [1;36m|[m[1;35m_[m[1;34m|[m[1;35m/[m [32m/[m  
+[1;35m|[m[1;35m/[m[1;36m|[m [1;34m|[m [32m|[m   
+[1;35m|[m [1;36m|[m [1;34m|[m [32m|[m * [33m80bc353[m[33m ([m[1;31morigin/Jackson[m[33m)[m updated search
+[1;35m|[m [1;36m|[m [1;34m|[m [32m|[m *   [33m2e0e92c[m Merge pull request #4 from 4GeeksAcademy/Noah
+[1;35m|[m [1;36m|[m [1;34m|[m [32m|[m [32m|[m[32m\[m  
+[1;35m|[m [1;36m|[m [1;34m|[m [32m|[m [32m|[m[32m/[m  
+[1;35m|[m [1;36m|[m [1;34m|[m [32m|[m[32m/[m[32m|[m   
+[1;35m|[m [1;36m|[m [1;34m|[m * [32m|[m [33mf4a8f22[m Merge branch 'Jackson' into Noah
+[1;35m|[m [1;36m|[m [1;34m|[m [34m|[m[32m\[m[32m|[m 
+[1;35m|[m [1;36m|[m [1;34m|[m [34m|[m * [33m4256a8c[m routes.py
+[1;35m|[m [1;36m|[m [1;34m|[m [34m|[m[1;34m/[m  
+[1;35m|[m [1;36m|[m [1;34m|[m[1;34m/[m[34m|[m   
+[1;35m|[m [1;36m|[m * [34m|[m [33m3b990d1[m Search Bar
+[1;35m|[m [1;36m|[m * [34m|[m [33mc4a91dd[m search bar
+[1;35m|[m [1;36m|[m[1;36m/[m [34m/[m  
+[1;35m|[m * [34m|[m [33m9502806[m routes.jsx
+[1;35m|[m * [34m|[m [33mc89f343[m updated routes.py
+[1;35m|[m * [34m|[m [33m95b3337[m updated models
+[1;35m|[m[1;35m/[m [34m/[m  
+[1;35m|[m * [33maa79997[m[33m ([m[1;32mNoah[m[33m)[m More styling & search bar
+[1;35m|[m * [33m346c2f1[m about page rough draft
+[1;35m|[m * [33ma633eb0[m more styling updates
+[1;35m|[m * [33m4feb53a[m more minor changes to the restaurant cards and detail pages
+[1;35m|[m * [33me6ee58a[m added example restaurant details
+[1;35m|[m * [33m4c9bada[m updated button linking, working on Restaurant details and styling still
+[1;3
