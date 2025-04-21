@@ -7,7 +7,7 @@ import { restaurantData } from "./restaurantData";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 import ReviewModal from "../components/ReviewModal";
 import PageWrapper from "../components/PageWrapper";
-import RestaurantMealTypes from "../components/restaurant/RestaurantMealTypes";
+import { RestaurantMealTypes } from "../components/restaurant/RestaurantMealTypes";
 import HoursTable from "../components/restaurant/HoursTable";
 import LocationMap from "../components/restaurant/LocationMap";
 
