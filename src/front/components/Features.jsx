@@ -31,6 +31,15 @@ const features = [
 const Features = () => {
   const navigate = useNavigate();
 
+  // Navigation handlers
+  const handleLearnMoreClick = () => {
+    navigate('/restaurants');
+  };
+
+  const handleSignUpClick = () => {
+    navigate('/signup');
+  };
+
   return (
     <section className="bg-white py-5 border-top border-bottom">
       <div className="container">
@@ -72,18 +81,8 @@ const Features = () => {
 
         {/* Buttons */}
         <div className="d-flex gap-3">
-          <button 
-            className="btn btn-outline-dark px-4 py-2" 
-            onClick={() => navigate('/restaurants')}
-          >
-            Learn More
-          </button>
-          <button 
-            className="btn btn-dark px-4 py-2" 
-            onClick={() => navigate('/signup')}
-          >
-            Sign Up
-          </button>
+          <button className="btn btn-outline-dark px-4 py-2" onClick={handleLearnMoreClick}>Learn More</button>
+          <button className="btn btn-dark px-4 py-2" onClick={handleSignUpClick}>Sign Up</button>
         </div>
       </div>
     </section>

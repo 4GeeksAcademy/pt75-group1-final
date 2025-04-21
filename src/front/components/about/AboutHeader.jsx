@@ -4,7 +4,12 @@ import { useNavigate } from "react-router-dom";
 
 const AboutHeader = () => {
   const navigate = useNavigate();
-  
+
+  // Navigation handler for Sign Up button
+  const handleSignUpClick = () => {
+    navigate('/signup');
+  };
+
   return (
     <section className="bg-dark text-white py-5">
       <Container>
@@ -16,17 +21,18 @@ const AboutHeader = () => {
               Connecting food lovers with unforgettable dining experiences through reviews and community engagement.
             </p>
             <div className="mt-4">
-              <Button
-                className="rounded-0 px-4 py-2 fw-bold me-2"
-                style={{ backgroundColor: "white", color: "black", border: "1px solid black" }}
-                onClick={() => navigate('/restaurants')}
-              >
-                Learn More
-              </Button>
+            <Button
+              as="a"
+              href="#timeline"
+              className="rounded-0 px-4 py-2 fw-bold"
+              style={{ backgroundColor: "white", color: "black", border: "1px solid black" }}
+            >
+              Learn More
+            </Button>
               <Button 
                 variant="dark" 
                 className="rounded-0"
-                onClick={() => navigate('/signup')}
+                onClick={handleSignUpClick}
               >
                 Sign Up
               </Button>

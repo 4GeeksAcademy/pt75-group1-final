@@ -1,5 +1,4 @@
 // Import necessary components and functions from react-router-dom.
-
 import {
   createBrowserRouter,
   createRoutesFromElements,
@@ -17,8 +16,7 @@ import Restaurants from "./pages/Restaurants";
 import { RestaurantDetails } from "./pages/RestaurantDetails";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
-import WriteReview from "./pages/WriteReview";
-import ReviewForm from "./pages/ReviewForm";
+import { WriteReview } from "./pages/WriteReview";
 
 //import { Results } from "./pages/Results";
 //import { Discover } from "./pages/Discover";
@@ -43,8 +41,13 @@ export const router = createBrowserRouter(
       <Route path="/restaurants" element={<Restaurants />} />
       <Route path="/about" element={<About />} />
       <Route path="/contact" element={<Contact />} />
-      <Route path="/reviewform" element={<ReviewForm />} />
-      <Route path="/writereview" element={<WriteReview />} />
+      
+      {/* Review related routes */}
+      <Route path="/reviewform" element={<WriteReview />} />
+      <Route path="/write-review" element={<WriteReview />} />
+      <Route path="/write-review/:id" element={<WriteReview />} />
+      <Route path="/edit-review/:id" element={<WriteReview />} />
+      
       <Route path="/restaurant/:id" element={<RestaurantDetails />} />
       <Route path="/profile" element={<PrivateRoute>   <Profile /> </PrivateRoute>} />
       {/* <Route path="/results" element={<Results />} />
