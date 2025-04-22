@@ -1,7 +1,10 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import communityImg from "../assets/img/community.png";
 
 const CTA = () => {
+  const navigate = useNavigate();
+  
   return (
     <section className="container my-5 py-5"> {/* ✅ Equal vertical spacing */}
       <div
@@ -18,8 +21,18 @@ const CTA = () => {
             experiences with others!
           </p>
           <div className="d-flex gap-3">
-            <button className="btn btn-dark px-4 py-2">Sign Up</button>
-            <button className="btn btn-outline-dark px-4 py-2">Learn More</button>
+            <button 
+              className="btn btn-dark px-4 py-2"
+              onClick={() => navigate('/signup')}
+            >
+              Sign Up
+            </button>
+            <button 
+              className="btn btn-outline-dark px-4 py-2"
+              onClick={() => navigate('/restaurants')}
+            >
+              Learn More
+            </button>
           </div>
         </div>
 

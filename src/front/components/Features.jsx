@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom"; // Import Link for navigation
 import d1 from "../assets/discover/d1.jpg";
 import d2 from "../assets/discover/d2.jpg";
 import d3 from "../assets/discover/d3.jpg";
@@ -69,8 +70,12 @@ const Features = () => {
 
         {/* Buttons */}
         <div className="d-flex gap-3">
-          <button className="btn btn-outline-dark px-4 py-2">Learn More</button>
-          <button className="btn btn-dark px-4 py-2">Sign Up</button>
+          <Link to="/about">
+            <button className="btn btn-outline-dark px-4 py-2">Learn More</button>
+          </Link>
+          <Link to="/signup">
+            <button className="btn btn-dark px-4 py-2">Sign Up</button>
+          </Link>
         </div>
       </div>
     </section>

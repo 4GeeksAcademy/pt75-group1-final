@@ -1,5 +1,4 @@
 // Import necessary components and functions from react-router-dom.
-
 import {
   createBrowserRouter,
   createRoutesFromElements,
@@ -7,7 +6,6 @@ import {
 } from "react-router-dom";
 import { Layout } from "./pages/Layout";
 import { Home } from "./pages/Home";
-
 import { Login } from "./pages/Login";
 import { Signup } from "./pages/Signup";
 import { SearchPage } from "./pages/SearchPage";
@@ -20,8 +18,7 @@ import Contact from "./pages/Contact";
 import WriteReview from "./pages/WriteReview";
 import ReviewForm from "./pages/ReviewForm";
 import ForgotPassword from "./pages/ForgotPassword";
-import ResetPassword from "./pages/ResetPassword"; 
-
+import ResetPassword from "./pages/ResetPassword";
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -30,10 +27,9 @@ export const router = createBrowserRouter(
     // Root, on the contrary, create a sister Route, if you have doubts, try it!
     // Note: keep in mind that errorElement will be the default page when you don't get a route, customize that page to make your project more attractive.
     // Note: The child paths of the Layout element replace the Outlet component with the elements contained in the "element" attribute of these child paths.
-
+    
     // Root Route: All navigation will start from here.
     <Route path="/" element={<Layout />} errorElement={<h1>Not found!</h1>} >
-
       {/* Nested Routes: Defines sub-routes within the BaseHome component. */}
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
@@ -44,12 +40,18 @@ export const router = createBrowserRouter(
       <Route path="/restaurants" element={<Restaurants />} />
       <Route path="/about" element={<About />} />
       <Route path="/contact" element={<Contact />} />
+      
+      {/* Review related routes */}
       <Route path="/reviewform" element={<ReviewForm />} />
       <Route path="/write-review" element={<WriteReview />} />
       <Route path="/write-review/:id" element={<ReviewForm />} />
-      <Route path="/restaurant/:id" element={<RestaurantDetails />} />
-      <Route path="/profile" element={<PrivateRoute>   <Profile /> </PrivateRoute>} />
+      <Route path="/edit-review/:id" element={<WriteReview />} />
       
+      <Route path="/restaurant/:id" element={<RestaurantDetails />} />
+      <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+      {/* <Route path="/results" element={<Results />} />
+      <Route path="/discover" element={<Discover />} />
+      <Route path="/details" element={<Details />} /> */}
     </Route>
   )
 );

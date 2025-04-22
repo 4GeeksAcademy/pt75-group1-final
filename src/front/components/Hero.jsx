@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom"; // Import Link for navigation
 import Slider from "react-slick";
 // Import the slick CSS files
 import "slick-carousel/slick/slick.css";
@@ -47,8 +48,12 @@ const Hero = () => {
           community of food lovers.
         </p>
         <div className="d-flex justify-content-center gap-3 mb-4">
-          <button className="btn btn-dark px-4 py-2">Search</button>
-          <button className="btn btn-outline-dark px-4 py-2">Learn More</button>
+          <Link to="/restaurants">
+            <button className="btn btn-dark px-4 py-2">Search</button>
+          </Link>
+          <Link to="/about">
+            <button className="btn btn-outline-dark px-4 py-2">Learn More</button>
+          </Link>
         </div>
       </div>
 
