@@ -431,7 +431,7 @@ const Profile = () => {
             {favorites.length === 0 && (
               <div className="col-12 text-center py-3">
                 <p className="text-muted">You haven't saved any favorite restaurants yet.</p>
-                <Link to="/" className="btn btn-outline-dark">
+                <Link to="/restaurants" className="btn btn-outline-dark">
                   Discover Restaurants
                 </Link>
               </div>
@@ -492,7 +492,7 @@ const Profile = () => {
           <div className="list-group mb-4">
             <div className="list-group-item text-center py-4">
               <p className="mb-3">You don't have any reservations yet.</p>
-              <Link to="/" className="btn btn-outline-dark">
+              <Link to="/restaurants" className="btn btn-outline-dark">
                 Find Restaurants
               </Link>
             </div>

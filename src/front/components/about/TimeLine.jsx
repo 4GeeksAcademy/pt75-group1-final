@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { Container, Row, Col, Button } from "react-bootstrap";
+import { Link } from "react-router-dom";
 import useGlobalReducer from "../../hooks/useGlobalReducer";
 import AOS from "aos";
 import "aos/dist/aos.css";
@@ -70,12 +71,7 @@ const Timeline = () => {
           <p className="text-muted w-75 mx-auto">
             BiteFinder began its journey in 2015, aiming to revolutionize restaurant discovery. Over the years, we have achieved significant milestones that have shaped our platform.
           </p>
-          <div className="mt-3">
-            <a href="timeline">
-              <Button variant="dark" className="me-2">Learn More</Button>
-            </a>
-            <Button variant="outline-dark">Sign Up</Button>
-          </div>
+          {/* No buttons here as requested */}
         </div>
 
         {/* Timeline Rows Wrapper */}
@@ -134,19 +130,13 @@ const Timeline = () => {
             BiteFinder is dedicated to enhancing the dining experience for everyone. Join us as we continue to explore new culinary adventures together.
           </p>
           <div>
-            <Button
-              variant="dark"
-              className="me-2"
-              onClick={() => dispatch({ type: "SHOW_LOGIN_MODAL" })}
-            >
+            {/* Updated buttons to use React Router for navigation */}
+            <Link to="/login" className="btn btn-dark me-2">
               Sign In
-            </Button>
-            <Button
-              variant="outline-dark"
-              onClick={() => dispatch({ type: "SHOW_SIGNUP_MODAL" })}
-            >
+            </Link>
+            <Link to="/signup" className="btn btn-outline-dark">
               Join &rarr;
-            </Button>
+            </Link>
           </div>
         </div>
       </Container>

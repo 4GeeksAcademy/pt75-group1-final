@@ -42,7 +42,6 @@ const Contact = () => {
         </div>
       </section>
       </PageWrapper>
-      <Footer />
     </div>
   );
 };

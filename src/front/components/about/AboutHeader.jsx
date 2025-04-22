@@ -1,5 +1,6 @@
 import React from "react";
 import { Container, Row, Col, Button } from "react-bootstrap";
+import { Link } from "react-router-dom";
 
 const AboutHeader = () => {
   return (
@@ -25,7 +26,9 @@ const AboutHeader = () => {
               >
                 Learn More
               </Button>
-              <Button variant="dark" className="rounded-0 ms-2">Sign Up</Button>
+              
+              {/* Only changed this button to use Link */}
+              <Link to="/signup" className="btn btn-dark rounded-0 ms-2">Sign Up</Link>
             </div>
           </Col>
           <Col md={6} className="text-center mt-4 mt-md-0">

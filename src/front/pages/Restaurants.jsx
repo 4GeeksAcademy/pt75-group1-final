@@ -35,11 +35,8 @@ const Restaurants = () => {
   const { store, dispatch } = useGlobalReducer();
   const favorites = store.favorites || [];
 
-  const [hasSearched, setHasSearched] = useState(
-    sessionStorage.getItem('viewingRestaurantDetails') !== null ||
-    location.state?.returnedFromDetails === true ||
-    sessionStorage.getItem('lastSearchResults') !== null
-  );
+  // Initialize hasSearched based on session storage or location state
+  const [hasSearched, setHasSearched] = useState(false);
   const resultsRef = useRef(null);
 
   // Enhanced filters state
@@ -59,28 +56,56 @@ const Restaurants = () => {
   const [nameInput, setNameInput] = useState("");
   const [nameSuggestions, setNameSuggestions] = useState([]);
   const [isApiData, setIsApiData] = useState(false);
-  const [returningFromDetail, setReturningFromDetail] = useState(
-    sessionStorage.getItem('viewingRestaurantDetails') !== null ||
-    location.state?.returnedFromDetails === true
-  );
+  const [returningFromDetail, setReturningFromDetail] = useState(false);
 
-    // 🔁 Fetch favorites on mount
-    useEffect(() => {
-      const token = localStorage.getItem("token");
-      if (!token) return;
-  
-      fetch(`${import.meta.env.VITE_BACKEND_URL}/api/user/favorites`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+  // Load search state from sessionStorage on initial mount
+  useEffect(() => {
+    const storedSearch = sessionStorage.getItem('lastSearchResults');
+    const viewingRestaurantDetails = sessionStorage.getItem('viewingRestaurantDetails');
+    const returningFromDetails = location.state?.returnedFromDetails === true;
+    
+    setReturningFromDetail(viewingRestaurantDetails !== null || returningFromDetails);
+    
+    // Check if we have stored search results
+    if (storedSearch) {
+      try {
+        const parsed = JSON.parse(storedSearch);
+        // Only restore if we have valid data
+        if (parsed && parsed.query && parsed.results) {
+          console.log("Restoring search results:", parsed.results.length, "items");
+          setCityQuery(parsed.query);
+          setRestaurants(parsed.results);
+          setIsApiData(true);
+          setHasSearched(true);
+        }
+      } catch (err) {
+        console.error("Error loading stored search:", err);
+      }
+    }
+
+    // Clear the viewingRestaurantDetails flag if present
+    if (viewingRestaurantDetails) {
+      sessionStorage.removeItem('viewingRestaurantDetails');
+    }
+  }, []);
+
+  // 🔁 Fetch favorites on mount
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/user/favorites`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then(res => res.json())
+      .then(data => {
+        console.log("Fetched favorites:", data.favorites); 
+        dispatch({ type: "SET_FAVORITES", payload: data.favorites });
       })
-        .then(res => res.json())
-        .then(data => {
-          console.log("Fetched favorites:", data.favorites); 
-          dispatch({ type: "SET_FAVORITES", payload: data.favorites });
-        })
-        .catch(err => console.error("Failed to load favorites:", err));
-    }, []);
+      .catch(err => console.error("Failed to load favorites:", err));
+  }, []);
   
   // Function to handle viewing restaurant details
   const handleViewDetails = (restaurant) => {
@@ -491,33 +516,12 @@ const Restaurants = () => {
     };
   }, [hasSearched]);
 
-
-  useEffect(() => {
-    // We already set returningFromDetail in the initial state,
-    // but we still need to clear the flag and load the stored results
-    if (returningFromDetail) {
-      // Clear the flag to prevent reloading on further navigation
-      sessionStorage.removeItem('viewingRestaurantDetails');
-
-      // Try to load previous search results
-      const storedSearch = sessionStorage.getItem('lastSearchResults');
-      if (storedSearch) {
-        try {
-          const parsed = JSON.parse(storedSearch);
-          // Only use stored results if they exist and have data
-          if (parsed && parsed.results && parsed.results.length > 0) {
-            console.log("Restoring search results:", parsed.results.length, "items");
-            setCityQuery(parsed.query || "");
-            setRestaurants(parsed.results);
-            setIsApiData(true);
-            setHasSearched(true); // This is crucial!
-          }
-        } catch (err) {
-          console.error("Error loading stored search:", err);
-        }
-      }
+  // Handle search submission with Enter key
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && cityQuery.trim()) {
+      handleSearch();
     }
-  }, [returningFromDetail]); // Dependency on returningFromDetail
+  };
 
   return (
     <div>
@@ -610,6 +614,7 @@ const Restaurants = () => {
                     placeholder="Search by city (e.g. Miami)"
                     value={cityQuery}
                     onChange={(e) => setCityQuery(e.target.value)}
+                    onKeyPress={handleKeyPress}
                     style={{
                       backgroundColor: "#e0e0e0",
                       borderRadius: "999px",
@@ -704,8 +709,61 @@ const Restaurants = () => {
           {/* Reference point for scrolling to results */}
           <div ref={resultsRef}></div>
 
+          {/* Search bar in results view - Added for persistent searching */}
+          <section className="container py-3">
+            <div className="row justify-content-center">
+              <div className="col-md-8">
+                <div className="d-flex" style={{
+                  backgroundColor: "#e0e0e0",
+                  borderRadius: "999px",
+                  overflow: "hidden",
+                  height: "42px",
+                  alignItems: "center"
+                }}>
+                  <input
+                    type="text"
+                    className="form-control border-0 shadow-none"
+                    placeholder="Search by city (e.g. Miami)"
+                    value={cityQuery}
+                    onChange={(e) => setCityQuery(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    style={{
+                      backgroundColor: "#e0e0e0",
+                      borderRadius: "999px",
+                      height: "42px"
+                    }}
+                  />
+                  <button
+                    className="btn"
+                    onClick={handleSearch}
+                    disabled={loading}
+                    style={{
+                      backgroundColor: "black",
+                      color: "white",
+                      border: "none",
+                      height: "42px",
+                      width: "42px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      borderRadius: "0 999px 999px 0",
+                      marginRight: "-1px",
+                      fontSize: "16px"
+                    }}
+                  >
+                    {loading ? (
+                      <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    ) : (
+                      <i className="fas fa-search"></i>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+
           {/* More Filters Section - Only visible after search */}
-          <section className="container py-4 filter-section">
+          <section className="container py-2 filter-section">
             <div className="d-flex justify-content-center">
               <button
                 className="btn btn-outline-dark"

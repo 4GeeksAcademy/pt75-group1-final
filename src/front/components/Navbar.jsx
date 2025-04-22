@@ -13,10 +13,6 @@ const Navbar = () => {
     navigate("/login");
   };
 
-  const handleProfileClick = () => {
-    navigate("/profile");
-  };
-
   const initials = (user?.first_name?.[0] || "") + (user?.last_name?.[0] || "");
   const stringToColor = (str) => {
     let hash = 0;
@@ -110,9 +106,10 @@ const Navbar = () => {
                 </button>
                 <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                   <li>
-                    <button className="dropdown-item" onClick={handleProfileClick}>
+                    {/* Use Link instead of button with navigate */}
+                    <Link className="dropdown-item" to="/profile">
                       Profile
-                    </button>
+                    </Link>
                   </li>
                   <li>
                     <button className="dropdown-item" onClick={handleLogout}>
