@@ -535,29 +535,36 @@ const Profile = () => {
                         {fav.delivers && <span className="text-primary">Delivers</span>}
                       </p>
                       <div className="d-flex justify-content-between mt-auto">
-                        {isExternalLink(fav) ? (
-                          <a
-                            href={fav.website || "#"}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="btn btn-sm btn-outline-secondary"
-                          >
-                            Website
-                          </a>
-                        ) : (
-                          <Link to={getRestaurantLink(fav)} className="btn btn-sm btn-outline-secondary">
-                            View Details
-                          </Link>
-                        )}
-                        <button
-                          className="btn btn-sm btn-outline-danger"
-                          onClick={() => fav.favorite_id ? 
-                            handleRemoveFavorite(fav.favorite_id) : 
-                            removeFavorite(fav, index)}
+                      {fav.website && fav.website.startsWith("http") ? (
+                        <a
+                          href={fav.website}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn btn-sm btn-outline-secondary"
                         >
-                          <i className="fas fa-trash-alt"></i> Remove
-                        </button>
-                      </div>
+                          Website
+                        </a>
+                      ) : (
+                        <Link
+                          to={`/restaurant/${fav.id}`}
+                          className="btn btn-sm btn-outline-secondary"
+                        >
+                          View Details
+                        </Link>
+                      )}
+
+                      <button
+                        className="btn btn-sm btn-outline-danger"
+                        onClick={() =>
+                          fav.favorite_id
+                            ? handleRemoveFavorite(fav.favorite_id)
+                            : removeFavorite(fav, index)
+                        }
+                      >
+                        <i className="fas fa-trash-alt"></i> Remove
+                      </button>
+                    </div>
+
                     </div>
                   </div>
                 </div>

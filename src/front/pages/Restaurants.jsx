@@ -70,7 +70,7 @@ const Restaurants = () => {
     }
   }, []);
 
-  // Fetch favorites on mount - FIXED API endpoint and authentication
+  // Fetch favorites on mount
   useEffect(() => {
     const fetchFavorites = async () => {
       try {
@@ -87,7 +87,10 @@ const Restaurants = () => {
           },
         });
   
-        if (!res.ok) throw new Error(`Failed to fetch favorites: ${res.status}`);
+        if (!res.ok) {
+          console.error(`Failed to fetch favorites: ${res.status}`);
+          return;
+        }
         
         const data = await res.json();
         console.log("Fetched favorites:", data.favorites);
@@ -124,156 +127,102 @@ const Restaurants = () => {
     }
   };
 
-  // IMPROVED: Check if a restaurant is in favorites with more robust logic
+  // Check if a restaurant is already in favorites
   const isFavorite = (restaurant) => {
     if (!Array.isArray(favorites) || favorites.length === 0) return false;
 
-    // For API data
     if (!Array.isArray(restaurant)) {
-      return favorites.some(fav => {
-        // If favorite is from API and restaurant is from API
-        if (!Array.isArray(fav)) {
-          return (
-            // Match by ID if available
-            (restaurant.id && fav.id === restaurant.id) ||
-            (restaurant.location_id && fav.location_id === restaurant.location_id) ||
-            // Fallback to matching by name
-            (restaurant.name && fav.name === restaurant.name)
-          );
-        }
-        // If favorite is from static data but restaurant is from API
-        return false;
-      });
+      // For API data - match by name
+      return favorites.some(fav => fav.name === restaurant.name);
+    } else {
+      // For static data - match by ID
+      const [id, _] = restaurant;
+      return favorites.some(fav => fav.restaurant_id === id);
     }
-
-    // For static data
-    return favorites.some(fav => {
-      // If favorite is from static data and restaurant is from static data
-      if (Array.isArray(fav) && Array.isArray(restaurant)) {
-        return fav[0] === restaurant[0];
-      }
-      // If favorite is from API but restaurant is from static data
-      return false;
-    });
   };
 
-  // IMPROVED: Function to toggle favorite status with backend save
+  // Function to toggle favorite status (tailored to match your backend)
   const toggleFavorite = async (restaurant) => {
-    const token = localStorage.getItem("access_token");
-    if (!token) {
-      // If no token, ask user to log in
-      alert("Please log in to save favorites");
-      navigate("/login");
-      return;
-    }
-
-    // Check if already in favorites
-    if (isFavorite(restaurant)) {
-      // Find the favorite to remove
-      let favoriteId;
-      let favoriteToRemove;
-      
-      for (const fav of favorites) {
-        if (!Array.isArray(restaurant) && !Array.isArray(fav)) {
-          // API data matching
-          if ((restaurant.id && fav.id === restaurant.id) || 
-              (restaurant.location_id && fav.location_id === restaurant.location_id) ||
-              (restaurant.name && fav.name === restaurant.name)) {
-            favoriteId = fav.favorite_id;
-            favoriteToRemove = fav;
-            break;
-          }
-        } else if (Array.isArray(restaurant) && Array.isArray(fav)) {
-          // Static data matching
-          if (fav[0] === restaurant[0]) {
-            favoriteId = fav.favorite_id;
-            favoriteToRemove = fav;
-            break;
-          }
-        }
+    try {
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        alert("Please log in to save favorites");
+        navigate("/login");
+        return;
       }
-
-      if (favoriteId) {
-        // If we have a favorite_id, delete from backend
-        try {
-          console.log(`Removing favorite with ID: ${favoriteId}`);
-          const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/favorite/${favoriteId}`, {
+      
+      // Check if already in favorites
+      const isFav = favorites.some(fav => 
+        (!Array.isArray(restaurant) && fav.name === restaurant.name) ||
+        (Array.isArray(restaurant) && fav.name === restaurant[1].name)
+      );
+      
+      if (isFav) {
+        // Find the favorite to remove
+        const favToRemove = favorites.find(fav => 
+          (!Array.isArray(restaurant) && fav.name === restaurant.name) ||
+          (Array.isArray(restaurant) && fav.name === restaurant[1].name)
+        );
+        
+        if (favToRemove && favToRemove.favorite_id) {
+          console.log("Removing favorite with ID:", favToRemove.favorite_id);
+          const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/favorite/${favToRemove.favorite_id}`, {
             method: "DELETE",
             headers: {
               Authorization: `Bearer ${token}`,
             },
           });
-
-          if (!res.ok) throw new Error(`Failed to delete favorite: ${res.status}`);
-
-          // Remove from local state
-          const newFavorites = favorites.filter(f => 
-            Array.isArray(f) && Array.isArray(favoriteToRemove) 
-              ? f[0] !== favoriteToRemove[0]
-              : f.favorite_id !== favoriteId
-          );
-          dispatch({ type: "SET_FAVORITES", payload: newFavorites });
-          console.log("Successfully removed favorite");
           
-        } catch (err) {
-          console.error("Failed to remove favorite:", err);
+          if (res.ok) {
+            // Remove from local state
+            const updatedFavorites = favorites.filter(f => f.favorite_id !== favToRemove.favorite_id);
+            dispatch({ type: "SET_FAVORITES", payload: updatedFavorites });
+            
+            console.log("Successfully removed favorite");
+          } else {
+            console.error("Failed to remove favorite:", await res.text());
+          }
         }
       } else {
-        // Local-only removal
-        console.log("Removing local-only favorite");
-        const newFavorites = favorites.filter(fav => {
-          if (Array.isArray(restaurant) && Array.isArray(fav)) {
-            return fav[0] !== restaurant[0]; // For static data
-          } else if (!Array.isArray(restaurant) && !Array.isArray(fav)) {
-            // For API data
-            const favId = fav.location_id || fav.id || fav.name;
-            const restaurantId = restaurant.location_id || restaurant.id || restaurant.name;
-            return favId !== restaurantId;
-          }
-          return true; // Keep items of different types
-        });
-
-        dispatch({ type: "SET_FAVORITES", payload: newFavorites });
-      }
-    } else {
-      // Add to favorites - SAVE TO BACKEND
-      try {
-        // Prepare the favorite data
-        let favoriteData;
+        // Create data exactly as expected by your backend
+        const favoriteData = {};
         
         if (Array.isArray(restaurant)) {
           // Static data
           const [id, details] = restaurant;
-          favoriteData = {
-            restaurant_id: id,
-            name: details.name,
-            address: details.location,
-            photo_url: details.images?.[0],
-            cuisine: details.cuisine,
-            rating: details.rating,
-            price: details.price,
-            is_open: details.openNow,
-            delivers: details.offersDelivery
-          };
+          favoriteData.name = details.name;
+          favoriteData.restaurant_id = id;
+          favoriteData.address = details.location;
+          favoriteData.cuisine = details.cuisine;
+          favoriteData.rating = details.rating;
+          favoriteData.price = details.price;
+          favoriteData.photo_url = details.images?.[0];
+          favoriteData.is_open = details.openNow;
+          favoriteData.delivers = details.offersDelivery;
         } else {
-          // API data
-          favoriteData = {
-            restaurant_id: restaurant.location_id || restaurant.id || `api-${Date.now()}`,
-            name: restaurant.name,
-            address: restaurant.address || restaurant.location?.address,
-            photo_url: restaurant.photo?.images?.medium?.url,
-            cuisine: Array.isArray(restaurant.cuisine) ? restaurant.cuisine[0]?.name : restaurant.cuisine,
-            rating: restaurant.normalizedRating || restaurant.rating,
-            price: restaurant.normalizedPrice || restaurant.price,
-            website: restaurant.website,
-            is_open: restaurant.normalizedOpenNow || restaurant.is_open,
-            delivers: restaurant.normalizedDelivery || restaurant.delivers
-          };
+          // API data - map to what your backend expects
+          favoriteData.name = restaurant.name;
+          favoriteData.location_id = restaurant.location_id;
+          favoriteData.restaurant_id = restaurant.location_id || restaurant.id || `api-${Date.now()}`;
+          favoriteData.address = restaurant.address || restaurant.location?.address;
+          
+          // Handle cuisine special case
+          if (Array.isArray(restaurant.cuisine)) {
+            favoriteData.cuisine = restaurant.cuisine[0]?.name;
+          } else {
+            favoriteData.cuisine = restaurant.cuisine;
+          }
+          
+          favoriteData.rating = restaurant.normalizedRating || restaurant.rating;
+          favoriteData.price = restaurant.normalizedPrice || restaurant.price;
+          favoriteData.photo_url = restaurant.photo?.images?.medium?.url;
+          favoriteData.is_open = restaurant.normalizedOpenNow;
+          favoriteData.delivers = restaurant.normalizedDelivery;
+          favoriteData.website = restaurant.website;
         }
-
-        console.log("Saving favorite to backend:", favoriteData);
         
-        // Save to backend
+        console.log("Adding favorite:", favoriteData);
+        
         const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/favorite`, {
           method: "POST",
           headers: {
@@ -282,24 +231,33 @@ const Restaurants = () => {
           },
           body: JSON.stringify(favoriteData),
         });
-
-        if (!res.ok) throw new Error(`Failed to add favorite: ${res.status}`);
         
-        // Get the saved favorite with its ID
-        const savedFavorite = await res.json();
-        console.log("Saved favorite response:", savedFavorite);
-        
-        // Update local state
-        const newFavorites = [...favorites, savedFavorite.favorite || favoriteData];
-        dispatch({ type: "SET_FAVORITES", payload: newFavorites });
-        
-      } catch (err) {
-        console.error("Failed to add favorite:", err);
-        
-        // Fallback to local storage if backend fails
-        const newFavorites = [...favorites, restaurant];
-        dispatch({ type: "SET_FAVORITES", payload: newFavorites });
+        if (res.ok) {
+          const data = await res.json();
+          console.log("API response from adding favorite:", data);
+          
+          // Fetch updated list from backend
+          const refreshRes = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/user/favorites`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          
+          if (refreshRes.ok) {
+            const refreshData = await refreshRes.json();
+            console.log("Refreshed favorites data:", refreshData);
+            dispatch({ type: "SET_FAVORITES", payload: refreshData.favorites || [] });
+          } else {
+            console.error("Failed to refresh favorites:", await refreshRes.text());
+          }
+        } else {
+          console.error("Failed to add favorite, status:", res.status);
+          const errorText = await res.text();
+          console.error("Error response:", errorText);
+        }
       }
+    } catch (error) {
+      console.error("Toggle favorite error:", error);
     }
   };
 
@@ -545,8 +503,6 @@ const Restaurants = () => {
     };
 
     // Apply sorting priority based on which filters are active
-    const hasActiveFilter = topRated || price || openNow || offersDelivery;
-
     if (topRated) {
       console.log("Sorting by rating since Top Rated is selected");
       sortedResults = sortedResults.sort(sortByRating);
