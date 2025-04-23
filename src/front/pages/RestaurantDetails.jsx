@@ -7,7 +7,6 @@ import { restaurantData } from "./restaurantData";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 import ReviewModal from "../components/ReviewModal";
 import PageWrapper from "../components/PageWrapper";
-import RestaurantMealTypes from "../components/restaurant/RestaurantMealTypes";
 import HoursTable from "../components/restaurant/HoursTable";
 import LocationMap from "../components/restaurant/LocationMap";
 
@@ -155,7 +154,6 @@ export const RestaurantDetails = () => {
         console.log("Extracted photo URLs:", photoUrls);
       }
 
-      // Return the photo URLs or fallback images if none found
       // Return the photo URLs or fallback images if none found
       if (photoUrls.length > 0) {
         return photoUrls;
@@ -326,14 +324,52 @@ export const RestaurantDetails = () => {
     );
   };
 
+  // Custom RestaurantMealTypes component with specific buttons removed
+  const CustomRestaurantMealTypes = ({ restaurant, isApiData }) => {
+    // Define meal types, excluding the ones to be removed
+    const mealTypes = [
+      { name: "Breakfast", icon: "coffee" },
+      { name: "Lunch", icon: "utensils" },
+      { name: "Dinner", icon: "utensils" },
+      { name: "Dessert", icon: "ice-cream" },
+      { name: "Takeout", icon: "shopping-bag" },
+      { name: "Delivery", icon: "truck" },
+      { name: "Outdoor Seating", icon: "umbrella-beach" },
+      { name: "Vegetarian", icon: "seedling" },
+      { name: "Reservations", icon: "calendar-check" },
+      { name: "Wine & Beer", icon: "wine-glass-alt" }
+      // "Burgers", "Cards Accepted", and "Family Friendly" are intentionally excluded
+    ];
+
+    return (
+      <section className="container py-4">
+        <div className="d-flex justify-content-center flex-wrap gap-3">
+          {mealTypes.map((type, idx) => (
+            <div
+              key={idx}
+              className="text-center"
+              style={{ width: "80px" }}
+            >
+              <div
+                className="rounded-circle bg-light d-flex align-items-center justify-content-center mx-auto mb-2"
+                style={{
+                  width: "60px",
+                  height: "60px",
+                  boxShadow: "0 4px 6px rgba(0,0,0,0.1)"
+                }}
+              >
+                <i className={`fas fa-${type.icon} text-dark`}></i>
+              </div>
+              <div className="small">{type.name}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  };
 
   // Get static restaurant data
   const staticRestaurant = restaurantData[id];
-
-
-  // Show loading state
-  // Loading state component for RestaurantDetails.jsx
-  // Replace the current loading section with this code
 
   // Show loading state
   if (loading) {
@@ -611,16 +647,14 @@ export const RestaurantDetails = () => {
         {/* -----------------------Action Buttons----------------------- */}
         <section className="container py-3">
           <div className="d-flex justify-content-center gap-3">
-            <button className="btn btn-outline-dark">Share</button>
             <button className="btn btn-outline-dark">Save</button>
-            <button className="btn btn-outline-dark">Reviews</button>
             <button className="btn btn-dark">Make Reservation</button>
           </div>
         </section>
 
 
         {/* -----------------------Meal Type Icons - Circular Bubbles----------------------- */}
-        <RestaurantMealTypes restaurant={restaurant} isApiData={isApiData} />
+        <CustomRestaurantMealTypes restaurant={restaurant} isApiData={isApiData} />
 
 
         {/* -----------------------Location & Hours Section with Side-by-Side Layout----------------------- */}

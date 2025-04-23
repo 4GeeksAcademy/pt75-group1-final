@@ -1,24 +1,10 @@
 import React, { useEffect, useState, useRef } from "react";
-import Navbar from "../components/Navbar";
-import { Footer } from "../components/Footer";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import PageWrapper from "../components/PageWrapper";
 import AdvancedFilters from "../components/AdvancedFilters";
-import useGlobalReducer from "../hooks/useGlobalReducer"; // Import the global reducer
-import BiteCounter from "../components/BiteGame/BiteCounter"; // <== near the top
+import useGlobalReducer from "../hooks/useGlobalReducer";
+import BiteCounter from "../components/BiteGame/BiteCounter";
 import useEmojiRain from "../components/BiteGame/useEmojiRain";
-
-
-// This is a simple search bar component since your original was not provided
-const SearchBar = ({ value, onChange }) => (
-  <input
-    type="text"
-    className="form-control border-0 shadow-none"
-    placeholder="Enter city name (e.g. Miami)"
-    value={value}
-    onChange={(e) => onChange(e.target.value)}
-  />
-);
 
 const Restaurants = () => {
   const location = useLocation();
@@ -31,15 +17,12 @@ const Restaurants = () => {
 
   useEmojiRain(setEmojiEatenCount);
 
-  // Get global state and dispatch for favorites
   const { store, dispatch } = useGlobalReducer();
   const favorites = store.favorites || [];
 
-  // Initialize hasSearched based on session storage or location state
   const [hasSearched, setHasSearched] = useState(false);
   const resultsRef = useRef(null);
 
-  // Enhanced filters state
   const [selectedFilters, setSelectedFilters] = useState({
     price: null,
     advanced: [],
@@ -53,8 +36,6 @@ const Restaurants = () => {
   const [restaurants, setRestaurants] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [nameInput, setNameInput] = useState("");
-  const [nameSuggestions, setNameSuggestions] = useState([]);
   const [isApiData, setIsApiData] = useState(false);
   const [returningFromDetail, setReturningFromDetail] = useState(false);
 
@@ -648,18 +629,6 @@ const Restaurants = () => {
                 </div>
               </div>
 
-              {/* Advanced Button */}
-              <div className="d-flex justify-content-center">
-                <button
-                  className="btn btn-outline-secondary rounded-pill d-flex align-items-center gap-2 px-3 py-1"
-                  onClick={() => setShowAdvanced(prev => !prev)}
-                  style={{ fontSize: '0.9rem' }}
-                >
-                  <i className="fas fa-sliders-h"></i>
-                  Advanced
-                </button>
-              </div>
-
               {/* Error message display */}
               {error && <div className="mt-2 text-danger text-center">{error}</div>}
 
@@ -868,12 +837,13 @@ const Restaurants = () => {
 
                     return (
                       <div key={`api-${index}`} className="col-md-4">
-                        <div className="card h-100 shadow-sm hover-float" style={{ position: 'relative', zIndex: 10 }}>                          <img
-                          src={restaurant.photo?.images?.medium?.url || "https://via.placeholder.com/400x200?text=Restaurant+Image"}
-                          className="card-img-top"
-                          alt={restaurant.name}
-                          style={{ height: "200px", objectFit: "cover" }}
-                        />
+                        <div className="card h-100 shadow-sm hover-float" style={{ position: 'relative', zIndex: 10 }}>
+                          <img
+                            src={restaurant.photo?.images?.medium?.url || "https://via.placeholder.com/400x200?text=Restaurant+Image"}
+                            className="card-img-top"
+                            alt={restaurant.name}
+                            style={{ height: "200px", objectFit: "cover" }}
+                          />
                           <div className="card-body">
                             <h5 className="card-title">
                               <a href={restaurant.website} target="_blank" rel="noopener noreferrer" className="text-decoration-none text-dark">
@@ -886,16 +856,15 @@ const Restaurants = () => {
                               {restaurant.normalizedOpenNow && <span className="text-success"> • Open Now</span>}
                               {restaurant.normalizedDelivery && <span className="text-primary"> • Delivers</span>}
                             </p>
-                            <div className="d-flex justify-content-between">
+                            <div className="d-flex justify-content-around">
                               <button
                                 className="btn btn-sm btn-dark"
                                 onClick={() => handleViewDetails(restaurant)}
                               >
                                 Details
                               </button>
-                              <button className="btn btn-sm btn-outline-dark">Reviews</button>
 
-                              {/* Favorite Button */}
+                              {/* Favorite Button - Centered */}
                               <button
                                 className={`btn btn-sm ${isItemFavorite ? 'btn-danger' : 'btn-outline-danger'}`}
                                 onClick={() => toggleFavorite(restaurant)}
@@ -939,16 +908,15 @@ const Restaurants = () => {
                             {restaurant.openNow && <span className="text-success"> • Open Now</span>}
                             {restaurant.offersDelivery && <span className="text-primary"> • Delivers</span>}
                           </p>
-                          <div className="d-flex justify-content-between">
+                          <div className="d-flex justify-content-around">
                             <button
                               className="btn btn-sm btn-dark"
                               onClick={() => handleViewDetails(item)}
                             >
                               Details
                             </button>
-                            <button className="btn btn-sm btn-outline-dark">Reviews</button>
 
-                            {/* Favorite Button */}
+                            {/* Favorite Button - Centered */}
                             <button
                               className={`btn btn-sm ${isItemFavorite ? 'btn-danger' : 'btn-outline-danger'}`}
                               onClick={() => toggleFavorite(item)}
