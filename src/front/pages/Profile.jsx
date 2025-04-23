@@ -4,9 +4,21 @@ import { Link, useNavigate } from "react-router-dom";
 import PageWrapper from "../components/PageWrapper";
 import "../Profile.css";
 
-// Function to determine if link is internal or external
+// Improved function to determine if link is internal or external
+// This now handles different data structures more consistently
 const isExternalLink = (restaurant) => {
-  return !Array.isArray(restaurant);
+  // Check if it's from the API (has favorite_id)
+  if (restaurant.favorite_id) {
+    return true;
+  }
+  
+  // Check if it's from the static data (is array)
+  if (Array.isArray(restaurant)) {
+    return false;
+  }
+  
+  // Default to external if we can't determine
+  return Boolean(restaurant.website);
 };
 
 const Profile = () => {
@@ -19,7 +31,15 @@ const Profile = () => {
   const [userReviews, setUserReviews] = useState([]);
   const navigate = useNavigate();
   
-  const favorites = store.favorites || [];
+  // Create a local copy of favorites to prevent issues with reactivity
+  const [localFavorites, setLocalFavorites] = useState([]);
+
+  useEffect(() => {
+    // When store.favorites changes, update our local copy
+    if (store.favorites) {
+      setLocalFavorites(store.favorites);
+    }
+  }, [store.favorites]);
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");
@@ -63,22 +83,44 @@ const Profile = () => {
     const fetchFavorites = async () => {
       try {
         const token = localStorage.getItem("access_token");
+        if (!token) {
+          console.log("No token found, skipping favorites fetch");
+          return;
+        }
+  
+        console.log("Fetching favorites from backend...");
         const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/user/favorites`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-
-        if (!res.ok) throw new Error("Failed to fetch favorites");
+  
+        if (!res.ok) throw new Error(`Failed to fetch favorites: ${res.status}`);
+        
         const data = await res.json();
-        dispatch({ type: "SET_FAVORITES", payload: data.favorites });
+        console.log("Profile - Fetched favorites:", data);
+        
+        // Check if data.favorites is an array and not null/undefined
+        if (data && Array.isArray(data.favorites)) {
+          // Update both local state and global store
+          setLocalFavorites(data.favorites);
+          dispatch({ type: "SET_FAVORITES", payload: data.favorites });
+        } else {
+          console.warn("Favorites data is not in expected format:", data);
+          // Initialize with empty array if no valid data
+          setLocalFavorites([]);
+          dispatch({ type: "SET_FAVORITES", payload: [] });
+        }
       } catch (err) {
         console.error("Failed to fetch favorites:", err.message);
+        // Initialize with empty array on error
+        setLocalFavorites([]);
+        dispatch({ type: "SET_FAVORITES", payload: [] });
       }
     };
-
+  
     fetchFavorites();
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     if (localUser?.profile_picture) {
@@ -240,6 +282,8 @@ const Profile = () => {
   const handleRemoveFavorite = async (favoriteId) => {
     try {
       const token = localStorage.getItem("access_token");
+      console.log(`Removing favorite with ID: ${favoriteId}`);
+      
       const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/favorite/${favoriteId}`, {
         method: "DELETE",
         headers: {
@@ -249,10 +293,12 @@ const Profile = () => {
 
       if (!res.ok) throw new Error("Failed to delete favorite");
 
-      dispatch({
-        type: "SET_FAVORITES",
-        payload: favorites.filter((fav) => fav.favorite_id !== favoriteId),
-      });
+      // Update both local state and global store
+      const updatedFavorites = localFavorites.filter(fav => fav.favorite_id !== favoriteId);
+      setLocalFavorites(updatedFavorites);
+      dispatch({ type: "SET_FAVORITES", payload: updatedFavorites });
+      
+      console.log("Favorite removed successfully");
     } catch (err) {
       console.error("Failed to remove favorite:", err);
     }
@@ -261,50 +307,78 @@ const Profile = () => {
   // Remove a restaurant from favorites (for array-based favorites)
   const removeFavorite = (restaurant, index) => {
     // Create a new array without the removed favorite
-    const newFavorites = [...favorites];
+    const newFavorites = [...localFavorites];
     newFavorites.splice(index, 1); // Remove just the item at the specified index
     
+    // Update both local state and global store
+    setLocalFavorites(newFavorites);
     dispatch({ type: 'SET_FAVORITES', payload: newFavorites });
+    
+    console.log("Local favorite removed");
   };
 
   // Function to get restaurant name based on data type (API or static)
   const getRestaurantName = (restaurant) => {
-    if (Array.isArray(restaurant)) {
-      return restaurant[1].name; // Static data
+    if (restaurant?.name) {
+      return restaurant.name;
     }
-    return restaurant.name; // API data
+    if (Array.isArray(restaurant) && restaurant[1]?.name) {
+      return restaurant[1].name;
+    }
+    return "Restaurant";
   };
 
   // Function to get restaurant image based on data type
   const getRestaurantImage = (restaurant) => {
-    if (Array.isArray(restaurant)) {
-      return restaurant[1].images?.[0] || "https://picsum.photos/300";
+    if (restaurant?.photo_url) {
+      return restaurant.photo_url;
     }
-    return restaurant.photo?.images?.medium?.url || restaurant.photo_url || "https://picsum.photos/300";
+    if (restaurant?.photo?.images?.medium?.url) {
+      return restaurant.photo.images.medium.url;
+    }
+    if (Array.isArray(restaurant) && restaurant[1]?.images?.[0]) {
+      return restaurant[1].images[0];
+    }
+    return "https://picsum.photos/300";
   };
 
   // Function to get restaurant location or address
   const getRestaurantLocation = (restaurant) => {
-    if (Array.isArray(restaurant)) {
+    if (restaurant?.address) {
+      return restaurant.address;
+    }
+    if (restaurant?.location?.address) {
+      return restaurant.location.address;
+    }
+    if (Array.isArray(restaurant) && restaurant[1]?.location) {
       return restaurant[1].location;
     }
-    return restaurant.address || restaurant.location?.address || "Location not available";
+    return "Location not available";
   };
 
   // Function to get restaurant rating
   const getRestaurantRating = (restaurant) => {
-    if (Array.isArray(restaurant)) {
+    if (restaurant?.rating) {
+      return restaurant.rating;
+    }
+    if (restaurant?.normalizedRating) {
+      return restaurant.normalizedRating;
+    }
+    if (Array.isArray(restaurant) && restaurant[1]?.rating) {
       return restaurant[1].rating;
     }
-    return restaurant.normalizedRating || restaurant.rating || "N/A";
+    return "N/A";
   };
 
   // Function to get restaurant website or detail link
   const getRestaurantLink = (restaurant) => {
-    if (Array.isArray(restaurant)) {
-      return `/restaurant/${restaurant[0]}`; // Link to internal page for static data
+    if (restaurant?.website) {
+      return restaurant.website;
     }
-    return restaurant.website || "#"; // External website for API data
+    if (Array.isArray(restaurant) && restaurant[0]) {
+      return `/restaurant/${restaurant[0]}`;
+    }
+    return "#";
   };
 
   // Handle deleting a review
@@ -428,7 +502,7 @@ const Profile = () => {
           {/* Favorite Restaurants */}
           <h4 className="section-title text-center mt-5">Your Favorite Restaurants</h4>
           <div className="row g-4 mb-4">
-            {favorites.length === 0 && (
+            {localFavorites.length === 0 && (
               <div className="col-12 text-center py-3">
                 <p className="text-muted">You haven't saved any favorite restaurants yet.</p>
                 <Link to="/restaurants" className="btn btn-outline-dark">
@@ -437,54 +511,58 @@ const Profile = () => {
               </div>
             )}
 
-            {favorites.map((fav, index) => (
-              <div key={fav.favorite_id || index} className="col-md-4 mb-4">
-                <div className="card h-100 shadow-sm">
-                  <img
-                    src={fav.photo_url || getRestaurantImage(fav) || "https://via.placeholder.com/400x200?text=No+Image"}
-                    className="card-img-top"
-                    alt={fav.name || getRestaurantName(fav)}
-                    style={{ height: "200px", objectFit: "cover" }}
-                  />
-                  <div className="card-body d-flex flex-column justify-content-between">
-                    <h5 className="card-title">{fav.name || getRestaurantName(fav)}</h5>
-                    <p className="card-text">
-                      {fav.address || getRestaurantLocation(fav)} <br />
-                      {fav.cuisine && <><strong>{fav.cuisine}</strong> • </>}
-                      ⭐ {fav.rating || getRestaurantRating(fav)} 
-                      {fav.price && <> • {fav.price}</>}
-                      <br />
-                      {fav.is_open && <span className="text-success">Open Now • </span>}
-                      {fav.delivers && <span className="text-primary">Delivers</span>}
-                    </p>
-                    <div className="d-flex justify-content-between mt-auto">
-                      {isExternalLink(fav) ? (
-                        <a
-                          href={fav.website || getRestaurantLink(fav)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="btn btn-sm btn-outline-secondary"
+            {localFavorites.map((fav, index) => {
+              console.log("Rendering favorite:", fav);
+              
+              return (
+                <div key={fav.favorite_id || `local-favorite-${index}`} className="col-md-4 mb-4">
+                  <div className="card h-100 shadow-sm">
+                    <img
+                      src={getRestaurantImage(fav)}
+                      className="card-img-top"
+                      alt={getRestaurantName(fav)}
+                      style={{ height: "200px", objectFit: "cover" }}
+                    />
+                    <div className="card-body d-flex flex-column justify-content-between">
+                      <h5 className="card-title">{getRestaurantName(fav)}</h5>
+                      <p className="card-text">
+                        {getRestaurantLocation(fav)} <br />
+                        {fav.cuisine && <><strong>{fav.cuisine}</strong> • </>}
+                        ⭐ {getRestaurantRating(fav)} 
+                        {fav.price && <> • {fav.price}</>}
+                        <br />
+                        {fav.is_open && <span className="text-success">Open Now • </span>}
+                        {fav.delivers && <span className="text-primary">Delivers</span>}
+                      </p>
+                      <div className="d-flex justify-content-between mt-auto">
+                        {isExternalLink(fav) ? (
+                          <a
+                            href={fav.website || "#"}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="btn btn-sm btn-outline-secondary"
+                          >
+                            Website
+                          </a>
+                        ) : (
+                          <Link to={getRestaurantLink(fav)} className="btn btn-sm btn-outline-secondary">
+                            View Details
+                          </Link>
+                        )}
+                        <button
+                          className="btn btn-sm btn-outline-danger"
+                          onClick={() => fav.favorite_id ? 
+                            handleRemoveFavorite(fav.favorite_id) : 
+                            removeFavorite(fav, index)}
                         >
-                          Website
-                        </a>
-                      ) : (
-                        <Link to={getRestaurantLink(fav)} className="btn btn-sm btn-outline-secondary">
-                          View Details
-                        </Link>
-                      )}
-                      <button
-                        className="btn btn-sm btn-outline-danger"
-                        onClick={() => fav.favorite_id ? 
-                          handleRemoveFavorite(fav.favorite_id) : 
-                          removeFavorite(fav, index)}
-                      >
-                        <i className="fas fa-trash-alt"></i> Remove
-                      </button>
+                          <i className="fas fa-trash-alt"></i> Remove
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Reservations Section */}
@@ -556,7 +634,7 @@ const Profile = () => {
                   <input name="first_name" className="form-control mb-2" placeholder="First Name" defaultValue={user.first_name} />
                   <input name="last_name" className="form-control mb-2" placeholder="Last Name" defaultValue={user.last_name} />
                   <input name="email" type="email" className="form-control mb-2" placeholder="Email" defaultValue={user.email} />
-                  <input name="username" className="form-control mb-2" placeholder="Username" defaultValue={user.username} />
+                  <input name="username" className="form-control mb-2" placeholder="Username" defaultValue={user.username} readOnly />
                 </div>
                 <div className="modal-footer d-flex justify-content-between">
                   <button type="button" className="btn btn-danger" onClick={handleDeleteAccount}>Delete Account</button>
