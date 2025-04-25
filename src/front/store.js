@@ -11,7 +11,7 @@ export const initialStore = () => {
       { id: 1, title: "Make the bed", background: null },
       { id: 2, title: "Do my homework", background: null },
     ],
-    loading: true // 🆕 This will help manage redirects correctly
+    loading: true, // 🆕 This will help manage redirects correctly
   };
 };
 
@@ -36,7 +36,7 @@ export default function storeReducer(store, action = {}) {
       return {
         ...store,
         user: action.payload,
-        loading: false
+        loading: false,
       };
     case "LOGOUT":
       localStorage.removeItem("user");
@@ -63,6 +63,14 @@ export default function storeReducer(store, action = {}) {
         ...store,
         favorites: action.payload,
       };
+
+      case "SET_RESERVATIONS":
+        console.log("🧠 Reducer: Setting reservations", action.payload);
+        return {
+          ...store,
+          reservations: action.payload,
+        };
+      
 
     case "ADD_REVIEW":
       // Add a new review to the store

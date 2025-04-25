@@ -34,6 +34,7 @@ CORS(api, resources={r"/*": {"origins": [
     "https://animated-guide-wrvvx9gwpgwv27p7-3000.app.github.dev",
     # Add your current Codespace URL
     "https://animated-space-couscous-g47647pwqpqqhv9w5-3000.app.github.dev"
+    # "https://upgraded-giggle-694pwq5gv79x2gvx.github.dev/"
 ]}}, supports_credentials=True)
 
 
@@ -114,8 +115,7 @@ def login():
     # email = data.get('email')
     identifier = data.get("identifier")
     password = data.get('password')
-    # if not email or not password:
-    #     return jsonify({"msg": "Email and password required."}), 400
+
     if not identifier or not password:
         return jsonify({"msg": "Identifier and password required."}), 400
 
@@ -211,44 +211,6 @@ def get_favorites():
     return jsonify([favorite.serialize() for favorite in favorites])
 
 
-# @api.route('/favorite', methods=['POST'])
-# @jwt_required()
-# def create_favorite():
-#     data = request.get_json()
-#     user_id = get_jwt_identity()
-
-#     existing = Restaurant.query.filter_by(name=data.get("name")).first()
-
-#     if existing:
-#         restaurant = existing
-#     else:
-#         restaurant = Restaurant(
-#             user_id=user_id,
-#             name=data.get("name"),
-#             address=data.get("address") or (data.get("location", {}).get("address")),
-#             cuisine=(data.get("cuisine")[0]["name"] if data.get("cuisine") and isinstance(data.get("cuisine"), list) else None),
-#             price=data.get("normalizedPrice"),
-#             rating=str(data.get("normalizedRating")),
-#             photo_url=(data.get("photo", {}).get("images", {}).get("medium", {}).get("url")),
-#             is_open=data.get("normalizedOpenNow"),
-#             delivers=data.get("normalizedDelivery")
-#         )
-#         db.session.add(restaurant)
-#         db.session.commit()
-
-#     existing_fav = Favorite.query.filter_by(user_id=user_id, restaurant_id=restaurant.id).first()
-#     if existing_fav:
-#         return jsonify({"msg": "Already favorited"}), 200
-
-#     new_fav = Favorite(user_id=user_id, restaurant_id=restaurant.id)
-#     db.session.add(new_fav)
-#     db.session.commit()
-
-#     return jsonify({
-#         "favorite_id": new_fav.id,
-#         "restaurant": restaurant.serialize()
-#     }), 201
-
 @api.route('/favorite', methods=['POST'])
 @jwt_required()
 def create_favorite():
@@ -309,12 +271,6 @@ def delete_favorite(favorite_id):
     return '', 204
 
 
-@api.route('/reservations', methods=['GET'])
-def get_reservations():
-    reservations = Reservation.query.all()
-    return jsonify([reservation.serialize() for reservation in reservations])
-
-
 @api.route('/reservation/<int:reservation_id>', methods=['GET'])
 def get_reservation(reservation_id):
     reservation = Reservation.query.get_or_404(reservation_id)
@@ -324,16 +280,45 @@ def get_reservation(reservation_id):
 @api.route('/reservation', methods=['POST'])
 @jwt_required()
 def create_reservation():
+    user_id = get_jwt_identity()
     data = request.get_json()
-    new_reservation = Reservation(
-        user_id=data['user_id'],
-        restaurant_id=data['restaurant_id'],
-        reservation_time=datetime.fromisoformat(data['reservation_time']),
-        is_active=data['is_active']
-    )
-    db.session.add(new_reservation)
-    db.session.commit()
-    return jsonify(new_reservation.serialize()), 201
+
+    try:
+        # TripAdvisor ID (string)
+        api_restaurant_id = str(data.get("restaurant_id"))
+        restaurant_name = data.get("restaurant_name", "Unknown")
+
+        # Look up restaurant by API ID
+        restaurant = Restaurant.query.filter_by(
+            api_id=api_restaurant_id).first()
+
+        # If restaurant not in DB, create it
+        if not restaurant:
+            restaurant = Restaurant(
+                user_id=user_id,
+                name=restaurant_name,
+                api_id=api_restaurant_id
+            )
+            db.session.add(restaurant)
+            db.session.commit()
+
+        # Create reservation using internal restaurant.id
+        new_reservation = Reservation(
+            user_id=user_id,
+            restaurant_id=restaurant.id,
+            reservation_time=datetime.fromisoformat(
+                data.get("reservation_time")),
+            is_active=True
+        )
+
+        db.session.add(new_reservation)
+        db.session.commit()
+
+        return jsonify(new_reservation.serialize()), 201
+
+    except Exception as e:
+        print("❌ Failed to create reservation:", str(e))
+        return jsonify({"msg": "Failed to create reservation", "error": str(e)}), 500
 
 
 @api.route('/reservation/<int:reservation_id>', methods=['PUT'])
@@ -341,11 +326,14 @@ def create_reservation():
 def update_reservation(reservation_id):
     data = request.get_json()
     reservation = Reservation.query.get_or_404(reservation_id)
-    reservation.reservation_time = datetime.fromisoformat(
-        data['reservation_time'])
-    reservation.is_active = data['is_active']
+
+    reservation.restaurant_name = data.get(
+        "restaurant_name", reservation.restaurant_name)
+    reservation.reservation_date = datetime.fromisoformat(
+        data.get("reservation_date"))
+
     db.session.commit()
-    return jsonify(reservation.serialize())
+    return jsonify(reservation.serialize()), 200
 
 
 @api.route('/reservation/<int:reservation_id>', methods=['DELETE'])
@@ -354,7 +342,15 @@ def delete_reservation(reservation_id):
     reservation = Reservation.query.get_or_404(reservation_id)
     db.session.delete(reservation)
     db.session.commit()
-    return '', 204
+    return jsonify({"msg": "Reservation deleted successfully"}), 200
+
+
+@api.route('/user/reservations', methods=['GET'])
+@jwt_required()
+def get_user_reservations():
+    user_id = get_jwt_identity()
+    reservations = Reservation.query.filter_by(user_id=user_id).all()
+    return jsonify([r.serialize() for r in reservations]), 200
 
 
 def get_location_id(city):
@@ -389,6 +385,7 @@ def get_location_id(city):
                 return item["result_object"]["location_id"]
 
     return None
+############################################################################
 
 
 @api.route('/search-restaurants', methods=['POST'])

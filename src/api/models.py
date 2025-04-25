@@ -95,10 +95,14 @@ class Reservation(db.Model):
     is_active = db.Column(db.Boolean, default=True, nullable=False)
 
     def serialize(self):
+        restaurant = Restaurant.query.get(self.restaurant_id)  
+        restaurant_name = restaurant.name if restaurant else "Unknown Restaurant"
+
         return {
-            "reservation_id": self.id,
+            "id": self.id,
             "user_id": self.user_id,
             "restaurant_id": self.restaurant_id,
+            "restaurant_name": restaurant_name,
             "time_created": self.time_created.isoformat(),
             "reservation_time": self.reservation_time.isoformat(),
             "is_active": self.is_active
