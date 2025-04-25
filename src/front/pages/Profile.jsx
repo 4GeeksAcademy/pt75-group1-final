@@ -317,7 +317,7 @@ const Profile = () => {
     return fallbackFoodImages[index % fallbackFoodImages.length];
   };
 
-  // FIX #1: Improved function to get restaurant image with food fallbacks
+  // Function to get restaurant image with food fallbacks
   const getRestaurantImage = (restaurant, index) => {
     console.log("Restaurant data for image:", restaurant);
     
@@ -382,30 +382,272 @@ const Profile = () => {
     }
     return "N/A";
   };
-
-  // FIX #2: Function to handle viewing restaurant details - exact copy from Restaurants.jsx
-  const handleViewDetails = (restaurant) => {
-    try {
-      // For API data (match Restaurants.jsx exactly)
-      if (!Array.isArray(restaurant)) {
-        // Store the API restaurant data in sessionStorage before navigating
-        const restaurantDetails = JSON.stringify(restaurant);
-        sessionStorage.setItem('apiRestaurantDetails', restaurantDetails);
-        sessionStorage.setItem('viewingRestaurantDetails', 'true');
-
-        // Generate a temporary ID for the API restaurant
-        const tempId = restaurant.location_id || restaurant.restaurant_id || restaurant.id || `api-${Date.now()}`;
-        navigate(`/restaurant/${tempId}`, { state: { isApiData: true } });
+  
+  // IMPROVED: Try to find city/location coordinates from address
+  const extractCoordinatesFromAddress = (address) => {
+    if (!address) return null;
+    
+    // Check for some major cities and return their coordinates
+    const cityCoordinates = {
+      'new york': { lat: 40.7128, lng: -74.0060 },
+      'nyc': { lat: 40.7128, lng: -74.0060 },
+      'los angeles': { lat: 34.0522, lng: -118.2437 },
+      'chicago': { lat: 41.8781, lng: -87.6298 },
+      'houston': { lat: 29.7604, lng: -95.3698 },
+      'phoenix': { lat: 33.4484, lng: -112.0740 },
+      'philadelphia': { lat: 39.9526, lng: -75.1652 },
+      'san antonio': { lat: 29.4241, lng: -98.4936 },
+      'san diego': { lat: 32.7157, lng: -117.1611 },
+      'dallas': { lat: 32.7767, lng: -96.7970 },
+      'san francisco': { lat: 37.7749, lng: -122.4194 },
+      'seattle': { lat: 47.6062, lng: -122.3321 },
+      'boston': { lat: 42.3601, lng: -71.0589 },
+      'miami': { lat: 25.7617, lng: -80.1918 },
+      'las vegas': { lat: 36.1699, lng: -115.1398 },
+      'denver': { lat: 39.7392, lng: -104.9903 },
+      'atlanta': { lat: 33.7490, lng: -84.3880 },
+    };
+    
+    // Look for a known city in the address
+    const addressLower = address.toLowerCase();
+    for (const city in cityCoordinates) {
+      if (addressLower.includes(city)) {
+        console.log(`Found coordinates for city: ${city} in address: ${address}`);
+        return cityCoordinates[city];
       }
-      // For static data
-      else {
-        const [id, _] = restaurant;
+    }
+    
+    // Try to extract US state and use its approximate coordinates
+    const stateCoordinates = {
+      'AL': { lat: 32.7794, lng: -86.8287 }, // Alabama
+      'AK': { lat: 64.0685, lng: -152.2782 }, // Alaska
+      'AZ': { lat: 34.2744, lng: -111.6602 }, // Arizona
+      'AR': { lat: 34.8938, lng: -92.4426 }, // Arkansas
+      'CA': { lat: 37.1841, lng: -119.4696 }, // California
+      'CO': { lat: 38.9972, lng: -105.5478 }, // Colorado
+      'CT': { lat: 41.6219, lng: -72.7273 }, // Connecticut
+      'DE': { lat: 38.9896, lng: -75.5050 }, // Delaware
+      'FL': { lat: 28.6305, lng: -82.4497 }, // Florida
+      'GA': { lat: 32.6415, lng: -83.4426 }, // Georgia
+      'HI': { lat: 20.2927, lng: -156.3737 }, // Hawaii
+      'ID': { lat: 44.3509, lng: -114.6130 }, // Idaho
+      'IL': { lat: 40.0417, lng: -89.1965 }, // Illinois
+      'IN': { lat: 39.8942, lng: -86.2816 }, // Indiana
+      'IA': { lat: 42.0751, lng: -93.4960 }, // Iowa
+      'KS': { lat: 38.4937, lng: -98.3804 }, // Kansas
+      'KY': { lat: 37.5347, lng: -85.3021 }, // Kentucky
+      'LA': { lat: 31.0689, lng: -91.9968 }, // Louisiana
+      'ME': { lat: 45.3695, lng: -69.2428 }, // Maine
+      'MD': { lat: 39.0550, lng: -76.7909 }, // Maryland
+      'MA': { lat: 42.2596, lng: -71.8083 }, // Massachusetts
+      'MI': { lat: 44.3467, lng: -85.4102 }, // Michigan
+      'MN': { lat: 46.2807, lng: -94.3053 }, // Minnesota
+      'MS': { lat: 32.7364, lng: -89.6678 }, // Mississippi
+      'MO': { lat: 38.3566, lng: -92.4580 }, // Missouri
+      'MT': { lat: 47.0527, lng: -109.6333 }, // Montana
+      'NE': { lat: 41.5378, lng: -99.7951 }, // Nebraska
+      'NV': { lat: 39.3289, lng: -116.6312 }, // Nevada
+      'NH': { lat: 43.6805, lng: -71.5811 }, // New Hampshire
+      'NJ': { lat: 40.1907, lng: -74.6728 }, // New Jersey
+      'NM': { lat: 34.4071, lng: -106.1126 }, // New Mexico
+      'NY': { lat: 42.9538, lng: -75.5268 }, // New York
+      'NC': { lat: 35.5557, lng: -79.3877 }, // North Carolina
+      'ND': { lat: 47.4501, lng: -100.4659 }, // North Dakota
+      'OH': { lat: 40.2862, lng: -82.7937 }, // Ohio
+      'OK': { lat: 35.5889, lng: -97.4943 }, // Oklahoma
+      'OR': { lat: 43.9336, lng: -120.5583 }, // Oregon
+      'PA': { lat: 40.8781, lng: -77.7996 }, // Pennsylvania
+      'RI': { lat: 41.6762, lng: -71.5562 }, // Rhode Island
+      'SC': { lat: 33.9169, lng: -80.8964 }, // South Carolina
+      'SD': { lat: 44.4443, lng: -100.2263 }, // South Dakota
+      'TN': { lat: 35.8580, lng: -86.3505 }, // Tennessee
+      'TX': { lat: 31.4757, lng: -99.3312 }, // Texas
+      'UT': { lat: 39.3055, lng: -111.6703 }, // Utah
+      'VT': { lat: 44.0687, lng: -72.6658 }, // Vermont
+      'VA': { lat: 37.5215, lng: -78.8537 }, // Virginia
+      'WA': { lat: 47.3826, lng: -120.4472 }, // Washington
+      'WV': { lat: 38.6409, lng: -80.6227 }, // West Virginia
+      'WI': { lat: 44.6243, lng: -89.9941 }, // Wisconsin
+      'WY': { lat: 42.9957, lng: -107.5512 }, // Wyoming
+    };
+    
+    // Look for a state abbreviation in the address (e.g., "NY" or "CA")
+    const stateRegex = /\b([A-Z]{2})\b/;
+    const stateMatch = address.match(stateRegex);
+    if (stateMatch && stateCoordinates[stateMatch[1]]) {
+      console.log(`Found coordinates for state: ${stateMatch[1]} in address: ${address}`);
+      return stateCoordinates[stateMatch[1]];
+    }
+    
+    // If no match, return null
+    return null;
+  };
+
+  // FIXED: Completely reworked handleViewDetails for proper data passing
+  const handleViewDetails = (favorite) => {
+    try {
+      console.log("Viewing details for favorite:", favorite);
+      
+      // For static data - standard handling
+      if (Array.isArray(favorite)) {
+        const [id, _] = favorite;
         sessionStorage.setItem('viewingRestaurantDetails', 'true');
         navigate(`/restaurant/${id}`);
+        return;
       }
+      
+      // For API data, we need to create a complete restaurant object
+      // This is critical: we need to make sure it has all the expected fields
+      // and structure that the RestaurantDetails component expects
+      
+      // First, create the photo structure
+      const photoUrl = favorite.photo_url || getRandomFoodImage(0);
+      const photo = {
+        images: {
+          large: { url: photoUrl },
+          medium: { url: photoUrl }
+        }
+      };
+      
+      // Create photos array for additional images
+      const photos = [
+        { images: { large: { url: photoUrl }, medium: { url: photoUrl } } }
+      ];
+      
+      // Create the hours structure
+      const hours = {
+        weekday_text: [
+          "Monday: 9:00 AM - 10:00 PM",
+          "Tuesday: 9:00 AM - 10:00 PM",
+          "Wednesday: 9:00 AM - 10:00 PM",
+          "Thursday: 9:00 AM - 10:00 PM",
+          "Friday: 9:00 AM - 11:00 PM",
+          "Saturday: 9:00 AM - 11:00 PM", 
+          "Sunday: 9:00 AM - 10:00 PM"
+        ]
+      };
+      
+      // Try to get coordinates from the address
+      let coordinates = null;
+      
+      // First check if we already have coordinates in the favorite object
+      if (favorite.latitude && favorite.longitude) {
+        coordinates = {
+          lat: parseFloat(favorite.latitude),
+          lng: parseFloat(favorite.longitude)
+        };
+        console.log("Using explicit coordinates from favorite:", coordinates);
+      }
+      // Check if we have location.lat/lng
+      else if (favorite.location && favorite.location.lat && favorite.location.lng) {
+        coordinates = {
+          lat: parseFloat(favorite.location.lat),
+          lng: parseFloat(favorite.location.lng)
+        };
+        console.log("Using location.lat/lng coordinates:", coordinates);
+      }
+      // Try to extract from address
+      else if (favorite.address) {
+        const extractedCoords = extractCoordinatesFromAddress(favorite.address);
+        if (extractedCoords) {
+          coordinates = extractedCoords;
+          console.log("Using coordinates extracted from address:", coordinates);
+        }
+      }
+      
+      // If still no coordinates, use a default
+      if (!coordinates) {
+        // Use a more general USA coordinate instead of NYC
+        coordinates = { lat: 39.8283, lng: -98.5795 }; // Center of USA
+        console.log("Using default USA coordinates:", coordinates);
+      }
+      
+      // Create complete restaurant object
+      const apiRestaurant = {
+        // Core identifiers
+        id: favorite.restaurant_id || favorite.location_id || `api-${Date.now()}`,
+        location_id: favorite.restaurant_id || favorite.location_id || `api-${Date.now()}`,
+        name: favorite.name || "Restaurant",
+        
+        // Visual content
+        photo: photo,
+        photos: photos,
+        
+        // Restaurant info
+        description: "This restaurant is one of your favorites. Unfortunately, we don't have a detailed description available.",
+        cuisine: Array.isArray(favorite.cuisine) 
+          ? favorite.cuisine 
+          : [{ name: favorite.cuisine || "Various Cuisine" }],
+        cuisine_type: favorite.cuisine || "Various",
+        
+        // Metadata
+        rating: favorite.rating || 4.5,
+        address: favorite.address || "Address not available",
+        
+        // Location with proper lat/lng coordinates structure for Google Maps
+        location: { 
+          address: favorite.address || "Address not available",
+          latitude: coordinates.lat,
+          longitude: coordinates.lng,
+          lat: coordinates.lat,
+          lng: coordinates.lng,
+          coords: coordinates
+        },
+        
+        // Add direct lat/lng properties that some map components might use
+        latitude: coordinates.lat,
+        longitude: coordinates.lng,
+        lat: coordinates.lat,
+        lng: coordinates.lng,
+        
+        // Price information
+        price: favorite.price || "$",
+        normalizedPrice: favorite.price || "$",
+        normalizedRating: favorite.rating || 4.5,
+        
+        // Status info
+        hours: hours,
+        hours_str: favorite.hours || "Hours information not available",
+        is_open: favorite.is_open || false,
+        normalizedOpenNow: favorite.is_open || false,
+        open_now: favorite.is_open || false,
+        
+        // Additional info
+        website: favorite.website || "",
+        phone: favorite.phone || "",
+        email: favorite.email || "",
+        
+        // Features and amenities
+        signature_dishes: ["Signature dish information not available"],
+        features: ["Free Wi-Fi", "Outdoor Seating"],
+        amenities: ["Parking Available", "Wheelchair Accessible"],
+        
+        // Delivery info
+        normalizedDelivery: favorite.delivers || false,
+        offers_delivery: favorite.delivers || false,
+        
+        // Important flag for RestaurantDetails component
+        favorite_id: favorite.favorite_id
+      };
+      
+      console.log("Created complete API restaurant object with coordinates:", apiRestaurant);
+      
+      // Critical: Store the COMPLETE restaurant data in sessionStorage
+      sessionStorage.setItem('apiRestaurantDetails', JSON.stringify(apiRestaurant));
+      sessionStorage.setItem('viewingRestaurantDetails', 'true');
+      
+      // Navigate to the restaurant details page with the proper state
+      const tempId = apiRestaurant.location_id || apiRestaurant.id;
+      navigate(`/restaurant/${tempId}`, { 
+        state: { 
+          isApiData: true,
+          restaurant: apiRestaurant // Pass the restaurant object directly in state
+        }
+      });
+      
     } catch (error) {
       console.error("Error navigating to restaurant details:", error);
-      alert("Failed to view restaurant details");
+      alert("Failed to view restaurant details. Please try again.");
     }
   };
 
