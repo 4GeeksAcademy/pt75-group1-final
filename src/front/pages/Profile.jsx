@@ -609,6 +609,13 @@ const Profile = () => {
                   <div>
                     <strong>Reservation at {res.restaurant_name}</strong><br />
                     <span className="text-muted">{new Date(res.reservation_time).toLocaleString()}</span>
+                    <Link
+                      to={`/restaurant/${res.restaurant_id}`}
+                      className="btn btn-sm btn-outline-secondary mt-2"
+                    >
+                      View Details
+                    </Link>
+
                   </div>
 
                   <button

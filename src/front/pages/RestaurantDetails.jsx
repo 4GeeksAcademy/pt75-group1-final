@@ -676,25 +676,57 @@ export const RestaurantDetails = () => {
 
         </section>
 
-        {/* -----------------------Action Buttons----------------------- */}
-        <section className="container py-3">
-          <div className="d-flex flex-column align-items-center gap-3">
-            <div>
-              <h5>Select Reservation Date & Time:</h5>
-              <DatePicker
-                selected={reservationDate}
-                onChange={(date) => setReservationDate(date)}
-                showTimeSelect
-                minDate={new Date()}
-                dateFormat="Pp"
-                className="form-control"
-              />
-            </div>
-            <button className="btn btn-dark" onClick={handleReservation}>
-              Confirm Reservation
-            </button>
-          </div>
-        </section>
+       {/* -----------------------Action Buttons----------------------- */}
+<section className="container py-3">
+  <div className="d-flex flex-column align-items-center gap-3">
+    <div>
+      <h5>Select Reservation Date & Time:</h5>
+
+      {(() => {
+        const today = new Date().getDay(); // 0 = Sunday, 1 = Monday, etc
+        const openRanges = restaurant?.hours?.week_ranges?.[today];
+
+        // Helper to convert minutes into a Date object
+        const minutesToDate = (minutes) => {
+          const date = new Date();
+          date.setHours(Math.floor(minutes / 60));
+          date.setMinutes(minutes % 60);
+          date.setSeconds(0);
+          date.setMilliseconds(0);
+          return date;
+        };
+
+        // Set default times based on open hours if available
+        const minTime = openRanges?.[0]
+          ? minutesToDate(openRanges[0].open_time)
+          : new Date(new Date().setHours(10, 0)); // fallback 10:00 AM
+
+        const maxTime = openRanges?.[0]
+          ? minutesToDate(openRanges[0].close_time)
+          : new Date(new Date().setHours(22, 0)); // fallback 10:00 PM
+
+        return (
+          <DatePicker
+            selected={reservationDate}
+            onChange={(date) => setReservationDate(date)}
+            showTimeSelect
+            inline
+            minDate={new Date()}
+            minTime={minTime}
+            maxTime={maxTime}
+            dateFormat="Pp"
+            className="form-control"
+          />
+        );
+      })()}
+    </div>
+
+    <button className="btn btn-dark" onClick={handleReservation}>
+      Confirm Reservation
+    </button>
+  </div>
+</section>
+
 
 
 
