@@ -13,7 +13,7 @@ const Profile = () => {
   const [profilePic, setProfilePic] = useState(null);
   const [userReviews, setUserReviews] = useState([]);
   const navigate = useNavigate();
-  
+
   // Create a local copy of favorites to prevent issues with reactivity
   const [localFavorites, setLocalFavorites] = useState([]);
 
@@ -58,7 +58,7 @@ const Profile = () => {
         localStorage.removeItem("access_token");
         setLoading(false);
       });
-      
+
     // Load user reviews from localStorage
     const savedReviews = localStorage.getItem("user_reviews");
     if (savedReviews) {
@@ -79,19 +79,19 @@ const Profile = () => {
           console.log("No token found, skipping favorites fetch");
           return;
         }
-  
+
         console.log("Fetching favorites from backend...");
         const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/user/favorites`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-  
+
         if (!res.ok) throw new Error(`Failed to fetch favorites: ${res.status}`);
-        
+
         const data = await res.json();
         console.log("Profile - Fetched favorites:", data);
-        
+
         // Check if data.favorites is an array and not null/undefined
         if (data && Array.isArray(data.favorites)) {
           // Update both local state and global store
@@ -110,7 +110,7 @@ const Profile = () => {
         dispatch({ type: "SET_FAVORITES", payload: [] });
       }
     };
-  
+
     fetchFavorites();
   }, [dispatch]);
 
@@ -119,6 +119,34 @@ const Profile = () => {
       setProfilePic(localUser.profile_picture);
     }
   }, [localUser]);
+
+  useEffect(() => {
+    const fetchReservations = async () => {
+      const token = localStorage.getItem("access_token");
+      if (!token) return;
+
+      try {
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/user/reservations`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!res.ok) throw new Error("Failed to fetch reservations");
+
+        const reservations = await res.json(); // ✅ define this first
+        console.log("🧾 API returned reservations:", reservations); // ✅ now safe to use it
+
+        dispatch({ type: "SET_RESERVATIONS", payload: reservations });
+
+      } catch (err) {
+        console.error("Failed to fetch reservations:", err);
+      }
+    };
+
+    fetchReservations();
+  }, [dispatch]);
+
 
   // Get initials from either localUser or store.user
   const getInitials = () => {
@@ -292,7 +320,7 @@ const Profile = () => {
       const updatedFavorites = localFavorites.filter(fav => fav.favorite_id !== favoriteId);
       setLocalFavorites(updatedFavorites);
       dispatch({ type: "SET_FAVORITES", payload: updatedFavorites });
-      
+
       console.log("Favorite removed successfully");
     } catch (err) {
       console.error("Failed to remove favorite:", err);
@@ -304,11 +332,11 @@ const Profile = () => {
     // Create a new array without the removed favorite
     const newFavorites = [...localFavorites];
     newFavorites.splice(index, 1); // Remove just the item at the specified index
-    
+
     // Update both local state and global store
     setLocalFavorites(newFavorites);
     dispatch({ type: 'SET_FAVORITES', payload: newFavorites });
-    
+
     console.log("Local favorite removed");
   };
 
@@ -845,16 +873,47 @@ const Profile = () => {
             ))}
           </div>
 
-          {/* Reservations Section */}
-          <h4 className="section-title text-center">Manage Reservations</h4>
-          <div className="list-group mb-4">
-            <div className="list-group-item text-center py-4">
-              <p className="mb-3">You don't have any reservations yet.</p>
-              <Link to="/restaurants" className="btn btn-outline-dark">
-                Find Restaurants
-              </Link>
-            </div>
-          </div>
+          <section className="mt-5">
+            <h4 className="section-title text-center">Your Reservations</h4>
+            <ul className="list-group">
+              {(store.reservations || []).map((res) => (
+                <li key={res.id} className="list-group-item d-flex justify-content-between align-items-center">
+                  <div>
+                    <strong>Reservation at {res.restaurant_name}</strong><br />
+                    <span className="text-muted">{new Date(res.reservation_time).toLocaleString()}</span>
+                    <Link
+                      to={`/restaurant/${res.restaurant_id}`}
+                      className="btn btn-sm btn-outline-secondary mt-2"
+                    >
+                      View Details
+                    </Link>
+
+                  </div>
+
+                  <button
+                    className="btn btn-sm btn-outline-danger"
+                    onClick={async () => {
+                      const token = localStorage.getItem("access_token");
+                      await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/reservation/${res.id}`, {
+                        method: "DELETE",
+                        headers: { Authorization: `Bearer ${token}` }
+                      });
+                      dispatch({
+                        type: "SET_RESERVATIONS",
+                        payload: store.reservations.filter(r => r.id !== res.id)
+                      });
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </li>
+              ))}
+              {store.reservations?.length === 0 && (
+                <li className="list-group-item text-center">No reservations found.</li>
+              )}
+            </ul>
+          </section>
+
 
           {/* User Reviews */}
           <h4 className="section-title text-center">Your Reviews</h4>
@@ -874,13 +933,13 @@ const Profile = () => {
                   <div className="d-flex justify-content-between align-items-center">
                     <small className="text-muted">{new Date(review.date).toLocaleDateString()}</small>
                     <div>
-                      <button 
+                      <button
                         className="btn btn-sm btn-outline-dark mx-1"
                         onClick={() => handleEditReview(review.id)}
                       >
                         Edit
                       </button>
-                      <button 
+                      <button
                         className="btn btn-sm btn-outline-danger mx-1"
                         onClick={() => handleDeleteReview(review.id)}
                       >

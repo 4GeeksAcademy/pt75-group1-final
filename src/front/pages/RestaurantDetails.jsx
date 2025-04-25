@@ -9,7 +9,8 @@ import ReviewModal from "../components/ReviewModal";
 import PageWrapper from "../components/PageWrapper";
 import HoursTable from "../components/restaurant/HoursTable";
 import LocationMap from "../components/restaurant/LocationMap";
-
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 
 export const RestaurantDetails = () => {
@@ -32,6 +33,37 @@ export const RestaurantDetails = () => {
   const [selectedReview, setSelectedReview] = useState(null);
   const [showAllReviews, setShowAllReviews] = useState(false);
   const [isReturningFromDetails, setIsReturningFromDetails] = useState(false);
+
+  const [reservationDate, setReservationDate] = useState(new Date());
+  const handleReservation = async () => {
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      alert("You must be logged in to make a reservation.");
+      return;
+    }
+
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/reservation`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        restaurant_id: restaurant.location_id || restaurant.id,
+        restaurant_name: restaurant.name,
+        reservation_time: reservationDate.toISOString()
+      })
+      
+      
+    });
+
+    const result = await response.json();
+    if (response.ok) {
+      alert("Reservation confirmed!");
+    } else {
+      alert("Reservation failed: " + (result.msg || "Unknown error"));
+    }
+  };
 
 
   // Get the restaurant data - either from static data or from API
@@ -644,13 +676,58 @@ export const RestaurantDetails = () => {
 
         </section>
 
-        {/* -----------------------Action Buttons----------------------- */}
-        <section className="container py-3">
-          <div className="d-flex justify-content-center gap-3">
-            <button className="btn btn-outline-dark">Save</button>
-            <button className="btn btn-dark">Make Reservation</button>
-          </div>
-        </section>
+       {/* -----------------------Action Buttons----------------------- */}
+<section className="container py-3">
+  <div className="d-flex flex-column align-items-center gap-3">
+    <div>
+      <h5>Select Reservation Date & Time:</h5>
+
+      {(() => {
+        const today = new Date().getDay(); // 0 = Sunday, 1 = Monday, etc
+        const openRanges = restaurant?.hours?.week_ranges?.[today];
+
+        // Helper to convert minutes into a Date object
+        const minutesToDate = (minutes) => {
+          const date = new Date();
+          date.setHours(Math.floor(minutes / 60));
+          date.setMinutes(minutes % 60);
+          date.setSeconds(0);
+          date.setMilliseconds(0);
+          return date;
+        };
+
+        // Set default times based on open hours if available
+        const minTime = openRanges?.[0]
+          ? minutesToDate(openRanges[0].open_time)
+          : new Date(new Date().setHours(10, 0)); // fallback 10:00 AM
+
+        const maxTime = openRanges?.[0]
+          ? minutesToDate(openRanges[0].close_time)
+          : new Date(new Date().setHours(22, 0)); // fallback 10:00 PM
+
+        return (
+          <DatePicker
+            selected={reservationDate}
+            onChange={(date) => setReservationDate(date)}
+            showTimeSelect
+            inline
+            minDate={new Date()}
+            minTime={minTime}
+            maxTime={maxTime}
+            dateFormat="Pp"
+            className="form-control"
+          />
+        );
+      })()}
+    </div>
+
+    <button className="btn btn-dark" onClick={handleReservation}>
+      Confirm Reservation
+    </button>
+  </div>
+</section>
+
+
 
 
         {/* -----------------------Meal Type Icons - Circular Bubbles----------------------- */}

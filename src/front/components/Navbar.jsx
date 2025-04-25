@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import useGlobalReducer from "../hooks/useGlobalReducer";
+import logo from "../assets/img/solo.png"; // adjust path if needed
+
 
 const Navbar = () => {
   const { store, dispatch } = useGlobalReducer();
@@ -28,7 +30,12 @@ const Navbar = () => {
     <div className="navbar-wrapper position-relative">
       <nav className="navbar navbar-expand-lg navbar-light bg-light fixed-top shadow-sm">
         <div className="container">
-          <Link to="/" className="navbar-brand fw-bold">BiteFinder</Link>
+          
+          <Link to="/" className="navbar-brand fw-bold">
+          
+          <img src={logo} alt="Logo" height="60" className="navbar-logo me-2" />
+          BiteFinder
+          </Link>
 
           <button
             className="navbar-toggler"
@@ -54,12 +61,12 @@ const Navbar = () => {
                 <Link className="nav-link" to="/write-review">Write a Review</Link>
               </li>
               <li className="nav-item dropdown">
-                <a 
-                  className="nav-link dropdown-toggle" 
-                  href="#" 
-                  id="navbarDropdown" 
-                  role="button" 
-                  data-bs-toggle="dropdown" 
+                <a
+                  className="nav-link dropdown-toggle"
+                  href="#"
+                  id="navbarDropdown"
+                  role="button"
+                  data-bs-toggle="dropdown"
                   aria-expanded="false"
                 >
                   More
@@ -106,7 +113,6 @@ const Navbar = () => {
                 </button>
                 <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                   <li>
-                    {/* Use Link instead of button with navigate */}
                     <Link className="dropdown-item" to="/profile">
                       Profile
                     </Link>
