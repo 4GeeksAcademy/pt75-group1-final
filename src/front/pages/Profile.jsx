@@ -280,17 +280,17 @@ const Profile = () => {
   const handleDeleteAccount = () => {
     const confirmed = window.confirm("Are you sure you want to delete your account? This will permanently remove your profile and all your data.");
     if (!confirmed) return;
-    
+
     // Log the user out regardless of delete success
     // The CORS issue prevents us from deleting on the frontend
     alert("Logging you out for account deletion. Please contact support if needed.");
-    
+
     // Clear all user data
     dispatch({ type: "LOGOUT" });
     localStorage.removeItem("access_token");
     localStorage.removeItem("user_reviews");
     sessionStorage.clear();
-    
+
     // Force a complete page reload
     window.location.href = "/";
   };
@@ -299,14 +299,14 @@ const Profile = () => {
     try {
       const token = localStorage.getItem("access_token");
       console.log(`Removing favorite with ID: ${favoriteId}`);
-      
+
       // Fix API URL with double slashes
       let apiUrl = import.meta.env.VITE_BACKEND_URL;
       // Remove trailing slash if present
       if (apiUrl.endsWith('/')) {
         apiUrl = apiUrl.slice(0, -1);
       }
-      
+
       const response = await fetch(`${apiUrl}/api/favorite/${favoriteId}`, {
         method: "DELETE",
         headers: {
@@ -348,25 +348,25 @@ const Profile = () => {
   // Function to get restaurant image with food fallbacks
   const getRestaurantImage = (restaurant, index) => {
     console.log("Restaurant data for image:", restaurant);
-    
+
     // For direct photo_url property (this is set when saving to favorites)
     if (restaurant?.photo_url && restaurant.photo_url.startsWith('http')) {
       console.log("Using photo_url:", restaurant.photo_url);
       return restaurant.photo_url;
     }
-    
+
     // For TripAdvisor API format
     if (restaurant?.photo?.images?.medium?.url) {
       console.log("Using photo.images.medium.url:", restaurant.photo.images.medium.url);
       return restaurant.photo.images.medium.url;
     }
-    
+
     // For static data format as array
     if (Array.isArray(restaurant) && restaurant[1]?.images && restaurant[1].images.length > 0) {
       console.log("Using array format image:", restaurant[1].images[0]);
       return restaurant[1].images[0];
     }
-    
+
     // Use a food fallback image based on index for variety
     console.log("No valid image found, using fallback food image");
     return getRandomFoodImage(index);
@@ -410,11 +410,11 @@ const Profile = () => {
     }
     return "N/A";
   };
-  
+
   // IMPROVED: Try to find city/location coordinates from address
   const extractCoordinatesFromAddress = (address) => {
     if (!address) return null;
-    
+
     // Check for some major cities and return their coordinates
     const cityCoordinates = {
       'new york': { lat: 40.7128, lng: -74.0060 },
@@ -435,7 +435,7 @@ const Profile = () => {
       'denver': { lat: 39.7392, lng: -104.9903 },
       'atlanta': { lat: 33.7490, lng: -84.3880 },
     };
-    
+
     // Look for a known city in the address
     const addressLower = address.toLowerCase();
     for (const city in cityCoordinates) {
@@ -444,7 +444,7 @@ const Profile = () => {
         return cityCoordinates[city];
       }
     }
-    
+
     // Try to extract US state and use its approximate coordinates
     const stateCoordinates = {
       'AL': { lat: 32.7794, lng: -86.8287 }, // Alabama
@@ -498,7 +498,7 @@ const Profile = () => {
       'WI': { lat: 44.6243, lng: -89.9941 }, // Wisconsin
       'WY': { lat: 42.9957, lng: -107.5512 }, // Wyoming
     };
-    
+
     // Look for a state abbreviation in the address (e.g., "NY" or "CA")
     const stateRegex = /\b([A-Z]{2})\b/;
     const stateMatch = address.match(stateRegex);
@@ -506,183 +506,260 @@ const Profile = () => {
       console.log(`Found coordinates for state: ${stateMatch[1]} in address: ${address}`);
       return stateCoordinates[stateMatch[1]];
     }
-    
+
     // If no match, return null
     return null;
   };
 
   // FIXED: Completely reworked handleViewDetails for proper data passing
-  const handleViewDetails = (favorite) => {
+  // const handleViewDetails = (favorite) => {
+  //   try {
+  //     console.log("Viewing details for favorite:", favorite);
+  //     // For static data - standard handling
+  //     if (Array.isArray(favorite)) {
+  //       const [id, _] = favorite;
+  //       sessionStorage.setItem('viewingRestaurantDetails', 'true');
+  //       navigate(`/restaurant/${id}`);
+  //       return;
+  //     }
+
+  //     // For API data, we need to create a complete restaurant object
+  //     // This is critical: we need to make sure it has all the expected fields
+  //     // and structure that the RestaurantDetails component expects
+
+  //     // First, create the photo structure
+  //     const photoUrl = favorite.photo_url || getRandomFoodImage(0);
+  //     const photo = {
+  //       images: {
+  //         large: { url: photoUrl },
+  //         medium: { url: photoUrl }
+  //       }
+  //     };
+
+  //     // Create photos array for additional images
+  //     const photos = [
+  //       { images: { large: { url: photoUrl }, medium: { url: photoUrl } } }
+  //     ];
+
+  //     // Create the hours structure
+  //     const hours = {
+  //       weekday_text: [
+  //         "Monday: 9:00 AM - 10:00 PM",
+  //         "Tuesday: 9:00 AM - 10:00 PM",
+  //         "Wednesday: 9:00 AM - 10:00 PM",
+  //         "Thursday: 9:00 AM - 10:00 PM",
+  //         "Friday: 9:00 AM - 11:00 PM",
+  //         "Saturday: 9:00 AM - 11:00 PM", 
+  //         "Sunday: 9:00 AM - 10:00 PM"
+  //       ]
+  //     };
+
+  //     // Try to get coordinates from the address
+  //     let coordinates = null;
+
+  //     // First check if we already have coordinates in the favorite object
+  //     if (favorite.latitude && favorite.longitude) {
+  //       coordinates = {
+  //         lat: parseFloat(favorite.latitude),
+  //         lng: parseFloat(favorite.longitude)
+  //       };
+  //       console.log("Using explicit coordinates from favorite:", coordinates);
+  //     }
+  //     // Check if we have location.lat/lng
+  //     else if (favorite.location && favorite.location.lat && favorite.location.lng) {
+  //       coordinates = {
+  //         lat: parseFloat(favorite.location.lat),
+  //         lng: parseFloat(favorite.location.lng)
+  //       };
+  //       console.log("Using location.lat/lng coordinates:", coordinates);
+  //     }
+  //     // Try to extract from address
+  //     else if (favorite.address) {
+  //       const extractedCoords = extractCoordinatesFromAddress(favorite.address);
+  //       if (extractedCoords) {
+  //         coordinates = extractedCoords;
+  //         console.log("Using coordinates extracted from address:", coordinates);
+  //       }
+  //     }
+
+  //     // If still no coordinates, use a default
+  //     if (!coordinates) {
+  //       // Use a more general USA coordinate instead of NYC
+  //       coordinates = { lat: 39.8283, lng: -98.5795 }; // Center of USA
+  //       console.log("Using default USA coordinates:", coordinates);
+  //     }
+
+  //     // Create complete restaurant object
+  //     const apiRestaurant = {
+  //       // Core identifiers
+  //       id: favorite.restaurant_id || favorite.location_id || `api-${Date.now()}`,
+  //       location_id: favorite.restaurant_id || favorite.location_id || `api-${Date.now()}`,
+  //       name: favorite.name || "Restaurant",
+
+  //       // Visual content
+  //       photo: photo,
+  //       photos: photos,
+
+  //       // Restaurant info
+  //       description: "This restaurant is one of your favorites. Unfortunately, we don't have a detailed description available.",
+  //       cuisine: Array.isArray(favorite.cuisine) 
+  //         ? favorite.cuisine 
+  //         : [{ name: favorite.cuisine || "Various Cuisine" }],
+  //       cuisine_type: favorite.cuisine || "Various",
+
+  //       // Metadata
+  //       rating: favorite.rating || 4.5,
+  //       address: favorite.address || "Address not available",
+
+  //       // Location with proper lat/lng coordinates structure for Google Maps
+  //       location: { 
+  //         address: favorite.address || "Address not available",
+  //         latitude: coordinates.lat,
+  //         longitude: coordinates.lng,
+  //         lat: coordinates.lat,
+  //         lng: coordinates.lng,
+  //         coords: coordinates
+  //       },
+
+  //       // Add direct lat/lng properties that some map components might use
+  //       latitude: coordinates.lat,
+  //       longitude: coordinates.lng,
+  //       lat: coordinates.lat,
+  //       lng: coordinates.lng,
+
+  //       // Price information
+  //       price: favorite.price || "$",
+  //       normalizedPrice: favorite.price || "$",
+  //       normalizedRating: favorite.rating || 4.5,
+
+  //       // Status info
+  //       hours: hours,
+  //       hours_str: favorite.hours || "Hours information not available",
+  //       is_open: favorite.is_open || false,
+  //       normalizedOpenNow: favorite.is_open || false,
+  //       open_now: favorite.is_open || false,
+
+  //       // Additional info
+  //       website: favorite.website || "",
+  //       phone: favorite.phone || "",
+  //       email: favorite.email || "",
+
+  //       // Features and amenities
+  //       signature_dishes: ["Signature dish information not available"],
+  //       features: ["Free Wi-Fi", "Outdoor Seating"],
+  //       amenities: ["Parking Available", "Wheelchair Accessible"],
+
+  //       // Delivery info
+  //       normalizedDelivery: favorite.delivers || false,
+  //       offers_delivery: favorite.delivers || false,
+
+  //       // Important flag for RestaurantDetails component
+  //       favorite_id: favorite.favorite_id
+  //     };
+
+  //     console.log("Created complete API restaurant object with coordinates:", apiRestaurant);
+
+  //     // Critical: Store the COMPLETE restaurant data in sessionStorage
+  //     sessionStorage.setItem('apiRestaurantDetails', JSON.stringify(apiRestaurant));
+  //     sessionStorage.setItem('viewingRestaurantDetails', 'true');
+
+  //     // Navigate to the restaurant details page with the proper state
+  //     const tempId = apiRestaurant.location_id || apiRestaurant.id;
+  //     navigate(`/restaurant/${tempId}`, { 
+  //       state: { 
+  //         isApiData: true,
+  //         restaurant: apiRestaurant // Pass the restaurant object directly in state
+  //       }
+  //     });
+
+  //   } catch (error) {
+  //     console.error("Error navigating to restaurant details:", error);
+  //     alert("Failed to view restaurant details. Please try again.");
+  //   }
+  // };
+  // const handleViewDetails = (favorite) => {
+  //   try {
+  //     console.log("Viewing details for favorite:", favorite);
+
+  //     // If already a full object (has id or location_id), just save it and navigate
+  //     if (favorite.location_id || favorite.restaurant_id) {
+  //       console.log("✅ Already a valid restaurant object, saving to sessionStorage.");
+  //       sessionStorage.setItem('apiRestaurantDetails', JSON.stringify(favorite));
+  //       sessionStorage.setItem('viewingRestaurantDetails', 'true');
+  //       const tempId = favorite.location_id || favorite.restaurant_id;
+  //       navigate(`/restaurant/${tempId}`, {
+  //         state: { isApiData: true }
+  //       });
+  //       return;
+  //     }
+
+  //     // Otherwise fallback (very rare case)
+  //     console.warn("⚠️ Favorite missing location_id, creating fallback restaurant object.");
+
+  //     const fallbackRestaurant = {
+  //       location_id: `fallback-${Date.now()}`,
+  //       name: favorite.name || "Restaurant",
+  //       photo: { images: { large: { url: favorite.photo_url || "https://placehold.co/800x600/gray/white?text=Restaurant" } } },
+  //       photos: [{ images: { large: { url: favorite.photo_url || "https://placehold.co/800x600/gray/white?text=Restaurant" } } }],
+  //       address: favorite.address || "Address not available",
+  //       cuisine: [{ name: favorite.cuisine || "Cuisine" }],
+  //       rating: favorite.rating || "N/A",
+  //       price: favorite.price || "$",
+  //       description: "This restaurant is one of your favorites. Unfortunately, we don't have more data.",
+  //       website: favorite.website || "",
+  //       phone: favorite.phone || "",
+  //       latitude: favorite.latitude || 39.8283,  // Center USA
+  //       longitude: favorite.longitude || -98.5795,
+  //       location: {
+  //         address: favorite.address || "Address not available",
+  //         lat: favorite.latitude || 39.8283,
+  //         lng: favorite.longitude || -98.5795
+  //       }
+  //     };
+
+  //     sessionStorage.setItem('apiRestaurantDetails', JSON.stringify(fallbackRestaurant));
+  //     sessionStorage.setItem('viewingRestaurantDetails', 'true');
+  //     navigate(`/restaurant/${fallbackRestaurant.location_id}`, {
+  //       state: { isApiData: true }
+  //     });
+
+  //   } catch (error) {
+  //     console.error("Error navigating to restaurant details:", error);
+  //     alert("Failed to view restaurant details. Please try again.");
+  //   }
+  // };
+
+  const handleViewDetails = (restaurant) => {
     try {
-      console.log("Viewing details for favorite:", favorite);
-      
-      // For static data - standard handling
-      if (Array.isArray(favorite)) {
-        const [id, _] = favorite;
-        sessionStorage.setItem('viewingRestaurantDetails', 'true');
-        navigate(`/restaurant/${id}`);
+      console.log("Viewing details for restaurant:", restaurant);
+
+      const locationId = restaurant.location_id || restaurant.restaurant_id;
+
+      if (!locationId) {
+        console.error("Restaurant does not have a valid ID");
+        alert("This restaurant doesn't have enough information to view details.");
         return;
       }
-      
-      // For API data, we need to create a complete restaurant object
-      // This is critical: we need to make sure it has all the expected fields
-      // and structure that the RestaurantDetails component expects
-      
-      // First, create the photo structure
-      const photoUrl = favorite.photo_url || getRandomFoodImage(0);
-      const photo = {
-        images: {
-          large: { url: photoUrl },
-          medium: { url: photoUrl }
-        }
-      };
-      
-      // Create photos array for additional images
-      const photos = [
-        { images: { large: { url: photoUrl }, medium: { url: photoUrl } } }
-      ];
-      
-      // Create the hours structure
-      const hours = {
-        weekday_text: [
-          "Monday: 9:00 AM - 10:00 PM",
-          "Tuesday: 9:00 AM - 10:00 PM",
-          "Wednesday: 9:00 AM - 10:00 PM",
-          "Thursday: 9:00 AM - 10:00 PM",
-          "Friday: 9:00 AM - 11:00 PM",
-          "Saturday: 9:00 AM - 11:00 PM", 
-          "Sunday: 9:00 AM - 10:00 PM"
-        ]
-      };
-      
-      // Try to get coordinates from the address
-      let coordinates = null;
-      
-      // First check if we already have coordinates in the favorite object
-      if (favorite.latitude && favorite.longitude) {
-        coordinates = {
-          lat: parseFloat(favorite.latitude),
-          lng: parseFloat(favorite.longitude)
-        };
-        console.log("Using explicit coordinates from favorite:", coordinates);
-      }
-      // Check if we have location.lat/lng
-      else if (favorite.location && favorite.location.lat && favorite.location.lng) {
-        coordinates = {
-          lat: parseFloat(favorite.location.lat),
-          lng: parseFloat(favorite.location.lng)
-        };
-        console.log("Using location.lat/lng coordinates:", coordinates);
-      }
-      // Try to extract from address
-      else if (favorite.address) {
-        const extractedCoords = extractCoordinatesFromAddress(favorite.address);
-        if (extractedCoords) {
-          coordinates = extractedCoords;
-          console.log("Using coordinates extracted from address:", coordinates);
-        }
-      }
-      
-      // If still no coordinates, use a default
-      if (!coordinates) {
-        // Use a more general USA coordinate instead of NYC
-        coordinates = { lat: 39.8283, lng: -98.5795 }; // Center of USA
-        console.log("Using default USA coordinates:", coordinates);
-      }
-      
-      // Create complete restaurant object
-      const apiRestaurant = {
-        // Core identifiers
-        id: favorite.restaurant_id || favorite.location_id || `api-${Date.now()}`,
-        location_id: favorite.restaurant_id || favorite.location_id || `api-${Date.now()}`,
-        name: favorite.name || "Restaurant",
-        
-        // Visual content
-        photo: photo,
-        photos: photos,
-        
-        // Restaurant info
-        description: "This restaurant is one of your favorites. Unfortunately, we don't have a detailed description available.",
-        cuisine: Array.isArray(favorite.cuisine) 
-          ? favorite.cuisine 
-          : [{ name: favorite.cuisine || "Various Cuisine" }],
-        cuisine_type: favorite.cuisine || "Various",
-        
-        // Metadata
-        rating: favorite.rating || 4.5,
-        address: favorite.address || "Address not available",
-        
-        // Location with proper lat/lng coordinates structure for Google Maps
-        location: { 
-          address: favorite.address || "Address not available",
-          latitude: coordinates.lat,
-          longitude: coordinates.lng,
-          lat: coordinates.lat,
-          lng: coordinates.lng,
-          coords: coordinates
-        },
-        
-        // Add direct lat/lng properties that some map components might use
-        latitude: coordinates.lat,
-        longitude: coordinates.lng,
-        lat: coordinates.lat,
-        lng: coordinates.lng,
-        
-        // Price information
-        price: favorite.price || "$",
-        normalizedPrice: favorite.price || "$",
-        normalizedRating: favorite.rating || 4.5,
-        
-        // Status info
-        hours: hours,
-        hours_str: favorite.hours || "Hours information not available",
-        is_open: favorite.is_open || false,
-        normalizedOpenNow: favorite.is_open || false,
-        open_now: favorite.is_open || false,
-        
-        // Additional info
-        website: favorite.website || "",
-        phone: favorite.phone || "",
-        email: favorite.email || "",
-        
-        // Features and amenities
-        signature_dishes: ["Signature dish information not available"],
-        features: ["Free Wi-Fi", "Outdoor Seating"],
-        amenities: ["Parking Available", "Wheelchair Accessible"],
-        
-        // Delivery info
-        normalizedDelivery: favorite.delivers || false,
-        offers_delivery: favorite.delivers || false,
-        
-        // Important flag for RestaurantDetails component
-        favorite_id: favorite.favorite_id
-      };
-      
-      console.log("Created complete API restaurant object with coordinates:", apiRestaurant);
-      
-      // Critical: Store the COMPLETE restaurant data in sessionStorage
-      sessionStorage.setItem('apiRestaurantDetails', JSON.stringify(apiRestaurant));
+
+      // Save the restaurant data into sessionStorage
+      sessionStorage.setItem('apiRestaurantDetails', JSON.stringify(restaurant));
       sessionStorage.setItem('viewingRestaurantDetails', 'true');
-      
-      // Navigate to the restaurant details page with the proper state
-      const tempId = apiRestaurant.location_id || apiRestaurant.id;
-      navigate(`/restaurant/${tempId}`, { 
-        state: { 
-          isApiData: true,
-          restaurant: apiRestaurant // Pass the restaurant object directly in state
-        }
+
+      // Navigate to RestaurantDetails page using the real locationId
+      navigate(`/restaurant/${locationId}`, {
+        state: { isApiData: true, restaurant: restaurant }
       });
-      
     } catch (error) {
       console.error("Error navigating to restaurant details:", error);
       alert("Failed to view restaurant details. Please try again.");
     }
   };
 
+
   // Handle deleting a review
   const handleDeleteReview = (reviewId) => {
     if (!window.confirm("Are you sure you want to delete this review?")) return;
-    
+
     const updatedReviews = userReviews.filter(review => review.id !== reviewId);
     setUserReviews(updatedReviews);
     localStorage.setItem("user_reviews", JSON.stringify(updatedReviews));
@@ -705,6 +782,48 @@ const Profile = () => {
   if (localFavorites.length > 0) {
     console.log("First favorite structure:", JSON.stringify(localFavorites[0], null, 2));
   }
+  const handleReservationViewDetails = (reservation) => {
+    try {
+      console.log("Viewing details for reservation:", reservation);
+  
+      const restaurant = {
+        id: reservation.restaurant_id,
+        location_id: reservation.restaurant_id,
+        name: reservation.restaurant_name || "Restaurant",
+        address: reservation.restaurant_address || "Address not available",
+        cuisine: reservation.restaurant_cuisine || "Cuisine not available",
+        rating: reservation.restaurant_rating || "N/A",
+        price: reservation.restaurant_price || "$$",
+        photo: {
+          images: {
+            medium: {
+              url: reservation.restaurant_photo_url || "https://via.placeholder.com/400x200?text=No+Image"
+            }
+          }
+        },
+        normalizedPrice: reservation.restaurant_price || "$$",
+        normalizedRating: reservation.restaurant_rating || "N/A",
+        normalizedOpenNow: true,
+        normalizedDelivery: false,
+        website: reservation.restaurant_website || "",
+        location: {
+          address: reservation.restaurant_address || "Address not available",
+          lat: reservation.latitude || 0,
+          lng: reservation.longitude || 0
+        }
+      };
+  
+      sessionStorage.setItem('apiRestaurantDetails', JSON.stringify(restaurant));
+      sessionStorage.setItem('viewingRestaurantDetails', 'true');
+  
+      const tempId = restaurant.location_id || restaurant.id || `api-${Date.now()}`;
+      navigate(`/restaurant/${tempId}`, { state: { isApiData: true } });
+  
+    } catch (error) {
+      console.error("Error handling reservation view details:", error);
+      alert("Failed to view reservation details.");
+    }
+  };
 
   return (
     <PageWrapper>
@@ -828,51 +947,73 @@ const Profile = () => {
                     <p className="card-text">
                       {getRestaurantLocation(fav)} <br />
                       {fav.cuisine && <><strong>{fav.cuisine}</strong> • </>}
-                      ⭐ {getRestaurantRating(fav)} 
+                      ⭐ {getRestaurantRating(fav)}
                       {fav.price && <> • {fav.price}</>}
                       <br />
                       {fav.is_open && <span className="text-success">Open Now • </span>}
                       {fav.delivers && <span className="text-primary">Delivers</span>}
                     </p>
                     <div className="d-flex justify-content-around">
-                      {/* Match button layout from Restaurants.jsx exactly */}
-                      <button
-                        className="btn btn-sm btn-dark"
-                        onClick={() => handleViewDetails(fav)}
-                      >
-                        Details
-                      </button>
+                      <div className="d-flex justify-content-between mt-auto">
+                        <button
+                          className="btn btn-sm btn-outline-dark"
+                          onClick={() => {
+                            const favorite = fav;
 
-                      {/* Favorite button - styled to match Restaurants.jsx */}
-                      <button
-                        className="btn btn-sm btn-danger"
-                        onClick={() =>
-                          fav.favorite_id
-                            ? handleRemoveFavorite(fav.favorite_id)
-                            : removeFavorite(fav, index)
-                        }
-                      >
-                        <i className="fas fa-heart"></i>
-                      </button>
+                            // If it's a static restaurant
+                            if (Array.isArray(favorite)) {
+                              const [id] = favorite;
+                              navigate(`/restaurant/${id}`);
+                              return;
+                            }
 
-                      {/* Website button - only shown if website exists */}
-                      {fav.website && fav.website.startsWith("http") && (
-                        <a
-                          href={fav.website}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="btn btn-sm btn-outline-secondary"
+                            // If it's an API restaurant (saved favorite)
+                            if (favorite.favorite_id) {
+                              // Build a minimal restaurant object to store temporarily
+                              const apiRestaurant = {
+                                id: favorite.restaurant_id || favorite.location_id,
+                                location_id: favorite.restaurant_id || favorite.location_id,
+                                name: favorite.name,
+                                photo_url: favorite.photo_url,
+                                price: favorite.price,
+                                cuisine: favorite.cuisine,
+                                rating: favorite.rating,
+                                address: favorite.address,
+                                is_open: favorite.is_open,
+                                delivers: favorite.delivers,
+                                website: favorite.website
+                              };
+
+                              sessionStorage.setItem('apiRestaurantDetails', JSON.stringify(apiRestaurant));
+                              sessionStorage.setItem('viewingRestaurantDetails', 'true');
+
+                              navigate(`/restaurant/${apiRestaurant.location_id || apiRestaurant.id}`, {
+                                state: { isApiData: true, restaurant: apiRestaurant }
+                              });
+                            }
+                          }}
                         >
-                          Website
-                        </a>
-                      )}
+                          View Details
+                        </button>
+
+                        <button
+                          className="btn btn-sm btn-outline-danger"
+                          onClick={() =>
+                            fav.favorite_id
+                              ? handleRemoveFavorite(fav.favorite_id)
+                              : removeFavorite(fav, index)
+                          }
+                        >
+                          <i className="fas fa-trash-alt"></i> Remove
+                        </button>
+                      </div>
+
                     </div>
                   </div>
                 </div>
               </div>
             ))}
           </div>
-
           <section className="mt-5">
             <h4 className="section-title text-center">Your Reservations</h4>
             <ul className="list-group">
@@ -881,12 +1022,44 @@ const Profile = () => {
                   <div>
                     <strong>Reservation at {res.restaurant_name}</strong><br />
                     <span className="text-muted">{new Date(res.reservation_time).toLocaleString()}</span>
-                    <Link
-                      to={`/restaurant/${res.restaurant_id}`}
+
+                    <button
                       className="btn btn-sm btn-outline-secondary mt-2"
+                      onClick={() => {
+                        const reservation = res; // shorter name
+                        const apiRestaurant = {
+                          location_id: reservation.restaurant_id?.toString() || `api-${Date.now()}`,
+                          name: reservation.restaurant_name || "Unknown Restaurant",
+                          photo: {
+                            images: {
+                              large: {
+                                url: "https://via.placeholder.com/400x200?text=Restaurant+Image"
+                              }
+                            }
+                          },
+                          photos: [],
+                          cuisine: [{ name: "Various" }],
+                          description: "No description available for this restaurant.",
+                          rating: "4.5",
+                          price: "$$",
+                          address: "Address not available",
+                          is_open: true,
+                          favorite_id: null
+                        };
+
+                        // Save to sessionStorage like Restaurants.jsx does
+                        sessionStorage.setItem('apiRestaurantDetails', JSON.stringify(apiRestaurant));
+                        sessionStorage.setItem('viewingRestaurantDetails', 'true');
+
+                        navigate(`/restaurant/${apiRestaurant.location_id}`, {
+                          state: { isApiData: true }
+                        });
+                      }}
                     >
                       View Details
-                    </Link>
+                    </button>
+
+
 
                   </div>
 
@@ -913,6 +1086,9 @@ const Profile = () => {
               )}
             </ul>
           </section>
+
+         
+          
 
 
           {/* User Reviews */}

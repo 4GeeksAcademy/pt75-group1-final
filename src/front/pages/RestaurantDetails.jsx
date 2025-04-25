@@ -191,9 +191,9 @@ export const RestaurantDetails = () => {
         return photoUrls;
       } else {
         return [
-          "https://placehold.co/800x600/gray/white?text=Restaurant+Photo+1",
-          "https://placehold.co/800x600/gray/white?text=Restaurant+Photo+2",
-          "https://placehold.co/800x600/gray/white?text=Restaurant+Photo+3"
+          "https://via.placeholder.com/800x600?text=No+Image+Available",
+          "https://via.placeholder.com/800x600?text=No+Image+Available",
+          "https://via.placeholder.com/800x600?text=No+Image+Available"
         ];
       }
     } catch (error) {
